@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const dbConnection = ()=>{
-    let connection = mongoose.connect('mongodb+srv://talhahaider:XnbdEFFxMJMSGZSf@mortalnumbercluster.8nd5mtv.mongodb.net/?retryWrites=true&w=majority')
+    let connection = mongoose.connect(process.env.mongooUrl)
     if(!connection){
         console.log('database connection failed')
     }
