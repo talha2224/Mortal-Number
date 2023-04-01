@@ -1,6 +1,5 @@
 const joi = require ('joi')
 
-
 const GameValidation = async(req,res,next)=>{
     const validate = joi.object().keys({
         id:joi.string().required(),

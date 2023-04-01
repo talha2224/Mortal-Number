@@ -24,7 +24,6 @@ const postGame = async(id,winningnumber,stake,prize,hours,minutes,seconds)=>{
         catch (error) {
             throw new ErrorResponse(error,500)
         }
-
     }
 }
 
