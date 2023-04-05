@@ -16,10 +16,6 @@ const RegisterModel = mongoose.Schema({
     password:{
         type:String,
         required:true
-    },
-    credit:{
-        type:Number,
-        required:true
     }
     
 })

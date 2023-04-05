@@ -20,8 +20,8 @@ router.post('/login',loginValidation,catchAsync( async(req,res)=>{
 // router.get('/:id')
 router.put('/:id',authorized,catchAsync(async(req,res)=>{
     let id = req.params.id
-    let {firstname,lastname,email,password,credit} = req.body
-    let updateSetter = await SetterServices.update(id,firstname,lastname,email,password,credit)
+    let {firstname,lastname,email,password} = req.body
+    let updateSetter = await SetterServices.update(id,firstname,lastname,email,password)
     res.send(updateSetter)
 }))
 

@@ -11,7 +11,7 @@ const register = async(firstname,lastname,email,password)=>{
     else{ 
         try {
             let hash = await bcrypt.hash(password,10)
-            let getter = await GetterRegisterModel.create({firstName:firstname,lastName:lastname,email:email,password:hash,credit:500})
+            let getter = await GetterRegisterModel.create({firstName:firstname,lastName:lastname,email:email,password:hash})
             if(getter){
                 let token = jwt.sign({getter},process.env.secretKey)
                 if(token){
@@ -78,7 +78,7 @@ const topRated = async()=>{
     throw new ErrorResponse("no user found please add some",404)
 }
 
-const update = async(id,firstname,lastname,email,password,credit)=>{
+const update = async(id,firstname,lastname,email,password)=>{
     if (password){
         try {
             let hash = await bcrypt.hash(password,10)
@@ -89,7 +89,6 @@ const update = async(id,firstname,lastname,email,password,credit)=>{
                         lastName:lastname,
                         email:email,
                         password:hash,
-                        credit:credit,
                     }
                 },
                 {new:true}
@@ -115,7 +114,6 @@ const update = async(id,firstname,lastname,email,password,credit)=>{
                         firstName:firstname,
                         lastName:lastname,
                         email:email,
-                        credit:credit,
                     }
                 },
                 {new:true}

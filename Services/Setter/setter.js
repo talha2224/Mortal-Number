@@ -11,7 +11,7 @@ const register = async(firstname,lastname,email,password)=>{
     else{ 
         try {
             let hash = await bcrypt.hash(password,10)
-            let setter = await SetterRegisterModel.create({firstName:firstname,lastName:lastname,email:email,password:hash,credit:500})
+            let setter = await SetterRegisterModel.create({firstName:firstname,lastName:lastname,email:email,password:hash})
             if(setter){
                 let token = jwt.sign({setter},process.env.secretKey)
                 if(token){
@@ -59,7 +59,7 @@ const login = async(email,password)=>{
     }
 }
 
-const update = async(id,firstname,lastname,email,password,credit)=>{
+const update = async(id,firstname,lastname,email,password)=>{
     if (password){
         try {
             let hash = await bcrypt.hash(password,10)
@@ -70,7 +70,6 @@ const update = async(id,firstname,lastname,email,password,credit)=>{
                         lastName:lastname,
                         email:email,
                         password:hash,
-                        credit:credit
                     }
                 },
                 {new:true}
@@ -95,7 +94,6 @@ const update = async(id,firstname,lastname,email,password,credit)=>{
                         firstName:firstname,
                         lastName:lastname,
                         email:email,
-                        credit:credit,
                     }
                 },
                 {new:true}
