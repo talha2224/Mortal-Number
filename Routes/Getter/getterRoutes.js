@@ -6,10 +6,9 @@ const router = require('express').Router()
 const authorized = require("../../Middleware/UserAuth");
 
 // REGISTER
-router.post('/register',image_upload.single('image'),registerValidation,catchAsync( async(req,res)=>{
+router.post('/register',registerValidation,catchAsync( async(req,res)=>{
     let {firstname,lastname,email,password} = req.body
-    let image = req.file.filename
-    let newSetter = await GetterServices.register(firstname,lastname,email,password,image)
+    let newSetter = await GetterServices.register(firstname,lastname,email,password)
     res.send(newSetter)
 }))
 
@@ -21,11 +20,10 @@ router.post('/login',loginValidation,catchAsync( async(req,res)=>{
 }))
 
 // UPDATE
-router.put('/:id',authorized,image_upload.single('image'),catchAsync (async(req,res)=>{
+router.put('/:id',authorized,catchAsync (async(req,res)=>{
     let id = req.params.id
-    let image = req?.file?.filename
     let {firstname,lastname,email,password,credit} = req.body
-    let updateSetter = await GetterServices.update(id,firstname,lastname,email,password,credit,image)
+    let updateSetter = await GetterServices.update(id,firstname,lastname,email,password,credit)
     res.send(updateSetter)
 }))
 

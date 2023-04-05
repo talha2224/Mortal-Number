@@ -6,10 +6,9 @@ const {image_upload} = require ('../../Multer/Setup');
 const authorized = require("../../Middleware/UserAuth");
 
 
-router.post('/register',image_upload.single('image'),registerValidation,catchAsync( async(req,res)=>{
+router.post('/register',registerValidation,catchAsync( async(req,res)=>{
     let {firstname,lastname,email,password} = req.body
-    let image = req?.file?.filename
-    let newSetter = await SetterServices.register(firstname,lastname,email,password,image)
+    let newSetter = await SetterServices.register(firstname,lastname,email,password)
     res.send(newSetter)
 }))
 
@@ -19,11 +18,10 @@ router.post('/login',loginValidation,catchAsync( async(req,res)=>{
     res.send(loginSetter)
 }))
 // router.get('/:id')
-router.put('/:id',authorized,image_upload.single('image'),catchAsync(async(req,res)=>{
+router.put('/:id',authorized,catchAsync(async(req,res)=>{
     let id = req.params.id
-    let image = req?.file?.filename
     let {firstname,lastname,email,password,credit} = req.body
-    let updateSetter = await SetterServices.update(id,firstname,lastname,email,password,credit,image)
+    let updateSetter = await SetterServices.update(id,firstname,lastname,email,password,credit)
     res.send(updateSetter)
 }))
 

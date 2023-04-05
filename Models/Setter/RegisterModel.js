@@ -20,10 +20,6 @@ const RegisterModel = mongoose.Schema({
     credit:{
         type:Number,
         required:true
-    },
-    profileImage:{
-        type:String,
-        required:true
     }
     
 })

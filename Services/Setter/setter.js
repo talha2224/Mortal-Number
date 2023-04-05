@@ -3,7 +3,7 @@ const { SetterRegisterModel } = require("../../Models");
 const bcrypt = require('bcryptjs');
 const jwt = require("jsonwebtoken");
 
-const register = async(firstname,lastname,email,password,image)=>{
+const register = async(firstname,lastname,email,password)=>{
     const findSetter = await SetterRegisterModel.findOne({email:email})
     if(findSetter){
         throw new ErrorResponse('email already registered',403)
@@ -11,7 +11,7 @@ const register = async(firstname,lastname,email,password,image)=>{
     else{ 
         try {
             let hash = await bcrypt.hash(password,10)
-            let setter = await SetterRegisterModel.create({firstName:firstname,lastName:lastname,email:email,password:hash,credit:500,profileImage:image})
+            let setter = await SetterRegisterModel.create({firstName:firstname,lastName:lastname,email:email,password:hash,credit:500})
             if(setter){
                 let token = jwt.sign({setter},process.env.secretKey)
                 if(token){
@@ -59,7 +59,7 @@ const login = async(email,password)=>{
     }
 }
 
-const update = async(id,firstname,lastname,email,password,credit,image)=>{
+const update = async(id,firstname,lastname,email,password,credit)=>{
     if (password){
         try {
             let hash = await bcrypt.hash(password,10)
@@ -70,8 +70,7 @@ const update = async(id,firstname,lastname,email,password,credit,image)=>{
                         lastName:lastname,
                         email:email,
                         password:hash,
-                        credit:credit,
-                        profileImage:image
+                        credit:credit
                     }
                 },
                 {new:true}
@@ -97,7 +96,6 @@ const update = async(id,firstname,lastname,email,password,credit,image)=>{
                         lastName:lastname,
                         email:email,
                         credit:credit,
-                        profileImage:image
                     }
                 },
                 {new:true}

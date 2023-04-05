@@ -3,7 +3,7 @@ const { GetterRegisterModel } = require("../../Models");
 const bcrypt = require('bcryptjs');
 const jwt = require("jsonwebtoken");
 
-const register = async(firstname,lastname,email,password,image)=>{
+const register = async(firstname,lastname,email,password)=>{
     const findGetter = await GetterRegisterModel.findOne({email:email})
     if(findGetter){
         throw new ErrorResponse('email already registered',403)
@@ -11,7 +11,7 @@ const register = async(firstname,lastname,email,password,image)=>{
     else{ 
         try {
             let hash = await bcrypt.hash(password,10)
-            let getter = await GetterRegisterModel.create({firstName:firstname,lastName:lastname,email:email,password:hash,credit:500,profileImage:image})
+            let getter = await GetterRegisterModel.create({firstName:firstname,lastName:lastname,email:email,password:hash,credit:500})
             if(getter){
                 let token = jwt.sign({getter},process.env.secretKey)
                 if(token){
@@ -78,7 +78,7 @@ const topRated = async()=>{
     throw new ErrorResponse("no user found please add some",404)
 }
 
-const update = async(id,firstname,lastname,email,password,credit,image)=>{
+const update = async(id,firstname,lastname,email,password,credit)=>{
     if (password){
         try {
             let hash = await bcrypt.hash(password,10)
@@ -90,7 +90,6 @@ const update = async(id,firstname,lastname,email,password,credit,image)=>{
                         email:email,
                         password:hash,
                         credit:credit,
-                        profileImage:image
                     }
                 },
                 {new:true}
@@ -117,7 +116,6 @@ const update = async(id,firstname,lastname,email,password,credit,image)=>{
                         lastName:lastname,
                         email:email,
                         credit:credit,
-                        profileImage:image
                     }
                 },
                 {new:true}
