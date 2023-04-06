@@ -29,8 +29,9 @@ const postGame = async(id,winningnumber,stake,prize,hours,minutes,seconds)=>{
 
 const getGame = async ()=>{
     try {
-        let allGame = await GameModel.find({active:true}).populate("setterId")
+        let allGame = await GameModel.find({active:true}).populate('setterId')
         if (allGame.length>0){
+            console.log(allGame)
             return allGame
         }
         else{
