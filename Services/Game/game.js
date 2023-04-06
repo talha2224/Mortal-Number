@@ -31,7 +31,6 @@ const getGame = async ()=>{
     try {
         let allGame = await GameModel.find({active:true}).populate('setterId')
         if (allGame.length>0){
-            console.log(allGame)
             return allGame
         }
         else{
@@ -45,7 +44,7 @@ const getGame = async ()=>{
 
 const singleGame = async (id)=>{
     try {
-            let singleGame = await GameModel.findOne({_id:id,active:true}).populate("setterId")
+            let singleGame = await GameModel.findOne({_id:id,active:true}).populate('setterId')
             if (singleGame){
                 return singleGame
             }
