@@ -28,6 +28,7 @@ app.use("/images",express.static('./images'))
 app.use('/api/v1/setter',require('./Routes/Setter/setterRoutes'))
 app.use('/api/v1/game',require('./Routes/Setter/gameRoutes'))
 app.use('/api/v1/profile/setter',require('./Routes/Setter/profileRoutes'))
+
 //GETTER ROUTES
 app.use('/api/v1/getter',require('./Routes/Getter/getterRoutes'))
 app.use('/api/v1/credit',require('./Routes/Getter/creditRoutes'))

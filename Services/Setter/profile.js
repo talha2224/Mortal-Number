@@ -28,9 +28,9 @@ const postProfile = async (accountId,name,email,phone,dateOfBirth,gender,country
 
 const getProfile = async (accountId)=>{
     try {
-        let find = await setterProfileModel.findOne({accountId:accountId})
+        let find = await setterProfileModel.findOne({accountId:accountId}).populate('accountId')
         if (find){
-            return {find}
+            return find
         }
         else{
             throw new ErrorResponse('invalid or wrong id no data found',404)   

@@ -1,9 +1,10 @@
+
 const { ErrorResponse } = require("../../Error/Utils")
 const { GetterCreditModel } = require("../../Models")
 
 const requestCredit = async (getterId,setterId,amount) =>{
     try {
-        let request = await GetterCreditModel.create({amount:amount,getterId:getterId,setterId:setterId})
+        let request = await GetterCreditModel.create({amount:amount,getterProfileId:getterId,setterProfileId:setterId})
         if(request){
             return request
         }
@@ -57,7 +58,7 @@ const deleteRequest = async (id)=>{
 
 const getAll = async ()=>{
     try {
-        let allRequest = await GetterCreditModel.find({}).populate('setterId').populate('getterId')
+        let allRequest = await GetterCreditModel.find({}).populate('getterProfileId').populate('setterProfileId')
         if(allRequest.length>0){
             return allRequest
         }
@@ -72,7 +73,7 @@ const getAll = async ()=>{
 
 const getSingle = async (id)=>{
     try {
-        let singleRequest = await GetterCreditModel.findById(id).populate('getterId').populate('setterId')
+        let singleRequest = await GetterCreditModel.findById(id).populate('getterProfileId').populate('setterProfileId')
         if(singleRequest){
             return singleRequest
         }

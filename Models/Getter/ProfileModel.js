@@ -2,8 +2,8 @@ const mongoose = require('mongoose');
 
 const ProfileSchema = mongoose.Schema({
     accountId:{
-        type:String,
-        required:true
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"GetterInfo",
     },
 
     username:{

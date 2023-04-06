@@ -3,14 +3,14 @@ const mongoose = require ('mongoose')
 const CreditSchema  = mongoose.Schema({
     amount :{type:Number,required:true},
     approved:{type:Boolean,required:true,default:false},
-    getterId:{
+    getterProfileId:{
         type:mongoose.Types.ObjectId,
-        ref:"GetterInfo",
+        ref:"GetterProfile",
         default:null
     },
-    setterId:{
+    setterProfileId:{
         type:mongoose.Types.ObjectId,
-        ref:"SetterInfo",
+        ref:"SetterProfile",
         default:null
     }
 })

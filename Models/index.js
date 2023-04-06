@@ -7,6 +7,6 @@ module.exports.GetterProfileModel = require('./Getter/ProfileModel')
 // SETTER MODELS :
 module.exports.SetterRegisterModel = require('./Setter/RegisterModel')
 module.exports.GameModel = require('./Setter/GuessModel')
-module.exports.setterProfileModel = require('./Getter/ProfileModel')
+module.exports.setterProfileModel = require('./Setter/ProfileModel')
 //ADMIN MODEL
 module.exports.AdminRegisterModel = require('./Admin/RegisterModel')
