@@ -3,8 +3,6 @@ const { catchAsync } = require("../../Error/Utils");
 const { image_upload } = require("../../Multer/Setup");
 const { SetterProfileServices } = require("../../Services");
 const router = require('express').Router()
-// const authorized = require("../../Middleware/UserAuth");
-
 
 router.post('/',image_upload.single('image'),catchAsync(async(req,res)=>{
     let {accountId,name,email,phone,dateOfBirth,gender,country} = req.body
