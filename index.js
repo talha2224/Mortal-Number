@@ -37,6 +37,9 @@ app.use('/api/v1/profile/getter',require('./Routes/Getter/profileRoutes'))
 //ADMIN ROUTES
 app.use('/api/v1/admin',require('./Routes/Admin/adminRoutes'))
 
+//REWARDS
+app.use('/api/v1/rewards',require('./Routes/Rewards/reward'))
+
 
 //CUSTOM ERROR HANDLING
 app.use(require('./Error/Error'))

@@ -8,5 +8,9 @@ module.exports.GetterProfileModel = require('./Getter/ProfileModel')
 module.exports.SetterRegisterModel = require('./Setter/RegisterModel')
 module.exports.GameModel = require('./Setter/GuessModel')
 module.exports.setterProfileModel = require('./Setter/ProfileModel')
+
+//NOTIFICATION
+module.exports.RewardsModel=require('./Rewards/RewardsModel')
+
 //ADMIN MODEL
 module.exports.AdminRegisterModel = require('./Admin/RegisterModel')
