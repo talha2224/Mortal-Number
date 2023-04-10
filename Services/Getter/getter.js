@@ -70,14 +70,6 @@ const getGetter =  async(id)=>{
     }
 }
 
-const topRated = async()=>{
-    let top = await GetterRegisterModel.find({}).sort({credit:-1}).limit(5)
-    if (top){
-        return top
-    }
-    throw new ErrorResponse("no user found please add some",404)
-}
-
 const update = async(id,firstname,lastname,email,password)=>{
     if (password){
         try {
@@ -152,4 +144,4 @@ const deleteGetter = async(id)=>{
     }
 
 }
-module.exports = {register,login,update,deleteGetter,getGetter,topRated}
+module.exports = {register,login,update,deleteGetter,getGetter}

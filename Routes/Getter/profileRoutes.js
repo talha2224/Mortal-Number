@@ -20,6 +20,12 @@ router.get('/:accountId',catchAsync (async(req,res)=>{
 }))
 
 
+//TOP ACHIEVERS
+router.get('/top/rated',catchAsync(async(req,res)=>{
+    let topRated = await ProfileServices.topRated()
+    res.send(topRated)
+}))
+
 
 
 router.put('/:id',image_upload.single('image'),catchAsync(async(req,res)=>{

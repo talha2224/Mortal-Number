@@ -32,14 +32,14 @@ const register = async(firstname,lastname,email,password)=>{
 }
 
 const login = async(email,password)=>{
-    const loginSetter = await SetterRegisterModel.findOne({email:email})
-    if(loginSetter){
+    const SetterDetails = await SetterRegisterModel.findOne({email:email})
+    if(SetterDetails){
         try{
-           let comparePassword = await bcrypt.compare(password,loginSetter.password)
+           let comparePassword = await bcrypt.compare(password,SetterDetails.password)
            if(comparePassword){
-                let token = jwt.sign({loginSetter},process.env.secretKey)
+                let token = jwt.sign({SetterDetails},process.env.secretKey)
                 if(token){
-                return {loginSetter,token}
+                return {SetterDetails,token}
                 }
                 else{
                 throw new ErrorResponse('failed to generate token',500)

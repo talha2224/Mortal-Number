@@ -40,7 +40,13 @@ const getProfile = async (accountId)=>{
         throw new ErrorResponse(error.message,404)
     }
 }
-
+const topRated = async()=>{
+    let top = await GetterProfileModel.find({}).sort({credit:-1}).limit(5)
+    if (top){
+        return top
+    }
+    throw new ErrorResponse("no user found please add some",404)
+}
 const updateProfile = async (id,name,email,phone,dateOfBirth,gender,country,image,credit) =>{
     try {
         let update = await GetterProfileModel.findByIdAndUpdate(id,{
@@ -64,4 +70,4 @@ const updateProfile = async (id,name,email,phone,dateOfBirth,gender,country,imag
         throw new ErrorResponse(error.message,404)
     }
 }
-module.exports = {postProfile,getProfile,updateProfile}
+module.exports = {postProfile,getProfile,updateProfile,topRated}

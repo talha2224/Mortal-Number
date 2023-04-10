@@ -43,11 +43,6 @@ router.get('/:id',catchAsync (async(req,res)=>{
     res.send(single)
 }))
 
-//TOP ACHIEVERS
-router.get('/top/rated',catchAsync(async(req,res)=>{
-    let topRated = await GetterServices.topRated()
-    res.send(topRated)
-}))
 
 
 

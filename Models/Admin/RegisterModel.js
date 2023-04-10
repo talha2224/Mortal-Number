@@ -21,7 +21,17 @@ const RegisterModel = mongoose.Schema({
         type:String,
         required:true
     }
-})
+},
+{
+    toJSON:{
+        transform(doct, ret) {
+            delete ret.password;
+            delete ret.createdAt;
+            delete ret.updatedAt;
+        }
+    },timestamps: true,
+}
+)
 
 const AdminInfo = mongoose.model('AdminInfo',RegisterModel,'AdminInfo')
 
