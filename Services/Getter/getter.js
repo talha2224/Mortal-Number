@@ -70,7 +70,7 @@ const getGetter =  async(id)=>{
     }
 }
 
-const update = async(id,firstname,lastname,email,password)=>{
+const update = async(id,firstname,lastname,email,password,username,phonenumber,credit,dateOfBirth,gender,country,image)=>{
     if (password){
         try {
             let hash = await bcrypt.hash(password,10)
@@ -81,6 +81,13 @@ const update = async(id,firstname,lastname,email,password)=>{
                         lastName:lastname,
                         email:email,
                         password:hash,
+                        username:username,
+                        phonenumber:phonenumber,
+                        credit:credit,
+                        dateOfBirth:dateOfBirth,
+                        gender:gender,
+                        country:country,
+                        profileImage:image
                     }
                 },
                 {new:true}
@@ -106,6 +113,13 @@ const update = async(id,firstname,lastname,email,password)=>{
                         firstName:firstname,
                         lastName:lastname,
                         email:email,
+                        username:username,
+                        phonenumber:phonenumber,
+                        credit:credit,
+                        dateOfBirth:dateOfBirth,
+                        gender:gender,
+                        country:country,
+                        profileImage:image
                     }
                 },
                 {new:true}

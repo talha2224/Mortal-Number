@@ -16,12 +16,12 @@ const notificationSchema = mongoose.Schema({
     },
     getterProfileId:{
         type:mongoose.Schema.Types.ObjectId,
-        ref:"GetterProfile",
+        ref:"GetterInfo",
         default:null
     },
     setterProfileId:{
         type:mongoose.Schema.Types.ObjectId,
-        ref:"SetterProfile",
+        ref:"SetterInfo",
         default:null
     }
 })
