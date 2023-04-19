@@ -158,4 +158,14 @@ const deleteGetter = async(id)=>{
     }
 
 }
-module.exports = {register,login,update,deleteGetter,getGetter}
+
+//Top Rated getter
+const topRated = async()=>{
+    let top = await GetterRegisterModel.find({}).sort({credit:-1}).limit(5)
+    if (top){
+        return top
+    }
+    throw new ErrorResponse("no user found please add some",404)
+}
+
+module.exports = {register,login,update,deleteGetter,getGetter,topRated}

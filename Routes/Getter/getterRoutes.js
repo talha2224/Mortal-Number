@@ -36,12 +36,17 @@ router.delete('/:id',catchAsync (async(req,res)=>{
     res.send(deleteAccount)
 }))
 
-
 //SINGLE
 router.get('/:id',catchAsync (async(req,res)=>{
     let id = req.params.id
     let single = await GetterServices.getGetter(id)
     res.send(single)
+}))
+
+//TOP ACHIEVERS
+router.get('/top/rated',catchAsync(async(req,res)=>{
+    let topRated = await GetterServices.topRated()
+    res.send(topRated)
 }))
 
 
