@@ -1,9 +1,9 @@
 const { ErrorResponse } = require('../../Error/Utils')
 const {RewardsModel}  = require ('../../Models')
 
-const postReward = async(amount,won,lost,getterId,setterId) =>{
+const postReward = async(amount,won,getterId,setterId) =>{
     try {
-        let reward = await RewardsModel.create({amount:amount,won:won,lost:lost,getterProfileId:getterId,setterProfileId:setterId})
+        let reward = await RewardsModel.create({amount:amount,won:won,getterProfileId:getterId,setterProfileId:setterId})
         if(reward){
             return reward
         }

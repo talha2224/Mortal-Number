@@ -11,7 +11,7 @@ const register = async(firstname,lastname,email,password)=>{
     else{ 
         try {
             let hash = await bcrypt.hash(password,10)
-            let setter = await SetterRegisterModel.create({firstName:firstname,lastName:lastname,email:email,password:hash})
+            let setter = await SetterRegisterModel.create({firstName:firstname,lastName:lastname,email:email,password:hash,credit:500})
             if(setter){
                 let token = jwt.sign({setter},process.env.secretKey)
                 if(token){

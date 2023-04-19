@@ -19,6 +19,12 @@ router.post('/login',loginValidation,catchAsync( async(req,res)=>{
     res.send(loginSetter)
 }))
 
+//FORGOT PASSWORD
+router.put('/forgot/password',catchAsync(async(req,res)=>{
+    let {email,password} = req.body
+    let updated = await GetterServices.forgotPassword(email,password)
+    res.send(updated)
+}))
 // UPDATE
 router.put('/:id',authorized,image_upload.single('image'),catchAsync (async(req,res)=>{
     let id = req.params.id
@@ -48,6 +54,7 @@ router.get('/top/rated',catchAsync(async(req,res)=>{
     let topRated = await GetterServices.topRated()
     res.send(topRated)
 }))
+
 
 
 

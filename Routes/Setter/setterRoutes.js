@@ -17,7 +17,7 @@ router.post('/login',loginValidation,catchAsync( async(req,res)=>{
     let loginSetter = await SetterServices.login(email,password)
     res.send(loginSetter)
 }))
-// router.get('/:id')
+
 router.put('/:id',authorized,image_upload.single('image'),catchAsync(async(req,res)=>{
     let id = req.params.id
     let {firstname,lastname,email,password,username,phonenumber,credit,dateOfBirth,gender,country} = req.body

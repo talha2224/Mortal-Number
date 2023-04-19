@@ -35,4 +35,17 @@ router.put('/:id',authorized,catchAsync(async(req,res)=>{
     res.send(updateGame)
 }))
 
+router.get('/:getterid/:gameid',catchAsync(async(req,res)=>{
+    let {getterid,gameid} = req.params
+    let game = await GameServices.playGame(getterid,gameid)
+    res.send(game)
+}))
+
+
+router.post('/after/play',catchAsync(async(req,res)=>{
+    let {getterid,gameid,win} = req.body
+    let game = await GameServices.afterGame(getterid,gameid,win)
+    res.send(game)
+}))
+
 module.exports = router

@@ -1,3 +1,4 @@
+
 const mongoose = require('mongoose');
 
 const notificationSchema = mongoose.Schema({
@@ -7,10 +8,6 @@ const notificationSchema = mongoose.Schema({
         required:true
     },
     won:{
-        type:Boolean,
-        default:false
-    },
-    lost:{
         type:Boolean,
         default:false
     },

@@ -1,5 +1,5 @@
 const { ErrorResponse } = require("../../Error/Utils")
-const { GameModel } = require("../../Models")
+const { GameModel, GetterRegisterModel,RewardsModel} = require("../../Models")
 
 const postGame = async(id,winningnumber,stake,prize,hours,minutes,seconds)=>{
     let findSetter = await GameModel.findOne({setterId:id})
@@ -101,5 +101,38 @@ const updateGame = async (id,winningnumber,deletewinningnumber,stake,prize,winne
     }
 }
 
+const playGame = async (getterid,gameid)=>{
+    let findUserCredit = await GetterRegisterModel.findById(getterid)
+    let findGameId = await GameModel.findById(gameid)
 
-module.exports ={postGame,getGame,singleGame,deleteGame,updateGame}
+    if (findUserCredit.credit>=findGameId.stake){
+        let minusStake= await GetterRegisterModel.findByIdAndUpdate(getterid,{$set:{
+            credit:findUserCredit.credit-findGameId.stake
+        }},{new:true})
+        return findGameId
+    }
+    else{
+        throw new ErrorResponse('not enough credit',402)
+    }
+}
+
+const afterGame = async (getterid,gameid,win)=>{
+    
+    if (win===true){
+        let findUserCredit = await GetterRegisterModel.findById(getterid)
+        let findGameId = await GameModel.findById(gameid)
+        let updateGetterAmount = await GetterRegisterModel.findByIdAndUpdate(getterid,{$set:{credit:findUserCredit.credit+findGameId.stake}},{new:true})
+        let postReward = await RewardsModel.create({amount:findGameId.stake,won:true,getterProfileId:getterid})
+        console.log(`getter updated amount ${updateGetterAmount}`)
+        console.log(`reward posted ${postReward}`)
+        return {msg: `You Won The Amount`,amount:findGameId.stake,totalAmount:findUserCredit.credit+findGameId.stake}
+    }
+    else if (win===false){
+        let findGameId = await GameModel.findById(gameid)
+        let postReward = await RewardsModel.create({amount:findGameId.stake,won:false,getterProfileId:getterid})
+        return {msg:"You Lost The Game"}
+    }
+
+}
+
+module.exports ={postGame,getGame,singleGame,deleteGame,updateGame,playGame,afterGame}
