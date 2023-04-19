@@ -3,11 +3,6 @@ const { RewardServices } = require("../../Services");
 
 const router = require('express').Router()
 
-router.post('',catchAsync(async(req,res)=>{
-    let {amount,won,getterId,setterId} = req.body
-    let postReward = await RewardServices.postReward(amount,won,getterId,setterId)
-    res.send(postReward)
-}))
 
 router.get('/:id',catchAsync(async(req,res)=>{
     let {id} = req.params

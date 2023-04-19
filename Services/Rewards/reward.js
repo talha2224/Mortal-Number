@@ -1,24 +1,24 @@
 const { ErrorResponse } = require('../../Error/Utils')
 const {RewardsModel}  = require ('../../Models')
 
-const postReward = async(amount,won,getterId,setterId) =>{
-    try {
-        let reward = await RewardsModel.create({amount:amount,won:won,getterProfileId:getterId,setterProfileId:setterId})
-        if(reward){
-            return reward
-        }
-        else{
-            throw new ErrorResponse("failed to post data check your code",409)
-        }
-    } 
-    catch (error) {
-        throw new ErrorResponse(error.message,409)
-    }
-}
+// const postReward = async(amount,won,getterId,setterId) =>{
+//     try {
+//         let reward = await RewardsModel.create({amount:amount,won:won,getterProfileId:getterId,setterProfileId:setterId})
+//         if(reward){
+//             return reward
+//         }
+//         else{
+//             throw new ErrorResponse("failed to post data check your code",409)
+//         }
+//     } 
+//     catch (error) {
+//         throw new ErrorResponse(error.message,409)
+//     }
+// }
 
 const getReward = async (id)=>{
     try {
-        let reward = await RewardsModel.find({$or: [{getterProfileId: id}, {setterProfileId: id}]}).populate('getterProfileId').populate('setterProfileId')
+        let reward = await RewardsModel.find({$or: [{getterProfileId: id}, {setterProfileId: id}]})
         if(reward.length>0){
             return reward
         }
@@ -45,4 +45,4 @@ const deleteReward = async (id)=>{
         throw new ErrorResponse(error.message,404)
     }
 }
-module.exports = {postReward,getReward,deleteReward}
+module.exports = {getReward,deleteReward}
