@@ -4,7 +4,7 @@ const {image_upload}  = require ('../../Multer/Setup')
 const authorized = require('../../Middleware/AdminAuth')
 const router = require('express').Router()
 
-router.post('',image_upload.single('image'),catchAsync(async(req,res)=>{
+router.post('',catchAsync(async(req,res)=>{
     let {firstname,lastname,email,password} = req.body
     let image = req.file.filename
     let createAdmin = await AdminServices.registerAdmin(firstname,lastname,email,password,image)
@@ -24,10 +24,10 @@ router.get('/:id',catchAsync(async(req,res)=>{
 }))
 
 router.put('/:id',authorized,image_upload.single('image'),catchAsync(async(req,res)=>{
-    let {firstname,lastname,email,password} = req.body
+    let {firstname,lastname,email,password,username,phonenumber,credit,dateOfBirth,gender,country} = req.body
     let image = req?.file?.filename
     let id = req.params.id
-    let updateAdmin = await AdminServices.updateAdmin(id,firstname,lastname,email,password,image)
+    let updateAdmin = await AdminServices.updateAdmin(id,firstname,lastname,email,password,username,phonenumber,credit,dateOfBirth,gender,country)
     res.send(updateAdmin)
 }))
 

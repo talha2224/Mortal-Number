@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const { ErrorResponse } = require("../../Error/Utils");
 const { AdminRegisterModel } = require("../../Models");
 
-const registerAdmin = async(firstname,lastname,email,password,image)=>{
+const registerAdmin = async(firstname,lastname,email,password)=>{
     try {
         let findAdmin = await AdminRegisterModel.findOne({email:email})
         if(findAdmin){
@@ -11,7 +11,7 @@ const registerAdmin = async(firstname,lastname,email,password,image)=>{
         }
         else{
             let hashPassword = await bcrypt.hash(password,10)
-            let adminInfo = await AdminRegisterModel.create({firstName:firstname,lastName:lastname,email:email,password:hashPassword,profileImage:image})
+            let adminInfo = await AdminRegisterModel.create({firstName:firstname,lastName:lastname,email:email,password:hashPassword})
             if  (adminInfo){
                 let token = await jwt.sign({adminInfo},process.env.adminKey)
                 if(token){
@@ -30,6 +30,7 @@ const registerAdmin = async(firstname,lastname,email,password,image)=>{
         throw new ErrorResponse(error,400)
     }
 }
+
 
 const loginAdmin = async (email,password)=>{
     try {
@@ -73,7 +74,7 @@ const getAdmin = async (id)=>{
     }
 }
 
-const updateAdmin = async (id,firstname,lastname,email,password,image)=>{
+const updateAdmin = async (id,firstname,lastname,email,password,username,phonenumber,credit,dateOfBirth,gender,country,image)=>{
     if (password){
         try {
             let hash = await bcrypt.hash(password,10)
@@ -84,6 +85,12 @@ const updateAdmin = async (id,firstname,lastname,email,password,image)=>{
                         lastName:lastname,
                         email:email,
                         password:hash,
+                        username:username,
+                        phonenumber:phonenumber,
+                        credit:credit,
+                        dateOfBirth:dateOfBirth,
+                        gender:gender,
+                        country:country,
                         profileImage:image
                     }
                 },
@@ -110,6 +117,12 @@ const updateAdmin = async (id,firstname,lastname,email,password,image)=>{
                         firstName:firstname,
                         lastName:lastname,
                         email:email,
+                        username:username,
+                        phonenumber:phonenumber,
+                        credit:credit,
+                        dateOfBirth:dateOfBirth,
+                        gender:gender,
+                        country:country,
                         profileImage:image
                     }
                 },
