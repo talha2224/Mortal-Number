@@ -6,6 +6,7 @@ const router = require('express').Router()
 
 router.post('',catchAsync(async(req,res)=>{
     let {firstname,lastname,email,password} = req.body
+    console.log(firstname,lastname,email,password)
     let createAdmin = await AdminServices.registerAdmin(firstname,lastname,email,password)
     res.send(createAdmin)
 }))
@@ -26,7 +27,7 @@ router.put('/:id',authorized,image_upload.single('image'),catchAsync(async(req,r
     let {firstname,lastname,email,password,username,phonenumber,credit,dateOfBirth,gender,country} = req.body
     let image = req?.file?.filename
     let id = req.params.id
-    let updateAdmin = await AdminServices.updateAdmin(id,firstname,lastname,email,password,username,phonenumber,credit,dateOfBirth,gender,country)
+    let updateAdmin = await AdminServices.updateAdmin(id,firstname,lastname,email,password,username,phonenumber,credit,dateOfBirth,gender,country,image)
     res.send(updateAdmin)
 }))
 
