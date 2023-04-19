@@ -6,8 +6,7 @@ const router = require('express').Router()
 
 router.post('',catchAsync(async(req,res)=>{
     let {firstname,lastname,email,password} = req.body
-    let image = req.file.filename
-    let createAdmin = await AdminServices.registerAdmin(firstname,lastname,email,password,image)
+    let createAdmin = await AdminServices.registerAdmin(firstname,lastname,email,password)
     res.send(createAdmin)
 }))
 
