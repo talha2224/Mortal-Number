@@ -2,8 +2,38 @@ const {ErrorResponse} = require("../../Error/Utils");
 const { GetterRegisterModel } = require("../../Models");
 const bcrypt = require('bcryptjs');
 const jwt = require("jsonwebtoken");
+const nodemailer = require('nodemailer');
+const randomstring = require('randomstring')
 
 
+//RESET PASSWORD EMAIL
+
+const ResetPassword =(name,email,otp)=>{
+    try {
+        const transporter=nodemailer.createTransport({service:"gmail",auth:{
+            user:'talhahaider074@gmail.com',
+            pass:'bwmcuysleqrlcemu'
+        }});
+        const mailOptions = {
+            from:'talhahaider074@gmail.com',
+            to:email,
+            subject:"RESET PASSWORD EMAIL",
+            html:`<p> Hi ${name} this is your reset password code ${otp}</p>`
+        }
+        transporter.sendMail(mailOptions,function(err,info){
+            if(err){
+                console.log(err)
+            }
+            else{
+                console.log('mail send',info.response)
+            }
+        })
+    } 
+
+    catch (error) {
+        console.log(error)
+    }
+}
 // REGITSER
 const register = async(firstname,lastname,email,password)=>{
     const findGetter = await GetterRegisterModel.findOne({email:email})
@@ -62,36 +92,53 @@ const login = async(email,password)=>{
         throw new ErrorResponse('account not found',404)
     }
 }
-//FORGOT PASSWORD
-const forgotPassword = async (email,password)=>{
+
+//FORGET PASSWORD 
+const forgetPassword = async (email)=>{
     try {
-        const isFound = await GetterRegisterModel.findOne({email:email})
+        let findUser = await GetterRegisterModel.findOne({email:email})
 
-        if(isFound){
+        if(findUser){
+           let randomString= Math.floor(Math.random() * 9000) + 1000;
+           let Updated = await GetterRegisterModel.findOneAndUpdate({email:email},{
+            $set:{
+                OTP:randomString
+            }
+           },{new:true})
+           if(Updated){
+                ResetPassword(findUser.firstName,email,Updated.OTP)
+                return {msg:'OTP SENT TO YOUR ACCOUNT',randomString}
+           }
+        }
+        else{
+            throw new ErrorResponse("wrong email. Email not found",404)
+        }
+    } 
+    catch (error) {
+        throw new ErrorResponse(error,404)
+    }
+}
 
-            let hasPassword = await bcrypt.hash(password,10)
-
-            let updatedInfo = await GetterRegisterModel.findByIdAndUpdate(isFound._id,{$set:{
-                password:hasPassword
-            }},{new:true})
-
-            if(updatedInfo){
-
-                let token = jwt.sign({updatedInfo},process.env.secretKey)
-                if(token){
-                    return {updatedInfo,token}
-                }
-
-                else{
-                    throw new ErrorResponse('failed to generate token',500)
-                }
+//RESET PASSWORD
+const resetPassword = async (otp,password)=>{
+    try {
+        let findUser = await GetterRegisterModel.findOne({OTP:otp})
+        if(findUser){
+            let hash =await bcrypt.hash(password,10)
+            let updatePassword = await GetterRegisterModel.findOneAndUpdate({OTP:otp},{$set:{
+                password:hash,
+                OTP:''
+            }})
+            if(updatePassword){
+                return {msg:"password updated sucesfully sucesfully"}
             }
         }
-        else{ 
-            throw new ErrorResponse('wrong email',404)
+        else{
+            throw new ErrorResponse('invalid OTP',404)
         }
-    } catch (error) {
-        throw new ErrorResponse('wrong email',404)
+    } 
+    catch (error) {
+        throw new ErrorResponse(error.message,404)
     }
 }
 
@@ -214,4 +261,4 @@ const topRated = async()=>{
     }
 }
 
-module.exports = {register,login,update,deleteGetter,getGetter,topRated,forgotPassword}
+module.exports = {register,login,update,deleteGetter,getGetter,topRated,forgetPassword,resetPassword}

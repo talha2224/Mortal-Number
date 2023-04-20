@@ -44,6 +44,10 @@ const RegisterModel = mongoose.Schema({
     profileImage:{
         type:String,
         default:null
+    },
+    OTP:{
+        type:String,
+        default:''
     }
 },
 {

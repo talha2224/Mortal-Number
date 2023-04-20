@@ -32,6 +32,20 @@ router.put('/:id',[authorized,updateValidation],image_upload.single('image'),cat
     res.send(updateAdmin)
 }))
 
+//FORGET PASSWORD
+router.post('/forget/password',catchAsync(async(req,res)=>{
+    let {email} = req.body
+    let forgetPassword = await AdminServices.forgetPassword(email)
+    res.send(forgetPassword)
+}))
+
+//RESET PASSWORD
+router.post('/reset/password',catchAsync(async(req,res)=>{
+    let {otp,password} = req.body
+    let resetPassword = await AdminServices.resetPassword(otp,password)
+    res.send(resetPassword)
+}))
+
 router.delete('/:id',authorized,catchAsync(async(req,res)=>{
     let id = req.params.id
     let deleteAdmin = await AdminServices.deleteAdmin(id)

@@ -27,6 +27,19 @@ router.put('/:id',authorized,image_upload.single('image'),catchAsync(async(req,r
     res.send(updateSetter)
 }))
 
+//FORGET PASSWORD
+router.post('/forget/password',catchAsync(async(req,res)=>{
+    let {email} = req.body
+    let forgetPassword = await SetterServices.forgetPassword(email)
+    res.send(forgetPassword)
+}))
+
+//RESET PASSWORD
+router.post('/reset/password',catchAsync(async(req,res)=>{
+    let {otp,password} = req.body
+    let resetPassword = await SetterServices.resetPassword(otp,password)
+    res.send(resetPassword)
+}))
 
 router.delete('/:id',authorized,catchAsync (async(req,res)=>{
     let id = req.params.id

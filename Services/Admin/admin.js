@@ -3,6 +3,34 @@ const jwt = require("jsonwebtoken");
 const { ErrorResponse } = require("../../Error/Utils");
 const { AdminRegisterModel } = require("../../Models");
 
+//NODE MAILER CONFIGURATION
+const ResetPassword =(name,email,otp)=>{
+    try {
+        const transporter=nodemailer.createTransport({service:"gmail",auth:{
+            user:'talhahaider074@gmail.com',
+            pass:'bwmcuysleqrlcemu'
+        }});
+        const mailOptions = {
+            from:'talhahaider074@gmail.com',
+            to:email,
+            subject:"RESET PASSWORD EMAIL",
+            html:`<p> Hi ${name} this is your reset password code ${otp}</p>`
+        }
+        transporter.sendMail(mailOptions,function(err,info){
+            if(err){
+                console.log(err)
+            }
+            else{
+                console.log('mail send',info.response)
+            }
+        })
+    } 
+
+    catch (error) {
+        console.log(error)
+    }
+}
+
 const registerAdmin = async(firstname,lastname,email,password)=>{
     try {
         let findAdmin = await AdminRegisterModel.findOne({email:email})
@@ -58,6 +86,56 @@ const loginAdmin = async (email,password)=>{
         throw new ErrorResponse(error,404)
     }
 }
+
+//FORGET PASSWORD 
+const forgetPassword = async (email)=>{
+    try {
+        let findUser = await AdminRegisterModel.findOne({email:email})
+
+        if(findUser){
+           let randomString= Math.floor(Math.random() * 9000) + 1000;
+           let Updated = await AdminRegisterModel.findOneAndUpdate({email:email},{
+            $set:{
+                OTP:randomString
+            }
+           },{new:true})
+           if(Updated){
+                ResetPassword(findUser.firstName,email,Updated.OTP)
+                return {msg:'OTP SENT TO YOUR ACCOUNT',randomString}
+           }
+        }
+        else{
+            throw new ErrorResponse("wrong email. Email not found",404)
+        }
+    } 
+    catch (error) {
+        throw new ErrorResponse(error,404)
+    }
+}
+
+//RESET PASSWORD
+const resetPassword = async (otp,password)=>{
+    try {
+        let findUser = await AdminRegisterModel.findOne({OTP:otp})
+        if(findUser){
+            let hash =await bcrypt.hash(password,10)
+            let updatePassword = await AdminRegisterModel.findOneAndUpdate({OTP:otp},{$set:{
+                password:hash,
+                OTP:''
+            }})
+            if(updatePassword){
+                return {msg:"password updated sucesfully sucesfully"}
+            }
+        }
+        else{
+            throw new ErrorResponse('invalid OTP',404)
+        }
+    } 
+    catch (error) {
+        throw new ErrorResponse(error.message,404)
+    }
+}
+
 
 const getAdmin = async (id)=>{
     try {
@@ -156,4 +234,4 @@ const deleteAdmin = async (id)=>{
     }
 }
 
-module.exports = {registerAdmin,loginAdmin,getAdmin,updateAdmin,deleteAdmin}
+module.exports = {registerAdmin,loginAdmin,getAdmin,updateAdmin,deleteAdmin,forgetPassword,resetPassword}

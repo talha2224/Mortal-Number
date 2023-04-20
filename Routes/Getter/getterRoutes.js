@@ -19,12 +19,20 @@ router.post('/login',loginValidation,catchAsync( async(req,res)=>{
     res.send(loginSetter)
 }))
 
-//FORGOT PASSWORD
-router.put('/forgot/password',catchAsync(async(req,res)=>{
-    let {email,password} = req.body
-    let updated = await GetterServices.forgotPassword(email,password)
-    res.send(updated)
+//FORGET PASSWORD
+router.post('/forget/password',catchAsync(async(req,res)=>{
+    let {email} = req.body
+    let forgetPassword = await GetterServices.forgetPassword(email)
+    res.send(forgetPassword)
 }))
+
+//RESET PASSWORD
+router.post('/reset/password',catchAsync(async(req,res)=>{
+    let {otp,password} = req.body
+    let resetPassword = await GetterServices.resetPassword(otp,password)
+    res.send(resetPassword)
+}))
+
 // UPDATE
 router.put('/:id',authorized,image_upload.single('image'),catchAsync (async(req,res)=>{
     let id = req.params.id

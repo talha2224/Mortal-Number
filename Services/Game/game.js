@@ -51,7 +51,7 @@ const getGame = async (getterId)=>{
             return allGame
         }
         else{
-            throw new ErrorResponse ('NO GAME FOUND PLEASE ADD SOME',404)
+            throw new ErrorResponse ('NO GAME FOUND OR YOU HAVE ALREADY PLAY ALL THE POSTED GAME',404)
         }
     } 
     catch (error) {
