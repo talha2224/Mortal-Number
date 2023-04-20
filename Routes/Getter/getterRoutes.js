@@ -28,8 +28,8 @@ router.post('/forget/password',catchAsync(async(req,res)=>{
 
 //RESET PASSWORD
 router.post('/reset/password',catchAsync(async(req,res)=>{
-    let {otp,password} = req.body
-    let resetPassword = await GetterServices.resetPassword(otp,password)
+    let {email,password} = req.body
+    let resetPassword = await GetterServices.resetPassword(email,password)
     res.send(resetPassword)
 }))
 

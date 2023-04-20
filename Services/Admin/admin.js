@@ -4,32 +4,32 @@ const { ErrorResponse } = require("../../Error/Utils");
 const { AdminRegisterModel } = require("../../Models");
 
 //NODE MAILER CONFIGURATION
-const ResetPassword =(name,email,otp)=>{
-    try {
-        const transporter=nodemailer.createTransport({service:"gmail",auth:{
-            user:'talhahaider074@gmail.com',
-            pass:'bwmcuysleqrlcemu'
-        }});
-        const mailOptions = {
-            from:'talhahaider074@gmail.com',
-            to:email,
-            subject:"RESET PASSWORD EMAIL",
-            html:`<p> Hi ${name} this is your reset password code ${otp}</p>`
-        }
-        transporter.sendMail(mailOptions,function(err,info){
-            if(err){
-                console.log(err)
-            }
-            else{
-                console.log('mail send',info.response)
-            }
-        })
-    } 
+// const ResetPassword =(name,email,otp)=>{
+//     try {
+//         const transporter=nodemailer.createTransport({service:"gmail",auth:{
+//             user:'talhahaider074@gmail.com',
+//             pass:'bwmcuysleqrlcemu'
+//         }});
+//         const mailOptions = {
+//             from:'talhahaider074@gmail.com',
+//             to:email,
+//             subject:"RESET PASSWORD EMAIL",
+//             html:`<p> Hi ${name} this is your reset password code ${otp}</p>`
+//         }
+//         transporter.sendMail(mailOptions,function(err,info){
+//             if(err){
+//                 console.log(err)
+//             }
+//             else{
+//                 console.log('mail send',info.response)
+//             }
+//         })
+//     } 
 
-    catch (error) {
-        console.log(error)
-    }
-}
+//     catch (error) {
+//         console.log(error)
+//     }
+// }
 
 const registerAdmin = async(firstname,lastname,email,password)=>{
     try {
@@ -93,16 +93,13 @@ const forgetPassword = async (email)=>{
         let findUser = await AdminRegisterModel.findOne({email:email})
 
         if(findUser){
-           let randomString= Math.floor(Math.random() * 9000) + 1000;
-           let Updated = await AdminRegisterModel.findOneAndUpdate({email:email},{
-            $set:{
-                OTP:randomString
-            }
-           },{new:true})
-           if(Updated){
-                ResetPassword(findUser.firstName,email,Updated.OTP)
-                return {msg:'OTP SENT TO YOUR ACCOUNT',randomString}
-           }
+            return {msg:"Email Found",success:true,status:200}
+        //    let randomString= Math.floor(Math.random() * 9000) + 1000;
+        //    let Updated = await GetterRegisterModel.findOne({email:email})
+        //    if(Updated){
+        //         ResetPassword(findUser.firstName,email,Updated.OTP)
+        //         return {msg:'OTP SENT TO YOUR ACCOUNT',randomString}
+        //    }
         }
         else{
             throw new ErrorResponse("wrong email. Email not found",404)
@@ -114,14 +111,13 @@ const forgetPassword = async (email)=>{
 }
 
 //RESET PASSWORD
-const resetPassword = async (otp,password)=>{
+const resetPassword = async (email,password)=>{
     try {
-        let findUser = await AdminRegisterModel.findOne({OTP:otp})
+        let findUser = await AdminRegisterModel.findOne({email:email})
         if(findUser){
             let hash =await bcrypt.hash(password,10)
-            let updatePassword = await AdminRegisterModel.findOneAndUpdate({OTP:otp},{$set:{
+            let updatePassword = await AdminRegisterModel.findOneAndUpdate({email:email},{$set:{
                 password:hash,
-                OTP:''
             }})
             if(updatePassword){
                 return {msg:"password updated sucesfully sucesfully"}
@@ -135,7 +131,6 @@ const resetPassword = async (otp,password)=>{
         throw new ErrorResponse(error.message,404)
     }
 }
-
 
 const getAdmin = async (id)=>{
     try {
