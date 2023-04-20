@@ -1,7 +1,10 @@
 
+const { json } = require("express")
 const { ErrorResponse } = require("../../Error/Utils")
-const { GetterCreditModel } = require("../../Models")
+const { GetterCreditModel, GetterRegisterModel, SetterRegisterModel } = require("../../Models")
 
+
+//POST CREDIT REQUEST 
 const requestCredit = async (getterId,setterId,amount) =>{
     try {
         let request = await GetterCreditModel.create({amount:amount,getterProfileId:getterId,setterProfileId:setterId})
@@ -18,26 +21,92 @@ const requestCredit = async (getterId,setterId,amount) =>{
 
 }
 
-const updateCredit = async (id,amount,approved)=>{
+// const updateCredit = async (id,getterId,setterid,amount,approved)=>{
+//     try {
+//         let update = await GetterCreditModel.findByIdAndUpdate(id,{
+//             $set:{
+//                 amount:amount,
+//                 approved:approved
+//             },  
+//         },{new:true})
+//         if (update){
+//             if(getterId){
+//                 let findGetter = await GetterRegisterModel.findById(getterId)
+//                 if (updateCredit){
+//                     let updateGetter = await GetterRegisterModel.findByIdAndUpdate(getterId,{$set:{
+//                         credit:findGetter.credit+amount
+//                     }})
+//                 }
+//             }
+//             else if (setterid){
+
+//             }
+//             return update
+//         }
+//         else{
+//             throw new ErrorResponse('failed to update',304)
+//         }
+
+//     } 
+//     catch (error) {
+//         throw new ErrorResponse(error,304)
+//     }
+// }
+
+
+//IF THE REQUEST ACCEPTED
+
+const acceptedCreditRequest = async(requestId,getterId,setterid,amount)=>{
     try {
-        let update = await GetterCreditModel.findByIdAndUpdate(id,{
-            $set:{
-                amount:amount,
-                approved:approved
-            },  
-        },{new:true})
-        if (update){
-            return update
-        }
-        else{
-            throw new ErrorResponse('failed to update',304)
-        }
+       let  creditInfo = await GetterCreditModel.findByIdAndUpdate(requestId,{
+        $set:{approved:true}
+       },{new:true})
+
+       if(!creditInfo){
+        throw new ErrorResponse('wrong credit request id given no such request found',404)
+       }
+       else{
+           if(getterId){
+               let getterInfo = await GetterRegisterModel.findById(getterId)
+    
+               let updateGetterCredit = await GetterRegisterModel.findByIdAndUpdate(getterId,{
+                $set:{
+                    credit:getterInfo.credit+amount
+                }
+               },{new:true})
+               if(updateGetterCredit){
+                    return {msg:"Request accepted"}
+               }
+               else{
+                throw new ErrorResponse("Failed to accept request",501)
+               }
+            }
+            else if (setterid){
+                let setterInfo = await SetterRegisterModel.findById(setterid)
+                let updateSetterCredit= await SetterRegisterModel.findByIdAndUpdate(getterId,{
+                    $set:{
+                        credit:setterInfo.credit+amount
+                    }
+                },{new:true})
+                if(updateSetterCredit){
+                    return {msg:"Request accepted"}
+                }
+                else{
+                    throw new ErrorResponse("Failed to accept request",501)
+                }
+            }
+        } 
 
     } 
+
+
     catch (error) {
-        throw new ErrorResponse(error,304)
+        throw new ErrorResponse(error.message)
     }
 }
+
+
+//IF THE REQUEST NOT ACCEPTED
 
 const deleteRequest = async (id)=>{
         try {
@@ -56,9 +125,10 @@ const deleteRequest = async (id)=>{
     
 }
 
+//  ALL REQUESTS
 const getAll = async ()=>{
     try {
-        let allRequest = await GetterCreditModel.find({}).populate('getterProfileId').populate('setterProfileId')
+        let allRequest = await GetterCreditModel.find({approved:false}).populate('getterProfileId').populate('setterProfileId')
         if(allRequest.length>0){
             return allRequest
         }
@@ -70,6 +140,8 @@ const getAll = async ()=>{
        throw new ErrorResponse(error,404) 
     }
 }
+
+//SINGLE REQUEST
 
 const getSingle = async (id)=>{
     try {
@@ -86,4 +158,4 @@ const getSingle = async (id)=>{
     }
 }
 
-module.exports = {requestCredit,updateCredit,deleteRequest,getAll,getSingle}
+module.exports = {requestCredit,deleteRequest,getAll,getSingle,acceptedCreditRequest}

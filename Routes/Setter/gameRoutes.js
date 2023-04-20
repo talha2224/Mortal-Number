@@ -42,7 +42,7 @@ router.get('/:getterid/:gameid',catchAsync(async(req,res)=>{
 }))
 
 
-router.post('/after/play',catchAsync(async(req,res)=>{
+router.post('/game/result',catchAsync(async(req,res)=>{
     let {getterid,gameid,win} = req.body
     let game = await GameServices.afterGame(getterid,gameid,win)
     res.send(game)

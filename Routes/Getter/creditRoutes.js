@@ -11,12 +11,12 @@ router.post('',authorized,catchAsync(async(req,res)=>{
     res.send(newRequest)
 }))
 
-router.put('/update/:id',authorized,catchAsync(async(req,res)=>{
-    let {amount,approved} = req.body
-    let id = req.params.id
-    let newRequest = await CreditServices.updateCredit(id,amount,approved)
-    res.send(newRequest)
-}))
+// router.put('/update/:id',authorized,catchAsync(async(req,res)=>{
+//     let {amount,approved,getterId,setterId} = req.body
+//     let id = req.params.id
+//     let newRequest = await CreditServices.updateCredit(id,amount,approved,getterId,setterId)
+//     res.send(newRequest)
+// }))
 
 router.delete('/:id',authorized,catchAsync(async(req,res)=>{
     let id = req.params.id
@@ -32,6 +32,13 @@ router.get('',catchAsync(async(req,res)=>{
 router.get('/:id',catchAsync(async(req,res)=>{
     let id = req.params.id
     let newRequest = await CreditServices.getSingle(id)
+    res.send(newRequest)
+}))
+
+router.put('/accept/credit/request/:requestId',catchAsync(async(req,res)=>{
+    let {amount,getterId,setterId} = req.body
+    let requestId = req.params.id
+    let newRequest = await CreditServices.acceptedCreditRequest(requestId,amount,approved,getterId,setterId)
     res.send(newRequest)
 }))
 module.exports = router
