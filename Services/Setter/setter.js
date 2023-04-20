@@ -59,10 +59,11 @@ const login = async(email,password)=>{
     }
 }
 
-const update = async(id,firstname,lastname,email,password,username,phonenumber,credit,dateOfBirth,gender,country,image)=>{
+const update = async(id,firstname,lastname,email,password,username,phonenumber,dateOfBirth,gender,country,image)=>{
     if (password){
         try {
             let hash = await bcrypt.hash(password,10)
+            console.log(`updated`)
             let updateSetter = await SetterRegisterModel.findByIdAndUpdate(id,
                 {
                     $set:{
@@ -72,7 +73,6 @@ const update = async(id,firstname,lastname,email,password,username,phonenumber,c
                         password:hash,
                         username:username,
                         phonenumber:phonenumber,
-                        credit:credit,
                         dateOfBirth:dateOfBirth,
                         gender:gender,
                         country:country,
@@ -81,6 +81,7 @@ const update = async(id,firstname,lastname,email,password,username,phonenumber,c
                 },
                 {new:true}
             )
+            console.log(updateSetter)
             if(updateSetter){
                 return updateSetter
             }
@@ -103,7 +104,6 @@ const update = async(id,firstname,lastname,email,password,username,phonenumber,c
                         email:email,
                         username:username,
                         phonenumber:phonenumber,
-                        credit:credit,
                         dateOfBirth:dateOfBirth,
                         gender:gender,
                         country:country,

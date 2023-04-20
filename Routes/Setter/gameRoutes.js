@@ -11,8 +11,9 @@ router.post('',[authorized,GameValidation] ,catchAsync( async(req,res)=>{
     res.send(game)
 }))
 
-router.get('',catchAsync(async(req,res)=>{
-    let allGame = await GameServices.getGame()
+router.get('/all/:getterId',catchAsync(async(req,res)=>{
+    let {getterId} = req.params
+    let allGame = await GameServices.getGame(getterId)
     res.send(allGame)
 }))
 
@@ -35,8 +36,9 @@ router.put('/:id',authorized,catchAsync(async(req,res)=>{
     res.send(updateGame)
 }))
 
-router.get('/:getterid/:gameid',catchAsync(async(req,res)=>{
-    let {getterid,gameid} = req.params
+// PLAY GAME
+router.post('/play/game',catchAsync(async(req,res)=>{
+    let {getterid,gameid} = req.body
     let game = await GameServices.playGame(getterid,gameid)
     res.send(game)
 }))

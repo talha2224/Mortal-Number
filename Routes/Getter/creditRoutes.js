@@ -25,7 +25,8 @@ router.delete('/:id',authorized,catchAsync(async(req,res)=>{
 }))
 
 router.get('',catchAsync(async(req,res)=>{
-    let newRequest = await CreditServices.getAll()
+    let {getterId} = req.params
+    let newRequest = await CreditServices.getAll(getterId)
     res.send(newRequest)
 }))
 
@@ -35,10 +36,9 @@ router.get('/:id',catchAsync(async(req,res)=>{
     res.send(newRequest)
 }))
 
-router.put('/accept/credit/request/:requestId',catchAsync(async(req,res)=>{
-    let {amount,getterId,setterId} = req.body
-    let requestId = req.params.id
-    let newRequest = await CreditServices.acceptedCreditRequest(requestId,amount,approved,getterId,setterId)
+router.put('/accept/request/:requestId',catchAsync(async(req,res)=>{
+    let {requestId} = req.params
+    let newRequest = await CreditServices.acceptedCreditRequest(requestId)
     res.send(newRequest)
 }))
 module.exports = router

@@ -1,5 +1,4 @@
 
-const { json } = require("express")
 const { ErrorResponse } = require("../../Error/Utils")
 const { GetterCreditModel, GetterRegisterModel, SetterRegisterModel } = require("../../Models")
 
@@ -66,12 +65,11 @@ const acceptedCreditRequest = async(requestId,getterId,setterid,amount)=>{
         throw new ErrorResponse('wrong credit request id given no such request found',404)
        }
        else{
-           if(getterId){
-               let getterInfo = await GetterRegisterModel.findById(getterId)
-    
-               let updateGetterCredit = await GetterRegisterModel.findByIdAndUpdate(getterId,{
+           if(creditInfo.getterProfileId){
+               let getterInfo = await GetterRegisterModel.findById(creditInfo.getterProfileId)
+               let updateGetterCredit = await GetterRegisterModel.findByIdAndUpdate(creditInfo.getterProfileId,{
                 $set:{
-                    credit:getterInfo.credit+amount
+                    credit:getterInfo.credit+creditInfo.amount
                 }
                },{new:true})
                if(updateGetterCredit){
@@ -81,7 +79,7 @@ const acceptedCreditRequest = async(requestId,getterId,setterid,amount)=>{
                 throw new ErrorResponse("Failed to accept request",501)
                }
             }
-            else if (setterid){
+            else if (creditInfo.setterProfileId){
                 let setterInfo = await SetterRegisterModel.findById(setterid)
                 let updateSetterCredit= await SetterRegisterModel.findByIdAndUpdate(getterId,{
                     $set:{
@@ -98,8 +96,6 @@ const acceptedCreditRequest = async(requestId,getterId,setterid,amount)=>{
         } 
 
     } 
-
-
     catch (error) {
         throw new ErrorResponse(error.message)
     }

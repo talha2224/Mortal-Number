@@ -5,7 +5,7 @@ module.exports.GetterCreditModel = require('./Getter/CreditModel')
 
 // SETTER MODELS :
 module.exports.SetterRegisterModel = require('./Setter/RegisterModel')
-module.exports.GameModel = require('./Setter/GuessModel')
+module.exports.GameModel = require('./Setter/GameModel')
 
 //NOTIFICATION
 module.exports.RewardsModel=require('./Rewards/RewardsModel')

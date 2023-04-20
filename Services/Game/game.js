@@ -44,9 +44,9 @@ const postGame = async(id,winningnumber,stake,prize,hours,minutes,seconds)=>{
     }
 }
 
-const getGame = async ()=>{
+const getGame = async (getterId)=>{
     try {
-        let allGame = await GameModel.find({active:true}).populate('setterId')
+        let allGame = await GameModel.find({active:true,winBy: { $nin: [getterId] }}).populate('setterId')
         if (allGame.length>0){
             return allGame
         }
@@ -125,29 +125,22 @@ const playGame = async (getterid,gameid)=>{
         let findGameId = await GameModel.findById(gameid)
 
         if (findUserCredit && findGameId){
-            let isPlayed = await GameModel.findOne({_id:gameid,winBy:getterid})
-
-            if(isPlayed){
-                throw new ErrorResponse ('you have already win the game ',400)
+            if (findUserCredit.credit>=findGameId.stake){
+                let minusStake= await GetterRegisterModel.findByIdAndUpdate(getterid,{$set:{
+                        credit:findUserCredit.credit-findGameId.stake
+                }},{new:true})
+                return {msg:"YOU CAN PLAY THE GAME CREDIT MINUS FROM YOUR ACCOUNT"}
             }
             else{
-                if (findUserCredit.credit>=findGameId.stake){
-                    let minusStake= await GetterRegisterModel.findByIdAndUpdate(getterid,{$set:{
-                        credit:findUserCredit.credit-findGameId.stake
-                    }},{new:true})
-                    return findGameId
-                }
-                else{
-                    throw new ErrorResponse('not enough credit',402)
-                }
+                throw new ErrorResponse('not enough credit',402)
             }
-        } 
+        }
         else{
             throw new ErrorResponse("wrong id hase been pass",404)
         }
     } 
     catch (error) {
-        throw new ErrorResponse(error,404)
+        throw new ErrorResponse(error,402)
     }
 
 }
@@ -157,23 +150,24 @@ const afterGame = async (getterid,gameid,win)=>{
         let findUserCredit = await GetterRegisterModel.findById(getterid)
         let findGameId = await GameModel.findById(gameid)
         if (win===true){
-            let updateGetterAmount = await GetterRegisterModel.findByIdAndUpdate(getterid,{$set:{credit:findUserCredit.credit+findGameId.stake}},{new:true})
-            let postReward = await RewardsModel.create({amount:findGameId.stake,won:true,getterProfileId:getterid})
-            let updateGame = await GameModel.findByIdAndUpdate(gameid,{$set:{
+            let updateGetterAmount = await GetterRegisterModel.findByIdAndUpdate(getterid,{$set:{credit:findUserCredit.credit+findGameId.prize}},{new:true})
+            let postReward = await RewardsModel.create({amount:findGameId.prize,won:true,getterProfileId:getterid})
+            let updateGame = await GameModel.findByIdAndUpdate(gameid,{
                 $push:{
                    winBy:getterid 
                 }
-            }},{new:true})
+            },{new:true})
+            console.log(updateGame)
             if(updateGetterAmount && postReward && updateGame){
-                return {msg: `You Won The Amount`,amount:findGameId.stake,totalAmount:findUserCredit.credit+findGameId.stake}
+                return {msg: `You Won The Amount`,amount:findGameId.prize,totalAmount:findUserCredit.credit+findGameId.prize}
             }
             else{
                 throw new ErrorResponse("CHECK YOUR BACKEND CODE ON LINE 170",400)
             }
         }
         else if (win===false){
-            let postReward = await RewardsModel.create({amount:findGameId.stake,won:false,getterProfileId:getterid})
-            return {msg:"You Lost The Game"}
+            let postReward = await RewardsModel.create({amount:findGameId.prize,won:false,getterProfileId:getterid})
+            return {msg:"You Lost The Game",creditLeftInYourAccount:findUserCredit.credit}
         }
     } 
     catch (error) {

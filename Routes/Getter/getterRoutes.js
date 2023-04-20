@@ -36,7 +36,7 @@ router.put('/:id',authorized,image_upload.single('image'),catchAsync (async(req,
 
 
 // DELTE
-router.delete('/:id',catchAsync (async(req,res)=>{
+router.delete('/:id', authorized,catchAsync (async(req,res)=>{
     let id = req.params.id
     let deleteAccount = await GetterServices.deleteGetter(id)
     res.send(deleteAccount)
