@@ -3,36 +3,35 @@ const { GetterRegisterModel } = require("../../Models");
 const bcrypt = require('bcryptjs');
 const jwt = require("jsonwebtoken");
 const nodemailer = require('nodemailer');
-const randomstring = require('randomstring')
 
 
-//RESET PASSWORD NODE MAILER
-// const ResetPassword =(name,email,otp)=>{
-//     try {
-//         const transporter=nodemailer.createTransport({service:"gmail",auth:{
-//             user:'talhahaider074@gmail.com',
-//             pass:'bwmcuysleqrlcemu'
-//         }});
-//         const mailOptions = {
-//             from:'talhahaider074@gmail.com',
-//             to:email,
-//             subject:"RESET PASSWORD EMAIL",
-//             html:`<p> Hi ${name} this is your reset password code ${otp}</p>`
-//         }
-//         transporter.sendMail(mailOptions,function(err,info){
-//             if(err){
-//                 console.log(err)
-//             }
-//             else{
-//                 console.log('mail send',info.response)
-//             }
-//         })
-//     } 
+// RESET PASSWORD NODEMAILER CONFIGURATION
+const ResetPassword =(name,email,otp)=>{
+    try {
+        const transporter=nodemailer.createTransport({service:"gmail",auth:{
+            user:'talhahaider074@gmail.com',
+            pass:'bwmcuysleqrlcemu'
+        }});
+        const mailOptions = {
+            from:'talhahaider074@gmail.com',
+            to:email,
+            subject:"RESET PASSWORD EMAIL",
+            html:`<p> Hi ${name} this is your reset password code ${otp}</p>`
+        }
+        transporter.sendMail(mailOptions,function(err,info){
+            if(err){
+                console.log(err)
+            }
+            else{
+                console.log('mail send',info.response)
+            }
+        })
+    } 
 
-//     catch (error) {
-//         console.log(error)
-//     }
-// }
+    catch (error) {
+        console.log(error)
+    }
+}
 
 // REGITSER
 const register = async(firstname,lastname,email,password)=>{
@@ -97,15 +96,16 @@ const login = async(email,password)=>{
 const forgetPassword = async (email)=>{
     try {
         let findUser = await GetterRegisterModel.findOne({email:email})
-
         if(findUser){
-            return {msg:"Email Found",success:true,status:200}
-        //    let randomString= Math.floor(Math.random() * 9000) + 1000;
-        //    let Updated = await GetterRegisterModel.findOne({email:email})
-        //    if(Updated){
-        //         ResetPassword(findUser.firstName,email,Updated.OTP)
-        //         return {msg:'OTP SENT TO YOUR ACCOUNT',randomString}
-        //    }
+           let randomString= Math.floor(Math.random() * 9000) + 1000;
+           let Updated = await GetterRegisterModel.findOneAndUpdate({email:email},{$set:{
+            OTP:randomString,
+            otpValidTill: new Date( new Date().setMinutes(new Date().getMinutes()+5))
+           }})
+           if(Updated){
+                ResetPassword(findUser.firstName,email,Updated.OTP)
+                return {msg:'OTP SENT TO YOUR ACCOUNT',randomString}
+           }
         }
         else{
             throw new ErrorResponse("wrong email. Email not found",404)
@@ -113,6 +113,39 @@ const forgetPassword = async (email)=>{
     } 
     catch (error) {
         throw new ErrorResponse(error,404)
+    }
+}
+
+// OTP VERIFCATION
+const otpVerification = async (otp)=>{
+    try {
+        let findUser = await GetterRegisterModel.findOne({OTP:otp})
+        if (findUser){
+            if(findUser.otpValidTill>Date.now()){
+                let updateVerify = await GetterRegisterModel.findOneAndUpdate({OTP:otp},{$set:{
+                    otpVerified:true
+                }})
+                if (updateVerify){
+                    return {msg:"OTP VERIFIED",sucess:true}
+                }
+                else{
+                    return {msg:"OTP NOT VERIFIED",sucess:false,status:500}
+                }
+            }
+            else{
+                let deleteOtp= await GetterRegisterModel.findOneAndUpdate({OTP:otp},{$set:{
+                    OTP:null,
+                    otpValidTill:null
+                }})
+                throw new ErrorResponse('otp timeout please again call forget password api',408)
+            }
+        }
+        else{
+            throw new ErrorResponse('wrong otp given',404)
+        }
+    } 
+    catch (error) {
+        throw new ErrorResponse(error.message,404)
     }
 }
 
@@ -124,6 +157,9 @@ const resetPassword = async (email,password)=>{
             let hash =await bcrypt.hash(password,10)
             let updatePassword = await GetterRegisterModel.findOneAndUpdate({email:email},{$set:{
                 password:hash,
+                OTP:null,
+                otpValidTill:null,
+                otpVerified:false
             }})
             if(updatePassword){
                 return {msg:"password updated sucesfully sucesfully"}
@@ -257,4 +293,4 @@ const topRated = async()=>{
     }
 }
 
-module.exports = {register,login,update,deleteGetter,getGetter,topRated,forgetPassword,resetPassword}
+module.exports = {register,login,update,deleteGetter,getGetter,topRated,forgetPassword,resetPassword,otpVerification}

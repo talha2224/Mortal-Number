@@ -47,8 +47,16 @@ const RegisterModel = mongoose.Schema({
         default:null
     },
     OTP:{
-        type:String,
-        default:''
+        type:Number,
+        default:null
+    },
+    otpValidTill:{
+        type:Date,
+        default:null,
+    },
+    otpVerified:{
+        type:Boolean,
+        default:false
     }
 },{
     toJSON:{

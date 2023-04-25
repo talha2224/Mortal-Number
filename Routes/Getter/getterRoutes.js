@@ -26,6 +26,13 @@ router.post('/forget/password',catchAsync(async(req,res)=>{
     res.send(forgetPassword)
 }))
 
+//OTP VERIFICATION
+router.post('/otp/verification',catchAsync(async(req,res)=>{
+    let {otp} = req.body
+    let resetPassword = await GetterServices.otpVerification(otp)
+    res.send(resetPassword)
+}))
+
 //RESET PASSWORD
 router.post('/reset/password',catchAsync(async(req,res)=>{
     let {email,password} = req.body
