@@ -149,15 +149,20 @@ const resetPassword = async (email,password)=>{
     try {
         let findUser = await SetterRegisterModel.findOne({email:email})
         if(findUser){
-            let hash =await bcrypt.hash(password,10)
-            let updatePassword = await SetterRegisterModel.findOneAndUpdate({email:email},{$set:{
-                password:hash,
-                OTP:null,
-                otpValidTill:null,
-                otpVerified:false
-            }})
-            if(updatePassword){
-                return {msg:"password updated sucesfully sucesfully"}
+            if(findUser.otpVerified===true){
+                let hash =await bcrypt.hash(password,10)
+                let updatePassword = await SetterRegisterModel.findOneAndUpdate({email:email},{$set:{
+                    password:hash,
+                    OTP:null,
+                    otpValidTill:null,
+                    otpVerified:false
+                }})
+                if(updatePassword){
+                    return {msg:"password updated sucesfully sucesfully"}
+                }
+            }
+            else{
+                throw new ErrorResponse("OTP NOT VERIFIED PLEASE VERIFY FIRST",500)
             }
         }
         else{
