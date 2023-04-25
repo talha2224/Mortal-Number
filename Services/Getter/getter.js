@@ -101,10 +101,10 @@ const forgetPassword = async (email)=>{
            let Updated = await GetterRegisterModel.findOneAndUpdate({email:email},{$set:{
             OTP:randomString,
             otpValidTill: new Date( new Date().setMinutes(new Date().getMinutes()+5))
-           }})
+           }},{new:true})
            if(Updated){
                 ResetPassword(findUser.firstName,email,Updated.OTP)
-                return {msg:'OTP SENT TO YOUR ACCOUNT',randomString}
+                return {msg:'OTP SENT TO YOUR ACCOUNT',otp:randomString}
            }
         }
         else{
