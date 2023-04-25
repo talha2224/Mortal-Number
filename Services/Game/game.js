@@ -46,7 +46,7 @@ const postGame = async(id,winningnumber,stake,prize,hours,minutes,seconds)=>{
 
 const getGame = async (getterId)=>{
     try {
-        let allGame = await GameModel.find({active:true,winBy: { $nin: [getterId] }}).populate('setterId')
+        let allGame = await GameModel.find({active:true,winBy: { $nin: [getterId] }}).populate('setterId','-OTP -otpValidTill -otpVerified -credit -email -password -phonenumber -_id  -dateOfBirth -country')
         if (allGame.length>0){
             return allGame
         }
@@ -61,7 +61,7 @@ const getGame = async (getterId)=>{
 
 const singleGame = async (id)=>{
     try {
-        let singleGame = await GameModel.findOne({_id:id,active:true}).populate('setterId')
+        let singleGame = await GameModel.findOne({_id:id,active:true}).populate('setterId','-OTP -otpValidTill -otpVerified -credit -email -password -phonenumber -_id  -dateOfBirth -country')
         if (singleGame){
             return singleGame
         }
@@ -74,6 +74,38 @@ const singleGame = async (id)=>{
     }
      
 }
+
+//FIND BY GETTER ID
+const findGame = async (id)=>{
+    try {
+        let findGame = await GameModel.findOne({setterId:id})
+        if(findGame){
+            return findGame
+        }
+        else{
+            return {msg:'No game posted yet'}
+        }
+    } 
+    catch (error) {
+        throw new ErrorResponse(error.message,500)
+    }
+}
+
+const checkGame = async (id)=>{
+    try {
+        let findGame = await GameModel.findOne({setterId:id})
+        if(findGame){
+            throw new ErrorResponse('you have alreday posted a game',500)
+        }
+        else{
+            return {msg:'No game posted yet'}
+        }
+    } 
+    catch (error) {
+        throw new ErrorResponse(error.message,500)
+    }
+}
+
 
 const deleteGame = async (id)=>{
     try {
@@ -177,4 +209,4 @@ const afterGame = async (getterid,gameid,answer)=>{
 
 }
 
-module.exports ={postGame,getGame,singleGame,deleteGame,updateGame,playGame,afterGame}
+module.exports ={postGame,getGame,singleGame,deleteGame,updateGame,playGame,afterGame,findGame,checkGame}

@@ -25,10 +25,10 @@ router.get('/:id',catchAsync(async(req,res)=>{
 }))
 
 router.put('/:id',[authorized,updateValidation],image_upload.single('image'),catchAsync(async(req,res)=>{
-    let {firstname,lastname,email,password,username,phonenumber,credit,dateOfBirth,gender,country} = req.body
+    let {firstname,lastname,email,password,username,phonenumber,dateOfBirth,gender,country} = req.body
     let image = req?.file?.filename
     let id = req.params.id
-    let updateAdmin = await AdminServices.updateAdmin(id,firstname,lastname,email,password,username,phonenumber,credit,dateOfBirth,gender,country,image)
+    let updateAdmin = await AdminServices.updateAdmin(id,firstname,lastname,email,password,username,phonenumber,dateOfBirth,gender,country,image)
     res.send(updateAdmin)
 }))
 

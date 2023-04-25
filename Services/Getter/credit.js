@@ -54,7 +54,6 @@ const requestCredit = async (getterId,setterId,amount) =>{
 
 
 //IF THE REQUEST ACCEPTED
-
 const acceptedCreditRequest = async(requestId,getterId,setterid,amount)=>{
     try {
        let  creditInfo = await GetterCreditModel.findByIdAndUpdate(requestId,{
@@ -124,7 +123,7 @@ const deleteRequest = async (id)=>{
 //  ALL REQUESTS
 const getAll = async ()=>{
     try {
-        let allRequest = await GetterCreditModel.find({approved:false}).populate('getterProfileId').populate('setterProfileId')
+        let allRequest = await GetterCreditModel.find({approved:false}).populate('getterProfileId','-OTP -otpValidTill -otpVerified -credit -email -password -phonenumber').populate('setterProfileId','-OTP -otpValidTill -otpVerified -credit -email -password -phonenumber')
         if(allRequest.length>0){
             return allRequest
         }
@@ -141,7 +140,7 @@ const getAll = async ()=>{
 
 const getSingle = async (id)=>{
     try {
-        let singleRequest = await GetterCreditModel.findById(id).populate('getterProfileId').populate('setterProfileId')
+        let singleRequest = await GetterCreditModel.findById(id).populate('getterProfileId','-OTP -otpValidTill -otpVerified -credit -email -password -phonenumber').populate('setterProfileId','-OTP -otpValidTill -otpVerified -credit -email -password -phonenumber')
         if(singleRequest){
             return singleRequest
         }

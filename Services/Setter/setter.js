@@ -44,7 +44,8 @@ const register = async(firstname,lastname,email,password)=>{
             if(setter){
                 let token = jwt.sign({setter},process.env.secretKey)
                 if(token){
-                    return {setter,token}
+                    let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt,__v,...setterInfo} = setter._doc
+                    return {setterInfo,token}
                 }
                 else{
                     throw new ErrorResponse('Failed To Generate Token',400)
@@ -68,7 +69,8 @@ const login = async(email,password)=>{
            if(comparePassword){
                 let token = jwt.sign({SetterDetails},process.env.secretKey)
                 if(token){
-                return {SetterDetails,token}
+                    let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt,__v,...setterInfo} = SetterDetails._doc
+                    return {setterInfo,token}
                 }
                 else{
                 throw new ErrorResponse('failed to generate token',500)
@@ -196,9 +198,9 @@ const update = async(id,firstname,lastname,email,password,username,phonenumber,d
                 },
                 {new:true}
             )
-            console.log(updateSetter)
             if(updateSetter){
-                return updateSetter
+                let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt,__v,...updatedInfo} = updateSetter._doc
+                return updatedInfo
             }
             else{
                 throw new ErrorResponse("failed to update",304)
@@ -228,7 +230,8 @@ const update = async(id,firstname,lastname,email,password,username,phonenumber,d
                 {new:true}
             )
             if(updateSetter){
-                return updateSetter
+                let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt,__v,...updatedInfo} = updateSetter._doc
+                return updatedInfo
             }
             else{
                 throw new ErrorResponse("failed to update",304)
@@ -261,5 +264,19 @@ const deleteSetter = async(id)=>{
     }
 
 }
-module.exports = {register,login,update,deleteSetter,forgetPassword,resetPassword,otpVerification}
+
+const getSingleSetter = async(id)=>{
+    try {
+        let singleSetter = await SetterRegisterModel.findById({_id:id})
+        if(singleSetter){
+            let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt,__v,...setterInfo} = singleSetter._doc
+            return setterInfo
+        }
+    } 
+    catch (error) {
+        
+    }
+}
+
+module.exports = {register,login,update,deleteSetter,forgetPassword,resetPassword,otpVerification,getSingleSetter}
 

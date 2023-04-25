@@ -40,7 +40,8 @@ const registerAdmin = async(firstname,lastname,email,password)=>{
             if  (adminInfo){
                 let token = await jwt.sign({adminInfo},process.env.adminKey)
                 if(token){
-                    return {adminInfo,token}
+                    let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt,__v,...adminInformation} = adminInfo._doc
+                    return {adminInformation,token}
                 }
                 else{
                     throw new ErrorResponse ("FAILED TO GENERATE TOKEN",400)
@@ -65,7 +66,8 @@ const loginAdmin = async (email,password)=>{
             if (hashPassword){
                 let token = await jwt.sign({ adminInfo},process.env.adminKey)
                 if(token){
-                    return { adminInfo,token}
+                    let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt,__v,...adminInformation} = adminInfo._doc
+                    return { adminInformation,token}
                 }
                 else{
                     throw new ErrorResponse ("FAILED TO GENERATE TOKEN",498)
@@ -109,9 +111,9 @@ const forgetPassword = async (email)=>{
 }
 
 // OTP VERIFCATION
-    const otpVerification = async (otp)=>{
-        try {
-            let findUser = await AdminRegisterModel.findOne({OTP:otp})
+const otpVerification = async (otp)=>{
+    try {
+        let findUser = await AdminRegisterModel.findOne({OTP:otp})
             if (findUser){
                 if(findUser.otpValidTill>Date.now()){
                         let updateVerify = await AdminRegisterModel.findOneAndUpdate({OTP:otp},{$set:{
@@ -175,7 +177,8 @@ const getAdmin = async (id)=>{
     try {
         let admin = await AdminRegisterModel.findById(id)
         if(admin){
-            return admin
+            let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt,__v,...adminInformation} = admin._doc
+            return adminInformation
         }
         else{
             throw new ErrorResponse("No Admin Found",404)
@@ -186,7 +189,7 @@ const getAdmin = async (id)=>{
     }
 }
 
-const updateAdmin = async (id,firstname,lastname,email,password,username,phonenumber,credit,dateOfBirth,gender,country,image)=>{
+const updateAdmin = async (id,firstname,lastname,email,password,username,phonenumber,dateOfBirth,gender,country,image)=>{
     if (password){
         try {
             let hash = await bcrypt.hash(password,10)
@@ -199,7 +202,6 @@ const updateAdmin = async (id,firstname,lastname,email,password,username,phonenu
                         password:hash,
                         username:username,
                         phonenumber:phonenumber,
-                        credit:credit,
                         dateOfBirth:dateOfBirth,
                         gender:gender,
                         country:country,
@@ -209,7 +211,8 @@ const updateAdmin = async (id,firstname,lastname,email,password,username,phonenu
                 {new:true}
             )
             if(updateAdmin){
-                return updateAdmin
+                let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt,__v,...adminInformation} = updateAdmin._doc
+                return adminInformation
             }
             else{
                 throw new ErrorResponse("failed to update",304)
@@ -231,7 +234,6 @@ const updateAdmin = async (id,firstname,lastname,email,password,username,phonenu
                         email:email,
                         username:username,
                         phonenumber:phonenumber,
-                        credit:credit,
                         dateOfBirth:dateOfBirth,
                         gender:gender,
                         country:country,
@@ -241,7 +243,8 @@ const updateAdmin = async (id,firstname,lastname,email,password,username,phonenu
                 {new:true}
             )
             if(updateAdmin){
-                return updateAdmin
+                let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt,__v,...adminInformation} = updateAdmin._doc
+                return adminInformation
             }
             else{
                 throw new ErrorResponse("failed to update",409)

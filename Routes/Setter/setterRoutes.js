@@ -20,10 +20,9 @@ router.post('/login',loginValidation,catchAsync( async(req,res)=>{
 
 router.put('/:id',authorized,image_upload.single('image'),catchAsync(async(req,res)=>{
     let id = req.params.id
-    let {firstname,lastname,email,password,username,phonenumber,credit,dateOfBirth,gender,country} = req.body
-    // console.log(firstname,lastname,email,password,username,phonenumber,credit,dateOfBirth,gender,country)
+    let {firstname,lastname,email,password,username,phonenumber,dateOfBirth,gender,country} = req.body
     let image = req?.file?.filename
-    let updateSetter = await SetterServices.update(id,firstname,lastname,email,password,username,phonenumber,credit,dateOfBirth,gender,country,image)
+    let updateSetter = await SetterServices.update(id,firstname,lastname,email,password,username,phonenumber,dateOfBirth,gender,country,image)
     res.send(updateSetter)
 }))
 

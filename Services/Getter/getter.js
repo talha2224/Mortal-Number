@@ -46,7 +46,8 @@ const register = async(firstname,lastname,email,password)=>{
             if(getter){
                 let token = jwt.sign({getter},process.env.secretKey)
                 if(token){
-                    return {getter,token}
+                    let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt,__v,...getterInfo} = getter._doc
+                    return {getterInfo,token}
                 }
                 else{
                     throw new ErrorResponse('Failed To Generate Token',400)
@@ -72,7 +73,8 @@ const login = async(email,password)=>{
            if(comparePassword){
                 let token = jwt.sign({loginGetter},process.env.secretKey)
                 if(token){
-                return {loginGetter,token}
+                    let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt,__v,...getterInfo} = loginGetter._doc
+                    return {getterInfo,token}
                 }
                 else{
                 throw new ErrorResponse('failed to generate token',500)
@@ -82,7 +84,6 @@ const login = async(email,password)=>{
                 throw new ErrorResponse ("invalid credentials",400)
             }
         }
-
         catch (error) {
             throw new ErrorResponse(error,500)
         }
@@ -183,7 +184,8 @@ const resetPassword = async (email,password)=>{
 const getGetter =  async(id)=>{
     let singleGetter = await GetterRegisterModel.findById(id)
     if (singleGetter){
-        return singleGetter
+        let {OTP,otpValidTill,otpVerified,createdAt,password,updatedAt,__v,...getterInfo} = singleGetter._doc
+        return getterInfo
     }
     else{
         throw new ErrorResponse('Invalid Id ',404)
