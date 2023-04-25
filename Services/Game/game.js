@@ -145,11 +145,12 @@ const playGame = async (getterid,gameid)=>{
 
 }
 
-const afterGame = async (getterid,gameid,win)=>{
+const afterGame = async (getterid,gameid,answer)=>{
     try {
         let findUserCredit = await GetterRegisterModel.findById(getterid)
         let findGameId = await GameModel.findById(gameid)
-        if (win===true){
+        let check =  findGameId.winningNumber.every(item=>answer.includes(item))
+        if (check){
             let updateGetterAmount = await GetterRegisterModel.findByIdAndUpdate(getterid,{$set:{credit:findUserCredit.credit+findGameId.prize}},{new:true})
             let postReward = await RewardsModel.create({amount:findGameId.prize,won:true,getterProfileId:getterid})
             let updateGame = await GameModel.findByIdAndUpdate(gameid,{
@@ -165,13 +166,13 @@ const afterGame = async (getterid,gameid,win)=>{
                 throw new ErrorResponse("CHECK YOUR BACKEND CODE ON LINE 170",400)
             }
         }
-        else if (win===false){
+        else{
             let postReward = await RewardsModel.create({amount:findGameId.prize,won:false,getterProfileId:getterid})
             return {msg:"You Lost The Game",creditLeftInYourAccount:findUserCredit.credit}
         }
     } 
     catch (error) {
-        throw new ErrorResponse(error)
+        throw new ErrorResponse(error.message)
     }
 
 }

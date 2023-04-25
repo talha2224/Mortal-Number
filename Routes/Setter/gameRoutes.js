@@ -45,8 +45,8 @@ router.post('/play/game',catchAsync(async(req,res)=>{
 
 
 router.post('/game/result',catchAsync(async(req,res)=>{
-    let {getterid,gameid,win} = req.body
-    let game = await GameServices.afterGame(getterid,gameid,win)
+    let {getterid,gameid,answer} = req.body
+    let game = await GameServices.afterGame(getterid,gameid,answer)
     res.send(game)
 }))
 
