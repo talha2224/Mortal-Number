@@ -51,6 +51,13 @@ router.delete('/:id',authorized,catchAsync (async(req,res)=>{
     res.send(deleteAccount)
 }))
 
+//Update PASSWORD
+router.post('/change/password',authorized,catchAsync(async(req,res)=>{
+    let {id,oldpassword,newpassword} = req.body
+    let resetPassword = await SetterServices.changePassword(id,oldpassword,newpassword)
+    res.send(resetPassword)
+}))
+
 
 
 module.exports = router

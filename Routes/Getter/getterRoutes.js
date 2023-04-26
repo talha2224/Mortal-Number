@@ -70,6 +70,13 @@ router.get('/top/rated',catchAsync(async(req,res)=>{
     res.send(topRated)
 }))
 
+//Update PASSWORD
+router.post('/change/password',authorized,catchAsync(async(req,res)=>{
+    let {id,oldpassword,newpassword} = req.body
+    let resetPassword = await GetterServices.changePassword(id,oldpassword,newpassword)
+    res.send(resetPassword)
+}))
+
 
 
 

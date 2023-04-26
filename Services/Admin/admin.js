@@ -271,4 +271,31 @@ const deleteAdmin = async (id)=>{
     }
 }
 
-module.exports = {registerAdmin,loginAdmin,getAdmin,updateAdmin,deleteAdmin,forgetPassword,resetPassword,otpVerification}
+//CHANGE PASSWORD
+const changePassword = async (id,oldpassword,newpassword)=>{
+    try {
+        let find = await AdminRegisterModel.findById(id)
+        if (find){
+            let comparePassword = await bcrypt.compare(oldpassword,find.password)
+            if (comparePassword){
+                let hash = await bcrypt.hash(newpassword,10)
+                let update = await AdminRegisterModel.findByIdAndUpdate(id,{$set:{
+                    password:hash
+                }},{new:true})
+                if(update){
+                    return {msg:'password updated sucesfully'}
+                }
+            }
+            else{
+                throw new ErrorResponse('wrong password',401)
+            }
+        }
+        else{
+            throw new ErrorResponse('wrong user id passed no reacord found',404)
+        }
+    } 
+    catch (error) {
+        throw new ErrorResponse(error.message,404)
+    }
+}
+module.exports = {registerAdmin,loginAdmin,getAdmin,updateAdmin,deleteAdmin,forgetPassword,resetPassword,otpVerification,changePassword}

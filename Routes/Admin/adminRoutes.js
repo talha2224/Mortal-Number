@@ -56,4 +56,13 @@ router.delete('/:id',authorized,catchAsync(async(req,res)=>{
     let deleteAdmin = await AdminServices.deleteAdmin(id)
     res.send(deleteAdmin)
 }))
+
+//Update PASSWORD
+router.post('/change/password',authorized,catchAsync(async(req,res)=>{
+    let {id,oldpassword,newpassword} = req.body
+    let resetPassword = await AdminServices.changePassword(id,oldpassword,newpassword)
+    res.send(resetPassword)
+}))
+
+
 module.exports = router
