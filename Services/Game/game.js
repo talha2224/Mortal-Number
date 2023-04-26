@@ -177,7 +177,7 @@ const playGame = async (getterid,gameid)=>{
 
 }
 
-const afterGame = async (getterid,gameid,answer)=>{
+const afterGame = async (getterid,gameid,answer,setterid)=>{
     try {
         let findUserCredit = await GetterRegisterModel.findById(getterid)
         let findGameId = await GameModel.findById(gameid)
@@ -200,8 +200,13 @@ const afterGame = async (getterid,gameid,answer)=>{
         }
         else{
             let postReward = await RewardsModel.create({amount:findGameId.prize,won:false,getterProfileId:getterid})
+            let getSetterDetails = await SetterRegisterModel.findById(setterid)
+            let updateSetterAmount= await SetterRegisterModel.findByIdAndUpdate(setterid,{$set:{
+                credit:getSetterDetails.credit+findGameId.stake
+            }})
+            let postSetterReward = await RewardsModel.create({amount:findGameId.stake,won:true,setterProfileId:setterid})
             return {msg:"You Lost The Game",creditLeftInYourAccount:findUserCredit.credit}
-        }
+            }
     } 
     catch (error) {
         throw new ErrorResponse(error.message)
