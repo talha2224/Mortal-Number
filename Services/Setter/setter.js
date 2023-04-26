@@ -306,6 +306,22 @@ const changePassword = async (id,oldpassword,newpassword)=>{
     }
 }
 
+//TOP 5 SETTER
+const topRated = async()=>{
+    try {
+        let top = await SetterRegisterModel.find({}).sort({credit:-1}).limit(5)
+        if (top){
+            return top
+        }
+        else{
+            throw new ErrorResponse('no data found addsome',404)
+        }
+        
+    } catch (error) {
+        throw new ErrorResponse(error.message)
+    }
+}
 
-module.exports = {register,login,update,deleteSetter,forgetPassword,resetPassword,otpVerification,getSingleSetter,changePassword}
+
+module.exports = {register,login,update,deleteSetter,forgetPassword,resetPassword,otpVerification,getSingleSetter,changePassword,topRated}
 

@@ -58,6 +58,12 @@ router.post('/change/password',authorized,catchAsync(async(req,res)=>{
     res.send(resetPassword)
 }))
 
+//TOP ACHIEVERS
+router.get('/top/rated',catchAsync(async(req,res)=>{
+    let topRated = await SetterServices.topRated()
+    res.send(topRated)
+}))
+
 
 
 module.exports = router
