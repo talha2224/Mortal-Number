@@ -101,6 +101,28 @@ const acceptedCreditRequest = async(requestId,getterId,setterid,amount)=>{
 }
 
 
+//GET CREDIT BY GETTER OR SETTER ID
+const getCreditHistory = async(id)=>{
+    try {
+        let CreditHistory = await GetterCreditModel.find({
+            $or: [
+                { setterProfileId: id },
+                { getterProfileId: id }
+            ]
+        })
+        if(CreditHistory){
+            return CreditHistory
+        }
+        else{
+            throw new ErrorResponse("no credit request found",404)
+        }
+    } 
+    catch (error) {
+        throw new ErrorResponse(error.message,404)
+    }
+}
+
+
 //IF THE REQUEST NOT ACCEPTED
 
 const deleteRequest = async (id)=>{
@@ -123,7 +145,7 @@ const deleteRequest = async (id)=>{
 //  ALL REQUESTS
 const getAll = async ()=>{
     try {
-        let allRequest = await GetterCreditModel.find({approved:false}).populate('getterProfileId','-OTP -otpValidTill -otpVerified  -email -password -phonenumber -dateOfBirth -gender -_id -country').populate('setterProfileId','-OTP -otpValidTill -otpVerified  -email -password -phonenumber -dateOfBirth -gender -_id -country')
+        let allRequest = await GetterCreditModel.find({approved:false}).populate('getterProfileId','-OTP -otpValidTill -otpVerified -email -password -phonenumber -dateOfBirth -gender -_id -country').populate('setterProfileId','-OTP -otpValidTill -otpVerified  -email -password -phonenumber -dateOfBirth -gender -_id -country')
         if(allRequest.length>0){
             return allRequest
         }
@@ -153,4 +175,4 @@ const getSingle = async (id)=>{
     }
 }
 
-module.exports = {requestCredit,deleteRequest,getAll,getSingle,acceptedCreditRequest}
+module.exports = {requestCredit,deleteRequest,getAll,getSingle,acceptedCreditRequest,getCreditHistory}

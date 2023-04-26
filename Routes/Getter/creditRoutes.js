@@ -30,6 +30,12 @@ router.get('',catchAsync(async(req,res)=>{
     res.send(newRequest)
 }))
 
+router.get('/history/:id',catchAsync(async(req,res)=>{
+    let {id} = req.params
+    let history = await CreditServices.getCreditHistory(id)
+    res.send(history)
+}))
+
 router.get('/:id',catchAsync(async(req,res)=>{
     let id = req.params.id
     let newRequest = await CreditServices.getSingle(id)
