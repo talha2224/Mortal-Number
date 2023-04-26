@@ -123,7 +123,7 @@ const deleteRequest = async (id)=>{
 //  ALL REQUESTS
 const getAll = async ()=>{
     try {
-        let allRequest = await GetterCreditModel.find({approved:false}).populate('getterProfileId','-OTP -otpValidTill -otpVerified -credit -email -password -phonenumber').populate('setterProfileId','-OTP -otpValidTill -otpVerified -credit -email -password -phonenumber')
+        let allRequest = await GetterCreditModel.find({approved:false}).populate('getterProfileId','-OTP -otpValidTill -otpVerified  -email -password -phonenumber -dateOfBirth -gender -_id -country').populate('setterProfileId','-OTP -otpValidTill -otpVerified  -email -password -phonenumber -dateOfBirth -gender -_id -country')
         if(allRequest.length>0){
             return allRequest
         }
@@ -140,7 +140,7 @@ const getAll = async ()=>{
 
 const getSingle = async (id)=>{
     try {
-        let singleRequest = await GetterCreditModel.findById(id).populate('getterProfileId','-OTP -otpValidTill -otpVerified -credit -email -password -phonenumber').populate('setterProfileId','-OTP -otpValidTill -otpVerified -credit -email -password -phonenumber')
+        let singleRequest = await GetterCreditModel.findById(id).populate('getterProfileId','-OTP -otpValidTill -otpVerified -email -password -phonenumber -dateOfBirth -gender -_id -country').populate('setterProfileId','-OTP -otpValidTill -otpVerified  -email -password -phonenumber -dateOfBirth -gender -_id -country')
         if(singleRequest){
             return singleRequest
         }
