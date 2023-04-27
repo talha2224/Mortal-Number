@@ -1,5 +1,5 @@
 const {ErrorResponse} = require("../../Error/Utils");
-const { SetterRegisterModel } = require("../../Models");
+const { SetterRegisterModel, GameModel } = require("../../Models");
 const bcrypt = require('bcryptjs');
 const jwt = require("jsonwebtoken");
 
@@ -65,24 +65,29 @@ const login = async(email,password)=>{
     const SetterDetails = await SetterRegisterModel.findOne({email:email})
     if(SetterDetails){
         try{
-           let comparePassword = await bcrypt.compare(password,SetterDetails.password)
-           if(comparePassword){
-                let token = jwt.sign({SetterDetails},process.env.secretKey)
-                if(token){
-                    let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt,__v,...setterInfo} = SetterDetails._doc
-                    return {setterInfo,token}
+            if(SetterDetails.accountBlocked===false){
+                let comparePassword = await bcrypt.compare(password,SetterDetails.password)
+                if(comparePassword){
+                     let token = jwt.sign({SetterDetails},process.env.secretKey)
+                     if(token){
+                         let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt,__v,...setterInfo} = SetterDetails._doc
+                         return {setterInfo,token}
+                     }
+                     else{
+                     throw new ErrorResponse('failed to generate token',500)
+                     }
+                } 
+                 else{
+                     throw new ErrorResponse ("invalid credentials",401)
                 }
-                else{
-                throw new ErrorResponse('failed to generate token',500)
-                }
-            } 
-            else{
-                throw new ErrorResponse ("invalid credentials",401)
+            }
+            else if (SetterDetails.accountBlocked===true){
+                throw new ErrorResponse('your account has been blocked',403)
             }
         }
 
         catch (error) {
-            throw new ErrorResponse(error,500)
+            throw new ErrorResponse(error,403)
         }
     }
     else{ 
@@ -176,7 +181,7 @@ const resetPassword = async (email,password)=>{
     }
 }
 
-const update = async(id,firstname,lastname,email,password,username,phonenumber,dateOfBirth,gender,country,image)=>{
+const update = async(id,firstname,lastname,email,password,username,phonenumber,dateOfBirth,gender,country,image,accountBlocked)=>{
     if (password){
         try {
             let hash = await bcrypt.hash(password,10)
@@ -193,13 +198,21 @@ const update = async(id,firstname,lastname,email,password,username,phonenumber,d
                         dateOfBirth:dateOfBirth,
                         gender:gender,
                         country:country,
-                        profileImage:image
+                        profileImage:image,
+                        accountBlocked:accountBlocked
                     }
                 },
                 {new:true}
             )
             if(updateSetter){
                 let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt,__v,...updatedInfo} = updateSetter._doc
+                if (accountBlocked===true){
+                    let updateGame = await GameModel.findOneAndUpdate({setterId:id},{
+                        $set:{
+                            active:false
+                        }
+                    })
+                }
                 return updatedInfo
             }
             else{
@@ -224,13 +237,17 @@ const update = async(id,firstname,lastname,email,password,username,phonenumber,d
                         dateOfBirth:dateOfBirth,
                         gender:gender,
                         country:country,
-                        profileImage:image
+                        profileImage:image,
+                        accountBlocked:accountBlocked
                     }
                 },
                 {new:true}
             )
             if(updateSetter){
                 let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt,__v,...updatedInfo} = updateSetter._doc
+                if (accountBlocked){
+                    let updateGame = await GameModel.findOneAndUpdate({setterId:id},{$set:{active:false}})
+                }
                 return updatedInfo
             }
             else{
@@ -306,22 +323,22 @@ const changePassword = async (id,oldpassword,newpassword)=>{
     }
 }
 
-//TOP 5 SETTER
+// TOP 5 SETTER
 const topRated = async()=>{
     try {
-        let top = await SetterRegisterModel.find({}).sort({credit:-1}).limit(5)
-        if (top){
+        let top = await SetterRegisterModel.find({accountBlocked:false}).sort({credit:-1}).limit(5)
+        if (top.length>0){
             return top
         }
         else{
             throw new ErrorResponse('no data found addsome',404)
         }
         
-    } catch (error) {
-        throw new ErrorResponse(error.message)
+    } 
+    catch (error) {
+        throw new ErrorResponse(error.message,404)
     }
 }
-
 
 module.exports = {register,login,update,deleteSetter,forgetPassword,resetPassword,otpVerification,getSingleSetter,changePassword,topRated}
 

@@ -69,23 +69,28 @@ const login = async(email,password)=>{
     const loginGetter = await GetterRegisterModel.findOne({email:email})
     if(loginGetter){
         try{
-           let comparePassword = await bcrypt.compare(password,loginGetter.password)
-           if(comparePassword){
-                let token = jwt.sign({loginGetter},process.env.secretKey)
-                if(token){
-                    let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt,__v,...getterInfo} = loginGetter._doc
-                    return {getterInfo,token}
-                }
+            if (loginGetter.accountBlocked===false){
+                let comparePassword = await bcrypt.compare(password,loginGetter.password)
+                if(comparePassword){
+                     let token = jwt.sign({loginGetter},process.env.secretKey)
+                     if(token){
+                         let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt,__v,...getterInfo} = loginGetter._doc
+                         return {getterInfo,token}
+                     }
+                     else{
+                     throw new ErrorResponse('failed to generate token',500)
+                     }
+                } 
                 else{
-                throw new ErrorResponse('failed to generate token',500)
+                     throw new ErrorResponse ("invalid credentials",400)
                 }
-            } 
-            else{
-                throw new ErrorResponse ("invalid credentials",400)
+            }
+            else if (loginGetter.accountBlocked===true){
+                throw new ErrorResponse('your account has been blocked',403)
             }
         }
         catch (error) {
-            throw new ErrorResponse(error,500)
+            throw new ErrorResponse(error.message,403)
         }
     }
     else{ 
@@ -193,7 +198,7 @@ const getGetter =  async(id)=>{
 }
 
 //UPDATE GETTER PROFILE
-const update = async(id,firstname,lastname,email,password,username,phonenumber,credit,dateOfBirth,gender,country,image)=>{
+const update = async(id,firstname,lastname,email,password,username,phonenumber,credit,dateOfBirth,gender,country,image,accountBlocked)=>{
     if (password){
         try {
             let hash = await bcrypt.hash(password,10)
@@ -210,13 +215,15 @@ const update = async(id,firstname,lastname,email,password,username,phonenumber,c
                         dateOfBirth:dateOfBirth,
                         gender:gender,
                         country:country,
-                        profileImage:image
+                        profileImage:image,
+                        accountBlocked:accountBlocked
                     }
                 },
                 {new:true}
             )
             if(updateGetter){
-                return updateGetter
+                let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt,__v,...updatedInfo} = updateGetter._doc
+                return updatedInfo
             }
             else{
                 throw new ErrorResponse("failed to update",409)
@@ -242,13 +249,15 @@ const update = async(id,firstname,lastname,email,password,username,phonenumber,c
                         dateOfBirth:dateOfBirth,
                         gender:gender,
                         country:country,
-                        profileImage:image
+                        profileImage:image,
+                        accountBlocked:accountBlocked
                     }
                 },
                 {new:true}
             )
             if(updateGetter){
-                return updateGetter
+                let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt,__v,...updatedInfo} = updateGetter._doc
+                return updatedInfo
             }
             else{
                 throw new ErrorResponse("failed to update",409)
@@ -328,4 +337,25 @@ const changePassword = async (id,oldpassword,newpassword)=>{
     }
 }
 
-module.exports = {register,login,update,deleteGetter,getGetter,topRated,forgetPassword,resetPassword,otpVerification,changePassword}
+// CONST BLOCK USER
+const blockUser = async (id)=>{
+    try {
+        let findUserAndUpdate = await GetterRegisterModel.findByIdAndUpdate(id,{
+            $set:{
+                accountBlocked:true
+            }
+        })
+        if (findUserAndUpdate){
+            return {msg:'YOUR ACCOUNT HAS BEEN BLOCKED'}
+        }
+        else{
+            throw new ErrorResponse('WRONG ID GIVEN FAILED TO BLOCK GUESSER',404)
+        }
+    } 
+    catch (error) {
+        throw new ErrorResponse(error.message,404)
+    }
+}
+
+
+module.exports = {register,login,update,deleteGetter,getGetter,topRated,forgetPassword,resetPassword,otpVerification,changePassword,blockUser}

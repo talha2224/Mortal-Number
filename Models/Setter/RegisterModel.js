@@ -57,6 +57,10 @@ const RegisterModel = mongoose.Schema({
     otpVerified:{
         type:Boolean,
         default:false
+    },
+    accountBlocked:{
+        type:Boolean,
+        default:false
     }
 },{
     toJSON:{

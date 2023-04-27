@@ -3,10 +3,13 @@ const { GameModel, GetterRegisterModel,SetterRegisterModel,RewardsModel} = requi
 
 const postGame = async(id,winningnumber,stake,prize,hours,minutes,seconds)=>{
     try {
-        let findSetter = await GameModel.findOne({setterId:id})
-        if(findSetter){
-            throw new ErrorResponse("you can not post another game wait for the update",403)
+        let findSetter = await GameModel.findOne({setterId:id}).populate('setterId')
+        if(findSetter.setterId.accountBlocked){
+            throw new ErrorResponse("your account has been blocked",403)
         }
+        else if (findSetter){
+        }
+
         else{
             let setterId = await SetterRegisterModel.findById(id)
             if (setterId.credit>=stake){
@@ -40,25 +43,28 @@ const postGame = async(id,winningnumber,stake,prize,hours,minutes,seconds)=>{
         
     } 
     catch (error) {
-        throw new ErrorResponse(error)
+        throw new ErrorResponse(error,403)
     }
 }
 
+//SETTER GET GAME
 const getGame = async (getterId)=>{
     try {
-        let allGame = await GameModel.find({active:true,winBy: { $nin: [getterId] }}).populate('setterId','-OTP -otpValidTill -otpVerified -credit -email -password -phonenumber -_id  -dateOfBirth -country')
-        if (allGame.length>0){
-            return allGame
-        }
-        else{
-            throw new ErrorResponse ('NO GAME FOUND OR YOU HAVE ALREADY PLAY ALL THE POSTED GAME',404)
-        }
+        let allGame = await GameModel.find({active:true,winBy: { $nin: [getterId] }}).populate('setterId','-OTP -otpValidTill -otpVerified -credit -email -password -phonenumber -dateOfBirth -country').exec()
+            if (allGame.length>0){
+                return allGame
+            }
+            else{
+                throw new ErrorResponse ('NO GAME FOUND OR YOU HAVE ALREADY PLAY ALL THE POSTED GAME',404)
+            }
+        
     } 
     catch (error) {
         throw new ErrorResponse(error,404)
     }
 }
 
+// SINGLE GAME
 const singleGame = async (id)=>{
     try {
         let singleGame = await GameModel.findOne({_id:id,active:true}).populate('setterId','-OTP -otpValidTill -otpVerified -credit -email -password -phonenumber -_id  -dateOfBirth -country')
@@ -91,6 +97,7 @@ const findGame = async (id)=>{
     }
 }
 
+// ALREDAY POSTED
 const checkGame = async (id)=>{
     try {
         let findGame = await GameModel.findOne({setterId:id})
@@ -105,7 +112,6 @@ const checkGame = async (id)=>{
         throw new ErrorResponse(error.message,500)
     }
 }
-
 
 const deleteGame = async (id)=>{
     try {
@@ -212,6 +218,16 @@ const afterGame = async (getterid,gameid,answer,setterid)=>{
         throw new ErrorResponse(error.message)
     }
 
+}
+
+//GET ACTIVE GAME FOR ADMIN
+const showAdminGame= async()=>{
+    try {
+        let allActiveGame = await GameModel.find({})
+    } 
+    catch (error) {
+        
+    }
 }
 
 module.exports ={postGame,getGame,singleGame,deleteGame,updateGame,playGame,afterGame,findGame,checkGame}
