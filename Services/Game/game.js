@@ -8,6 +8,7 @@ const postGame = async(id,winningnumber,stake,prize,hours,minutes,seconds)=>{
             throw new ErrorResponse("your account has been blocked",403)
         }
         else if (findSetter){
+            throw new ErrorResponse("your have already posted a game",429)
         }
 
         else{
@@ -47,7 +48,7 @@ const postGame = async(id,winningnumber,stake,prize,hours,minutes,seconds)=>{
     }
 }
 
-//SETTER GET GAME
+//  GUESSER GET GAME
 const getGame = async (getterId)=>{
     try {
         let allGame = await GameModel.find({active:true,winBy: { $nin: [getterId] }}).populate('setterId','-OTP -otpValidTill -otpVerified -credit -email -password -phonenumber -dateOfBirth -country').exec()
@@ -81,7 +82,7 @@ const singleGame = async (id)=>{
      
 }
 
-//FIND BY GETTER ID
+//FIND BY SETTER ID
 const findGame = async (id)=>{
     try {
         let findGame = await GameModel.findOne({setterId:id})
@@ -97,7 +98,7 @@ const findGame = async (id)=>{
     }
 }
 
-// ALREDAY POSTED
+// ALREDAY POSTED FOR SETTER
 const checkGame = async (id)=>{
     try {
         let findGame = await GameModel.findOne({setterId:id})

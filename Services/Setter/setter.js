@@ -181,54 +181,11 @@ const resetPassword = async (email,password)=>{
     }
 }
 
-const update = async(id,firstname,lastname,email,password,username,phonenumber,dateOfBirth,gender,country,image,accountBlocked)=>{
-    if (password){
-        try {
-            let hash = await bcrypt.hash(password,10)
-            console.log(`updated`)
+const update = async(id,firstname,lastname,email,username,phonenumber,dateOfBirth,gender,country,image,accountBlocked)=>{
+    try {
             let updateSetter = await SetterRegisterModel.findByIdAndUpdate(id,
-                {
-                    $set:{
-                        firstName:firstname,
-                        lastName:lastname,
-                        email:email,
-                        password:hash,
-                        username:username,
-                        phonenumber:phonenumber,
-                        dateOfBirth:dateOfBirth,
-                        gender:gender,
-                        country:country,
-                        profileImage:image,
-                        accountBlocked:accountBlocked
-                    }
-                },
-                {new:true}
-            )
-            if(updateSetter){
-                let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt,__v,...updatedInfo} = updateSetter._doc
-                if (accountBlocked===true){
-                    let updateGame = await GameModel.findOneAndUpdate({setterId:id},{
-                        $set:{
-                            active:false
-                        }
-                    })
-                }
-                return updatedInfo
-            }
-            else{
-                throw new ErrorResponse("failed to update",304)
-            }
-            
-        } 
-        catch (error) {
-            throw new ErrorResponse(error,304)
-        }
-    }
-    else{
-        try {
-            let updateSetter = await SetterRegisterModel.findByIdAndUpdate(id,
-                {
-                    $set:{
+            {
+                $set:{
                         firstName:firstname,
                         lastName:lastname,
                         email:email,
@@ -240,13 +197,15 @@ const update = async(id,firstname,lastname,email,password,username,phonenumber,d
                         profileImage:image,
                         accountBlocked:accountBlocked
                     }
-                },
-                {new:true}
-            )
+            },{new:true})
+
             if(updateSetter){
                 let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt,__v,...updatedInfo} = updateSetter._doc
                 if (accountBlocked){
-                    let updateGame = await GameModel.findOneAndUpdate({setterId:id},{$set:{active:false}})
+                    const filter = {setterId:id}
+                    const update = {$set:{active:false}}
+                    let updateGame = await GameModel.updateMany(filter,update)
+                    console.log(updateGame)
                 }
                 return updatedInfo
             }
@@ -254,11 +213,11 @@ const update = async(id,firstname,lastname,email,password,username,phonenumber,d
                 throw new ErrorResponse("failed to update",304)
             }
             
-        } 
-        catch (error) {
-            throw new ErrorResponse(error,304) 
-        }
+    } 
+    catch (error) {
+        throw new ErrorResponse(error,304) 
     }
+    
 }
 
 const deleteSetter = async(id)=>{
