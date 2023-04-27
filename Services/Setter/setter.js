@@ -2,7 +2,7 @@ const {ErrorResponse} = require("../../Error/Utils");
 const { SetterRegisterModel, GameModel } = require("../../Models");
 const bcrypt = require('bcryptjs');
 const jwt = require("jsonwebtoken");
-
+const nodemailer = require ('nodemailer')
 
 // NODE MAILER CONFIGURATION
 const ResetPassword =(name,email,otp)=>{
@@ -103,10 +103,10 @@ const forgetPassword = async (email)=>{
            let Updated = await SetterRegisterModel.findOneAndUpdate({email:email},{$set:{
             OTP:randomString,
             otpValidTill: new Date( new Date().setMinutes(new Date().getMinutes()+5))
-           }})
+           }},{new:true})
            if(Updated){
                 ResetPassword(findUser.firstName,email,Updated.OTP)
-                return {msg:'OTP SENT TO YOUR ACCOUNT',randomString}
+                return {msg:'OTP SENT TO YOUR ACCOUNT',OTP:Updated.OTP}
            }
         }
         else{
@@ -163,7 +163,7 @@ const resetPassword = async (email,password)=>{
                     OTP:null,
                     otpValidTill:null,
                     otpVerified:false
-                }})
+                }},{new:true})
                 if(updatePassword){
                     return {msg:"password updated sucesfully sucesfully"}
                 }
@@ -173,7 +173,7 @@ const resetPassword = async (email,password)=>{
             }
         }
         else{
-            throw new ErrorResponse('invalid OTP',404)
+            throw new ErrorResponse('invalid EMAIL',404)
         }
     } 
     catch (error) {
@@ -198,24 +198,28 @@ const update = async(id,firstname,lastname,email,username,phonenumber,dateOfBirt
                         accountBlocked:accountBlocked
                     }
             },{new:true})
-
             if(updateSetter){
                 let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt,__v,...updatedInfo} = updateSetter._doc
-                if (accountBlocked){
+                console.log(updateSetter.accountBlocked)
+                if (updateSetter.accountBlocked===true){
                     const filter = {setterId:id}
                     const update = {$set:{active:false}}
-                    let updateGame = await GameModel.updateMany(filter,update)
-                    console.log(updateGame)
+                    let updateGame = await GameModel.updateMany(filter,update,{new:true})
+                }
+                else if (updateSetter.accountBlocked===false){
+                    const filter = {setterId:id}
+                    const update = {$set:{active:true}}
+                    let updateGame = await GameModel.updateMany(filter,update,{new:true})
                 }
                 return updatedInfo
             }
             else{
-                throw new ErrorResponse("failed to update",304)
+                throw new ErrorResponse("failed to update wrong id given",304)
             }
             
     } 
     catch (error) {
-        throw new ErrorResponse(error,304) 
+        throw new ErrorResponse(error.message,304) 
     }
     
 }
@@ -244,13 +248,16 @@ const deleteSetter = async(id)=>{
 const getSingleSetter = async(id)=>{
     try {
         let singleSetter = await SetterRegisterModel.findById({_id:id})
-        if(singleSetter){
+        if(singleSetter.accountBlocked===false){
             let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt,__v,...setterInfo} = singleSetter._doc
             return setterInfo
         }
+        else if (singleSetter.accountBlocked===true){
+            throw new ErrorResponse('your account has been blocked',403)
+        }
     } 
     catch (error) {
-        
+        throw new ErrorResponse(error,403)
     }
 }
 
@@ -259,18 +266,23 @@ const changePassword = async (id,oldpassword,newpassword)=>{
     try {
         let find = await SetterRegisterModel.findById(id)
         if (find){
-            let comparePassword = await bcrypt.compare(oldpassword,find.password)
-            if (comparePassword){
-                let hash = await bcrypt.hash(newpassword,10)
-                let update = await SetterRegisterModel.findByIdAndUpdate(id,{$set:{
-                    password:hash
-                }},{new:true})
-                if(update){
-                    return {msg:'password updated sucesfully'}
-                }
+            if(find.accountBlocked===true){
+                throw new ErrorResponse('your account has been blocked',403)   
             }
             else{
-                throw new ErrorResponse('wrong password',401)
+                let comparePassword = await bcrypt.compare(oldpassword,find.password)
+                if (comparePassword){
+                    let hash = await bcrypt.hash(newpassword,10)
+                    let update = await SetterRegisterModel.findByIdAndUpdate(id,{$set:{
+                        password:hash
+                    }},{new:true})
+                    if(update){
+                        return {msg:'password updated sucesfully'}
+                    }
+                }
+                else{
+                    throw new ErrorResponse('wrong password',401)
+                }
             }
         }
         else{

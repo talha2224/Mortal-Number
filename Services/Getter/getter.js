@@ -110,7 +110,7 @@ const forgetPassword = async (email)=>{
            }},{new:true})
            if(Updated){
                 ResetPassword(findUser.firstName,email,Updated.OTP)
-                return {msg:'OTP SENT TO YOUR ACCOUNT',otp:randomString}
+                return {msg:'OTP SENT TO YOUR ACCOUNT',otp:Updated.OTP}
            }
         }
         else{

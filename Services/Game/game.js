@@ -4,11 +4,12 @@ const { GameModel, GetterRegisterModel,SetterRegisterModel,RewardsModel} = requi
 const postGame = async(id,winningnumber,stake,prize,hours,minutes,seconds)=>{
     try {
         let findSetter = await GameModel.findOne({setterId:id}).populate('setterId')
-        if(findSetter.setterId.accountBlocked){
-            throw new ErrorResponse("your account has been blocked",403)
-        }
-        else if (findSetter){
+        let setter = await SetterRegisterModel.findById(id)
+        if (findSetter){
             throw new ErrorResponse("your have already posted a game",429)
+        }
+        else if(setter.accountBlocked){
+            throw new ErrorResponse("your account has been blocked",403)
         }
 
         else{
@@ -85,8 +86,8 @@ const singleGame = async (id)=>{
 //FIND BY SETTER ID
 const findGame = async (id)=>{
     try {
-        let findGame = await GameModel.findOne({setterId:id})
-        if(findGame){
+        let findGame = await GameModel.find({setterId:id})
+        if(findGame.length>0){
             return findGame
         }
         else{
@@ -162,12 +163,17 @@ const playGame = async (getterid,gameid)=>{
 
         let findUserCredit = await GetterRegisterModel.findById(getterid)
         let findGameId = await GameModel.findById(gameid)
-
-        if (findUserCredit && findGameId){
+        let alreadyWin = findGameId.winBy.includes(getterid)
+        if (alreadyWin){
+            throw new ErrorResponse('you alreday win the game',403)
+        }
+        else if (findUserCredit && findGameId){
             if (findUserCredit.credit>=findGameId.stake){
-                let minusStake= await GetterRegisterModel.findByIdAndUpdate(getterid,{$set:{
+                let minusStake= await GetterRegisterModel.findByIdAndUpdate(getterid,{
+                    $set:{
                         credit:findUserCredit.credit-findGameId.stake
-                }},{new:true})
+                    }
+                },{new:true})
                 return {msg:"YOU CAN PLAY THE GAME CREDIT MINUS FROM YOUR ACCOUNT"}
             }
             else{
@@ -188,8 +194,12 @@ const afterGame = async (getterid,gameid,answer,setterid)=>{
     try {
         let findUserCredit = await GetterRegisterModel.findById(getterid)
         let findGameId = await GameModel.findById(gameid)
+        let alreadyPlayed= findGameId.winBy.includes(getterid)
         let check =  findGameId.winningNumber.every(item=>answer.includes(item))
-        if (check){
+        if (alreadyPlayed){
+            throw new ErrorResponse('you alreday win the game',403)
+        }
+        else if (check){
             let updateGetterAmount = await GetterRegisterModel.findByIdAndUpdate(getterid,{$set:{credit:findUserCredit.credit+findGameId.prize}},{new:true})
             let postReward = await RewardsModel.create({amount:findGameId.prize,won:true,getterProfileId:getterid})
             let updateGame = await GameModel.findByIdAndUpdate(gameid,{
@@ -213,7 +223,7 @@ const afterGame = async (getterid,gameid,answer,setterid)=>{
             }})
             let postSetterReward = await RewardsModel.create({amount:findGameId.stake,won:true,setterProfileId:setterid})
             return {msg:"You Lost The Game",creditLeftInYourAccount:findUserCredit.credit}
-            }
+        }
     } 
     catch (error) {
         throw new ErrorResponse(error.message)
@@ -224,11 +234,17 @@ const afterGame = async (getterid,gameid,answer,setterid)=>{
 //GET ACTIVE GAME FOR ADMIN
 const showAdminGame= async()=>{
     try {
-        let allActiveGame = await GameModel.find({})
+        let allActiveGame = await GameModel.find({active:true})
+        if (allActiveGame.length>0){
+            return allActiveGame
+        }
+        else{
+            throw new ErrorResponse('no active game yet',404)
+        }
     } 
     catch (error) {
-        
+        throw new ErrorResponse(error.message,404)
     }
 }
 
-module.exports ={postGame,getGame,singleGame,deleteGame,updateGame,playGame,afterGame,findGame,checkGame}
+module.exports ={postGame,getGame,singleGame,deleteGame,updateGame,playGame,afterGame,findGame,checkGame,showAdminGame}

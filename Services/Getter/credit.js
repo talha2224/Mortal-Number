@@ -6,12 +6,33 @@ const { GetterCreditModel, GetterRegisterModel, SetterRegisterModel } = require(
 //POST CREDIT REQUEST 
 const requestCredit = async (getterId,setterId,amount) =>{
     try {
-        let request = await GetterCreditModel.create({amount:amount,getterProfileId:getterId,setterProfileId:setterId})
-        if(request){
-            return request
+        let getterInfo = await GetterRegisterModel.findById(getterId)
+        if(getterInfo){
+            if(getterInfo.accountBlocked){
+                throw new ErrorResponse('account has been blocked ',403)
+            }
         }
+        // else if (!getterInfo){
+        //     throw new ErrorResponse('wrong gusser id passed',404)
+        // }
+        // 644ab657ec012b00b4c55ef3
+        let setterInfo = await SetterRegisterModel.findById(setterId)
+        if(setterInfo){
+            if(setterInfo.accountBlocked){
+                throw new ErrorResponse('account has been blocked ',403)
+            }
+        }
+        // else if (!setterInfo){
+        //     throw new ErrorResponse('wrong setter id passed',404)
+        // }
         else{
-            throw new ErrorResponse('failed to post request',401)
+            let request = await GetterCreditModel.create({amount:amount,getterProfileId:getterId,setterProfileId:setterId})
+            if(request){
+                return request
+            }
+            else{
+                throw new ErrorResponse('failed to post request',401)
+            }
         }
     } 
     catch (error) {
@@ -54,6 +75,7 @@ const requestCredit = async (getterId,setterId,amount) =>{
 
 
 //IF THE REQUEST ACCEPTED
+
 const acceptedCreditRequest = async(requestId,getterId,setterid,amount)=>{
     try {
        let  creditInfo = await GetterCreditModel.findByIdAndUpdate(requestId,{
@@ -124,7 +146,6 @@ const getCreditHistory = async(id)=>{
 
 
 //IF THE REQUEST NOT ACCEPTED
-
 const deleteRequest = async (id)=>{
         try {
             let Deleterequest = await GetterCreditModel.findByIdAndDelete(id)
@@ -142,7 +163,7 @@ const deleteRequest = async (id)=>{
     
 }
 
-//  ALL REQUESTS
+//ALL REQUESTS
 const getAll = async ()=>{
     try {
         let allRequest = await GetterCreditModel.find({approved:false}).populate('getterProfileId','-OTP -otpValidTill -otpVerified -email -password -phonenumber -dateOfBirth -gender -_id -country').populate('setterProfileId','-OTP -otpValidTill -otpVerified  -email -password -phonenumber -dateOfBirth -gender -_id -country')
@@ -159,7 +180,6 @@ const getAll = async ()=>{
 }
 
 //SINGLE REQUEST
-
 const getSingle = async (id)=>{
     try {
         let singleRequest = await GetterCreditModel.findById(id).populate('getterProfileId','-OTP -otpValidTill -otpVerified -email -password -phonenumber -dateOfBirth -gender -_id -country').populate('setterProfileId','-OTP -otpValidTill -otpVerified  -email -password -phonenumber -dateOfBirth -gender -_id -country')
