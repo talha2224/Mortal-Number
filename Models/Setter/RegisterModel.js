@@ -61,6 +61,10 @@ const RegisterModel = mongoose.Schema({
     accountBlocked:{
         type:Boolean,
         default:false
+    },
+    accountMuted:{
+        type:Boolean,
+        default:false
     }
 },{
     toJSON:{

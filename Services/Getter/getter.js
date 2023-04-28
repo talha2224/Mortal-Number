@@ -198,63 +198,26 @@ const getGetter =  async(id)=>{
 }
 
 //UPDATE GETTER PROFILE
-const update = async(id,firstname,lastname,email,password,username,phonenumber,credit,dateOfBirth,gender,country,image,accountBlocked)=>{
-    if (password){
-        try {
-            let hash = await bcrypt.hash(password,10)
-            let updateGetter = await GetterRegisterModel.findByIdAndUpdate(id,
-                {
-                    $set:{
-                        firstName:firstname,
-                        lastName:lastname,
-                        email:email,
-                        password:hash,
-                        username:username,
-                        phonenumber:phonenumber,
-                        credit:credit,
-                        dateOfBirth:dateOfBirth,
-                        gender:gender,
-                        country:country,
-                        profileImage:image,
-                        accountBlocked:accountBlocked
-                    }
-                },
-                {new:true}
-            )
-            if(updateGetter){
-                let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt,__v,...updatedInfo} = updateGetter._doc
-                return updatedInfo
-            }
-            else{
-                throw new ErrorResponse("failed to update",409)
-            }
+const update = async(id,firstname,lastname,email,password,username,phonenumber,credit,dateOfBirth,gender,country,image,accountBlocked,accountMuted)=>{
+    try {
+        let updateGetter = await GetterRegisterModel.findByIdAndUpdate(id,
+            {
+                $set:{
+                    firstName:firstname,
+                    lastName:lastname,
+                    email:email,
+                    username:username,
+                    phonenumber:phonenumber,
+                    credit:credit,
+                    dateOfBirth:dateOfBirth,
+                    gender:gender,
+                    country:country,
+                    profileImage:image,
+                    accountBlocked:accountBlocked,
+                    accountMuted:accountMuted
+                }
+            },{new:true})
             
-        } 
-        catch (error) {
-            throw new ErrorResponse(error,500)
-        }
-    }
-
-    else{
-        try {
-            let updateGetter = await GetterRegisterModel.findByIdAndUpdate(id,
-                {
-                    $set:{
-                        firstName:firstname,
-                        lastName:lastname,
-                        email:email,
-                        username:username,
-                        phonenumber:phonenumber,
-                        credit:credit,
-                        dateOfBirth:dateOfBirth,
-                        gender:gender,
-                        country:country,
-                        profileImage:image,
-                        accountBlocked:accountBlocked
-                    }
-                },
-                {new:true}
-            )
             if(updateGetter){
                 let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt,__v,...updatedInfo} = updateGetter._doc
                 return updatedInfo
@@ -267,7 +230,6 @@ const update = async(id,firstname,lastname,email,password,username,phonenumber,c
         catch (error) {
             throw new ErrorResponse(error,500) 
         }
-    }
 }
 
 

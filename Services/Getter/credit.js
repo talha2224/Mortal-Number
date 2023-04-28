@@ -6,33 +6,42 @@ const { GetterCreditModel, GetterRegisterModel, SetterRegisterModel } = require(
 //POST CREDIT REQUEST 
 const requestCredit = async (getterId,setterId,amount) =>{
     try {
-        let getterInfo = await GetterRegisterModel.findById(getterId)
-        if(getterInfo){
-            if(getterInfo.accountBlocked){
-                throw new ErrorResponse('account has been blocked ',403)
+        if (getterId){
+            let getterInfo = await GetterRegisterModel.findById(getterId)
+            if(getterInfo){
+                if(getterInfo.accountBlocked){
+                    throw new ErrorResponse('account has been blocked ',403)
+                }
+                else{
+                    let request = await GetterCreditModel.create({amount:amount,getterProfileId:getterId})
+                    if(request){
+                        return request
+                    }
+                    else{
+                        throw new ErrorResponse('failed to post request',401)
+                    }
+                }
             }
         }
-        // else if (!getterInfo){
-        //     throw new ErrorResponse('wrong gusser id passed',404)
-        // }
-        // 644ab657ec012b00b4c55ef3
-        let setterInfo = await SetterRegisterModel.findById(setterId)
-        if(setterInfo){
-            if(setterInfo.accountBlocked){
-                throw new ErrorResponse('account has been blocked ',403)
+
+        if(setterId){
+            let setterInfo = await SetterRegisterModel.findById(setterId)
+            if(setterInfo){
+                if(setterInfo.accountBlocked){
+                    throw new ErrorResponse('account has been blocked ',403)
+                }
+                else{
+                    let request = await GetterCreditModel.create({amount:amount,setterProfileId:setterId})
+                    if(request){
+                        return request
+                    }
+                    else{
+                        throw new ErrorResponse('failed to post request',401)
+                    }
+                }
             }
         }
-        // else if (!setterInfo){
-        //     throw new ErrorResponse('wrong setter id passed',404)
-        // }
         else{
-            let request = await GetterCreditModel.create({amount:amount,getterProfileId:getterId,setterProfileId:setterId})
-            if(request){
-                return request
-            }
-            else{
-                throw new ErrorResponse('failed to post request',401)
-            }
         }
     } 
     catch (error) {
@@ -166,7 +175,8 @@ const deleteRequest = async (id)=>{
 //ALL REQUESTS
 const getAll = async ()=>{
     try {
-        let allRequest = await GetterCreditModel.find({approved:false}).populate('getterProfileId','-OTP -otpValidTill -otpVerified -email -password -phonenumber -dateOfBirth -gender -_id -country').populate('setterProfileId','-OTP -otpValidTill -otpVerified  -email -password -phonenumber -dateOfBirth -gender -_id -country')
+       const allRequest= await GetterCreditModel.find({approved: false,})
+        .populate('getterProfileId setterProfileId','-OTP -otpValidTill -otpVerified -email -password -phonenumber -dateOfBirth -gender -country -__v')
         if(allRequest.length>0){
             return allRequest
         }

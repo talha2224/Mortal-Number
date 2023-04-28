@@ -20,9 +20,9 @@ router.post('/login',loginValidation,catchAsync( async(req,res)=>{
 
 router.put('/:id',authorized,image_upload.single('image'),catchAsync(async(req,res)=>{
     let id = req.params.id
-    let {firstname,lastname,email,username,phonenumber,dateOfBirth,gender,country,accountBlocked} = req.body
+    let {firstname,lastname,email,username,phonenumber,dateOfBirth,gender,country,accountBlocked,accountMuted} = req.body
     let image = req?.file?.filename
-    let updateSetter = await SetterServices.update(id,firstname,lastname,email,username,phonenumber,dateOfBirth,gender,country,image,accountBlocked)
+    let updateSetter = await SetterServices.update(id,firstname,lastname,email,username,phonenumber,dateOfBirth,gender,country,image,accountBlocked,accountMuted)
     res.send(updateSetter)
 }))
 
@@ -32,12 +32,14 @@ router.post('/forget/password',catchAsync(async(req,res)=>{
     let forgetPassword = await SetterServices.forgetPassword(email)
     res.send(forgetPassword)
 }))
+
 //OTP VERIFICATION
 router.post('/otp/verification',catchAsync(async(req,res)=>{
     let {otp} = req.body
     let resetPassword = await SetterServices.otpVerification(otp)
     res.send(resetPassword)
 }))
+
 //RESET PASSWORD
 router.post('/reset/password',catchAsync(async(req,res)=>{
     let {email,password} = req.body

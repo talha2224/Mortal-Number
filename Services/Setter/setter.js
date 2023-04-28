@@ -181,7 +181,7 @@ const resetPassword = async (email,password)=>{
     }
 }
 
-const update = async(id,firstname,lastname,email,username,phonenumber,dateOfBirth,gender,country,image,accountBlocked)=>{
+const update = async(id,firstname,lastname,email,username,phonenumber,dateOfBirth,gender,country,image,accountBlocked,accountMuted)=>{
     try {
             let updateSetter = await SetterRegisterModel.findByIdAndUpdate(id,
             {
@@ -195,7 +195,8 @@ const update = async(id,firstname,lastname,email,username,phonenumber,dateOfBirt
                         gender:gender,
                         country:country,
                         profileImage:image,
-                        accountBlocked:accountBlocked
+                        accountBlocked:accountBlocked,
+                        accountMuted:accountMuted
                     }
             },{new:true})
             if(updateSetter){

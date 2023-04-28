@@ -3,7 +3,7 @@ const { GameModel, GetterRegisterModel,SetterRegisterModel,RewardsModel} = requi
 
 const postGame = async(id,winningnumber,stake,prize,hours,minutes,seconds)=>{
     try {
-        let findSetter = await GameModel.findOne({setterId:id}).populate('setterId')
+        let findSetter = await GameModel.findOne({active:true,setterId:id}).populate('setterId')
         let setter = await SetterRegisterModel.findById(id)
         if (findSetter){
             throw new ErrorResponse("your have already posted a game",429)
