@@ -203,4 +203,9 @@ const showAdminGame= async()=>{
         }
 }
 
+
+
+
+
+
 module.exports ={postGame,getGame,singleGame,deleteGame,updateGame,playGame,afterGame,findGame,checkGame,showAdminGame}

@@ -2,9 +2,9 @@ const express = require ('express')
 const cors = require('cors');
 const dbConnection = require ('./Database/Connection');
 const  mongoose = require('mongoose');
-const dotenv = require('dotenv')
-
-
+const dotenv = require('dotenv');
+const { GameModel } = require('./Models');
+const cron = require('node-cron')
 
 const app = express()
 dotenv.config()
@@ -41,6 +41,31 @@ app.use('/api/v1/rewards',require('./Routes/Rewards/reward'))
 
 //CUSTOM ERROR HANDLING
 app.use(require('./Error/Error'))
+
+
+cron.schedule('* * * * * *', async() => {
+    let findGame = await GameModel.find({active:true})
+    if (findGame.length>0){ 
+        findGame.forEach((game) => {
+            console.log(game)
+            if (game.duration.sec > 0) {
+              game.duration.sec--;
+            } else if (game.duration.min > 0) {
+              game.duration.sec = 59;
+              game.duration.min--;
+            } else if (game.duration.hours > 0) {
+              game.duration.sec = 59;
+              game.duration.min = 59;
+              game.duration.hours--;
+            } else {
+              // All duration fields are zero, so set active to false
+              game.active = false;
+            }
+            game.save()
+          });
+    }
+});
+  
 
 //PORT LISTENING:
 app.listen(port,()=>console.log(`server is runing on port ${port}`))
