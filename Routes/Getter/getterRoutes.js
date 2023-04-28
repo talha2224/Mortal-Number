@@ -43,9 +43,9 @@ router.post('/reset/password',catchAsync(async(req,res)=>{
 // UPDATE
 router.put('/:id',authorized,image_upload.single('image'),catchAsync (async(req,res)=>{
     let id = req.params.id
-    let {firstname,lastname,email,password,username,phonenumber,credit,dateOfBirth,gender,country,accountBlocked,accountMuted} = req.body
+    let {firstname,lastname,email,username,phonenumber,credit,dateOfBirth,gender,country,accountBlocked,accountMuted} = req.body
     let image = req?.file?.filename
-    let updateSetter = await GetterServices.update(id,firstname,lastname,email,password,username,phonenumber,credit,dateOfBirth,gender,country,image,accountBlocked,accountMuted)
+    let updateSetter = await GetterServices.update(id,firstname,lastname,email,username,phonenumber,credit,dateOfBirth,gender,country,image,accountBlocked,accountMuted)
     res.send(updateSetter)
 }))
 

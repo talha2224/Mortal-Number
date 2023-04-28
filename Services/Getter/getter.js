@@ -40,7 +40,6 @@ const register = async(firstname,lastname,email,password)=>{
         throw new ErrorResponse('email already registered',403)
     }
     else{ 
-        try {
             let hash = await bcrypt.hash(password,10)
             let getter = await GetterRegisterModel.create({firstName:firstname,lastName:lastname,email:email,password:hash,credit:500})
             if(getter){
@@ -56,11 +55,7 @@ const register = async(firstname,lastname,email,password)=>{
             else{
                 throw new ErrorResponse('Failed to create User',400)
             }
-        } 
-        catch (error) {
-            console.log(error)
-           throw new  ErrorResponse (error,400) 
-        }
+
     }
 }
 
@@ -68,7 +63,6 @@ const register = async(firstname,lastname,email,password)=>{
 const login = async(email,password)=>{
     const loginGetter = await GetterRegisterModel.findOne({email:email})
     if(loginGetter){
-        try{
             if (loginGetter.accountBlocked===false){
                 let comparePassword = await bcrypt.compare(password,loginGetter.password)
                 if(comparePassword){
@@ -88,10 +82,6 @@ const login = async(email,password)=>{
             else if (loginGetter.accountBlocked===true){
                 throw new ErrorResponse('your account has been blocked',403)
             }
-        }
-        catch (error) {
-            throw new ErrorResponse(error.message,403)
-        }
     }
     else{ 
         throw new ErrorResponse('account not found',404)
@@ -100,7 +90,6 @@ const login = async(email,password)=>{
 
 //FORGET PASSWORD 
 const forgetPassword = async (email)=>{
-    try {
         let findUser = await GetterRegisterModel.findOne({email:email})
         if(findUser){
            let randomString= Math.floor(Math.random() * 9000) + 1000;
@@ -116,15 +105,10 @@ const forgetPassword = async (email)=>{
         else{
             throw new ErrorResponse("wrong email. Email not found",404)
         }
-    } 
-    catch (error) {
-        throw new ErrorResponse(error,404)
-    }
 }
 
 // OTP VERIFCATION
 const otpVerification = async (otp)=>{
-    try {
         let findUser = await GetterRegisterModel.findOne({OTP:otp})
         if (findUser){
             if(findUser.otpValidTill>Date.now()){
@@ -149,15 +133,10 @@ const otpVerification = async (otp)=>{
         else{
             throw new ErrorResponse('wrong otp given',404)
         }
-    } 
-    catch (error) {
-        throw new ErrorResponse(error.message,404)
-    }
 }
 
 //RESET PASSWORD
 const resetPassword = async (email,password)=>{
-    try {
         let findUser = await GetterRegisterModel.findOne({email:email})
         if(findUser){
             if (findUser.otpVerified===true){
@@ -179,10 +158,7 @@ const resetPassword = async (email,password)=>{
         else{
             throw new ErrorResponse('invalid OTP',404)
         }
-    } 
-    catch (error) {
-        throw new ErrorResponse(error.message,404)
-    }
+
 }
 
 //GET GETTER
@@ -198,8 +174,7 @@ const getGetter =  async(id)=>{
 }
 
 //UPDATE GETTER PROFILE
-const update = async(id,firstname,lastname,email,password,username,phonenumber,credit,dateOfBirth,gender,country,image,accountBlocked,accountMuted)=>{
-    try {
+const update = async(id,firstname,lastname,email,username,phonenumber,credit,dateOfBirth,gender,country,image,accountBlocked,accountMuted)=>{
         let updateGetter = await GetterRegisterModel.findByIdAndUpdate(id,
             {
                 $set:{
@@ -226,17 +201,13 @@ const update = async(id,firstname,lastname,email,password,username,phonenumber,c
                 throw new ErrorResponse("failed to update",409)
             }
             
-        } 
-        catch (error) {
-            throw new ErrorResponse(error,500) 
-        }
-}
+} 
+
 
 
 //DELETE GETTER
 const deleteGetter = async(id)=>{
     if (id){
-        try {
            let deleteAccount = await GetterRegisterModel.findByIdAndDelete(id)
            if(deleteAccount){
             return {msg:"account deleted",status:200}
@@ -244,10 +215,6 @@ const deleteGetter = async(id)=>{
            else{
             throw new ErrorResponse('wrong id no account matched',404)
            }
-        }
-        catch (error) {
-            throw new ErrorResponse(error,404)
-        }
     }
     else{
         throw new ErrorResponse("id is required",404)
@@ -257,7 +224,6 @@ const deleteGetter = async(id)=>{
 
 //TOP 5 GETTER
 const topRated = async()=>{
-    try {
         let top = await GetterRegisterModel.find({}).sort({credit:-1}).limit(5)
         if (top){
             return top
@@ -266,14 +232,10 @@ const topRated = async()=>{
             throw new ErrorResponse('no data found addsome',404)
         }
         
-    } catch (error) {
-        throw new ErrorResponse(error.message)
-    }
 }
 
 //CHANGE PASSWORD
 const changePassword = async (id,oldpassword,newpassword)=>{
-    try {
         let find = await GetterRegisterModel.findById(id)
         if (find){
             let comparePassword = await bcrypt.compare(oldpassword,find.password)
@@ -293,15 +255,10 @@ const changePassword = async (id,oldpassword,newpassword)=>{
         else{
             throw new ErrorResponse('wrong user id passed no reacord found',404)
         }
-    } 
-    catch (error) {
-        throw new ErrorResponse(error.message,404)
-    }
 }
 
 // CONST BLOCK USER
 const blockUser = async (id)=>{
-    try {
         let findUserAndUpdate = await GetterRegisterModel.findByIdAndUpdate(id,{
             $set:{
                 accountBlocked:true
@@ -313,10 +270,6 @@ const blockUser = async (id)=>{
         else{
             throw new ErrorResponse('WRONG ID GIVEN FAILED TO BLOCK GUESSER',404)
         }
-    } 
-    catch (error) {
-        throw new ErrorResponse(error.message,404)
-    }
 }
 
 

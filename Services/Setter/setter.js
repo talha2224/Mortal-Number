@@ -38,7 +38,6 @@ const register = async(firstname,lastname,email,password)=>{
         throw new ErrorResponse('email already registered',403)
     }
     else{ 
-        try {
             let hash = await bcrypt.hash(password,10)
             let setter = await SetterRegisterModel.create({firstName:firstname,lastName:lastname,email:email,password:hash,credit:500})
             if(setter){
@@ -54,17 +53,12 @@ const register = async(firstname,lastname,email,password)=>{
             else{
                 throw new ErrorResponse('Failed to create User',400)
             }
-        } 
-        catch (error) {
-           throw new  ErrorResponse (error,400) 
-        }
     }
 }
 
 const login = async(email,password)=>{
     const SetterDetails = await SetterRegisterModel.findOne({email:email})
     if(SetterDetails){
-        try{
             if(SetterDetails.accountBlocked===false){
                 let comparePassword = await bcrypt.compare(password,SetterDetails.password)
                 if(comparePassword){
@@ -84,11 +78,6 @@ const login = async(email,password)=>{
             else if (SetterDetails.accountBlocked===true){
                 throw new ErrorResponse('your account has been blocked',403)
             }
-        }
-
-        catch (error) {
-            throw new ErrorResponse(error,403)
-        }
     }
     else{ 
         throw new ErrorResponse('account not found',404)
@@ -96,7 +85,6 @@ const login = async(email,password)=>{
 }
 //FORGET PASSWORD 
 const forgetPassword = async (email)=>{
-    try {
         let findUser = await SetterRegisterModel.findOne({email:email})
         if(findUser){
            let randomString= Math.floor(Math.random() * 9000) + 1000;
@@ -112,15 +100,10 @@ const forgetPassword = async (email)=>{
         else{
             throw new ErrorResponse("wrong email. Email not found",404)
         }
-    } 
-    catch (error) {
-        throw new ErrorResponse(error,404)
-    }
 }
 
 // OTP VERIFCATION
 const otpVerification = async (otp)=>{
-    try {
         let findUser = await SetterRegisterModel.findOne({OTP:otp})
         if (findUser){
             if(findUser.otpValidTill>Date.now()){
@@ -145,15 +128,10 @@ const otpVerification = async (otp)=>{
         else{
             throw new ErrorResponse('wrong otp given',404)
         }
-    } 
-    catch (error) {
-        throw new ErrorResponse(error.message,404)
-    }
 }
 
 //RESET PASSWORD
 const resetPassword = async (email,password)=>{
-    try {
         let findUser = await SetterRegisterModel.findOne({email:email})
         if(findUser){
             if(findUser.otpVerified===true){
@@ -175,14 +153,10 @@ const resetPassword = async (email,password)=>{
         else{
             throw new ErrorResponse('invalid EMAIL',404)
         }
-    } 
-    catch (error) {
-        throw new ErrorResponse(error.message,404)
-    }
+    
 }
 
 const update = async(id,firstname,lastname,email,username,phonenumber,dateOfBirth,gender,country,image,accountBlocked,accountMuted)=>{
-    try {
             let updateSetter = await SetterRegisterModel.findByIdAndUpdate(id,
             {
                 $set:{
@@ -218,16 +192,12 @@ const update = async(id,firstname,lastname,email,username,phonenumber,dateOfBirt
                 throw new ErrorResponse("failed to update wrong id given",304)
             }
             
-    } 
-    catch (error) {
-        throw new ErrorResponse(error.message,304) 
-    }
+
     
 }
 
 const deleteSetter = async(id)=>{
     if (id){
-        try {
            let deleteAccount = await SetterRegisterModel.findByIdAndDelete(id)
            if(deleteAccount){
             return {msg:"account deleted",status:200}
@@ -235,10 +205,6 @@ const deleteSetter = async(id)=>{
            else{
             throw new ErrorResponse('wrong id no account matched',404)
            }
-        }
-        catch (error) {
-            throw new ErrorResponse(error,500)
-        }
     }
     else{
         throw new ErrorResponse("id is required",404)
@@ -247,7 +213,6 @@ const deleteSetter = async(id)=>{
 }
 
 const getSingleSetter = async(id)=>{
-    try {
         let singleSetter = await SetterRegisterModel.findById({_id:id})
         if(singleSetter.accountBlocked===false){
             let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt,__v,...setterInfo} = singleSetter._doc
@@ -256,15 +221,10 @@ const getSingleSetter = async(id)=>{
         else if (singleSetter.accountBlocked===true){
             throw new ErrorResponse('your account has been blocked',403)
         }
-    } 
-    catch (error) {
-        throw new ErrorResponse(error,403)
-    }
 }
 
 //CHANGE PASSWORD
 const changePassword = async (id,oldpassword,newpassword)=>{
-    try {
         let find = await SetterRegisterModel.findById(id)
         if (find){
             if(find.accountBlocked===true){
@@ -289,15 +249,10 @@ const changePassword = async (id,oldpassword,newpassword)=>{
         else{
             throw new ErrorResponse('wrong user id passed no reacord found',404)
         }
-    } 
-    catch (error) {
-        throw new ErrorResponse(error.message,404)
-    }
 }
 
 // TOP 5 SETTER
 const topRated = async()=>{
-    try {
         let top = await SetterRegisterModel.find({accountBlocked:false}).sort({credit:-1}).limit(5)
         if (top.length>0){
             return top
@@ -306,10 +261,7 @@ const topRated = async()=>{
             throw new ErrorResponse('no data found addsome',404)
         }
         
-    } 
-    catch (error) {
-        throw new ErrorResponse(error.message,404)
-    }
+
 }
 
 module.exports = {register,login,update,deleteSetter,forgetPassword,resetPassword,otpVerification,getSingleSetter,changePassword,topRated}

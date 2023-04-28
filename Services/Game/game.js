@@ -51,7 +51,6 @@ const postGame = async(id,winningnumber,stake,prize,hours,minutes,seconds)=>{
 
 //  GUESSER GET GAME
 const getGame = async (getterId)=>{
-    try {
         let allGame = await GameModel.find({active:true,winBy: { $nin: [getterId] }}).populate('setterId','-OTP -otpValidTill -otpVerified -credit -email -password -phonenumber -dateOfBirth -country').exec()
             if (allGame.length>0){
                 return allGame
@@ -60,15 +59,10 @@ const getGame = async (getterId)=>{
                 throw new ErrorResponse ('NO GAME FOUND OR YOU HAVE ALREADY PLAY ALL THE POSTED GAME',404)
             }
         
-    } 
-    catch (error) {
-        throw new ErrorResponse(error,404)
-    }
 }
 
 // SINGLE GAME
 const singleGame = async (id)=>{
-    try {
         let singleGame = await GameModel.findOne({_id:id,active:true}).populate('setterId','-OTP -otpValidTill -otpVerified -credit -email -password -phonenumber -_id  -dateOfBirth -country')
         if (singleGame){
             return singleGame
@@ -76,16 +70,11 @@ const singleGame = async (id)=>{
         else{
                 throw new ErrorResponse ('NO GAME FOUND PLEASE ADD SOME',404)
         }
-    } 
-    catch (error) {
-        throw new ErrorResponse(error,500)
-    }
      
 }
 
 //FIND BY SETTER ID
 const findGame = async (id)=>{
-    try {
         let findGame = await GameModel.find({setterId:id})
         if(findGame.length>0){
             return findGame
@@ -93,15 +82,10 @@ const findGame = async (id)=>{
         else{
             return {msg:'No game posted yet'}
         }
-    } 
-    catch (error) {
-        throw new ErrorResponse(error.message,500)
-    }
 }
 
 // ALREDAY POSTED FOR SETTER
 const checkGame = async (id)=>{
-    try {
         let findGame = await GameModel.findOne({setterId:id})
         if(findGame){
             throw new ErrorResponse('you have alreday posted a game',500)
@@ -109,14 +93,9 @@ const checkGame = async (id)=>{
         else{
             return {msg:'No game posted yet'}
         }
-    } 
-    catch (error) {
-        throw new ErrorResponse(error.message,500)
-    }
 }
 
 const deleteGame = async (id)=>{
-    try {
         let deleteGame = await GameModel.findByIdAndDelete(id)
         if (deleteGame){
             return {msg:"GAME DELETED",status:200}
@@ -124,14 +103,11 @@ const deleteGame = async (id)=>{
         else{
             throw new ErrorResponse ('NO GAME FOUND FAILED TO DELETE',404)
         }
-    } 
-    catch (error) {
-        throw new ErrorResponse(error,404)
-    }
+    
 }
 
 const updateGame = async (id,winningnumber,deletewinningnumber,stake,prize,winners,deleteWinner)=>{
-    try {
+
         let updated = await GameModel.findByIdAndUpdate(id,{
             $push:{
                 winBy:winners,
@@ -152,15 +128,9 @@ const updateGame = async (id,winningnumber,deletewinningnumber,stake,prize,winne
         else{
             throw new ErrorResponse("Failed To Update",304)
         }
-    } 
-    catch (error) {
-        throw new ErrorResponse(error,304)   
-    }
 }
 
 const playGame = async (getterid,gameid)=>{
-    try {
-
         let findUserCredit = await GetterRegisterModel.findById(getterid)
         let findGameId = await GameModel.findById(gameid)
         let alreadyWin = findGameId.winBy.includes(getterid)
@@ -183,15 +153,10 @@ const playGame = async (getterid,gameid)=>{
         else{
             throw new ErrorResponse("wrong id hase been pass",404)
         }
-    } 
-    catch (error) {
-        throw new ErrorResponse(error,402)
-    }
 
 }
 
 const afterGame = async (getterid,gameid,answer,setterid)=>{
-    try {
         let findUserCredit = await GetterRegisterModel.findById(getterid)
         let findGameId = await GameModel.findById(gameid)
         let alreadyPlayed= findGameId.winBy.includes(getterid)
@@ -224,16 +189,11 @@ const afterGame = async (getterid,gameid,answer,setterid)=>{
             let postSetterReward = await RewardsModel.create({amount:findGameId.stake,won:true,setterProfileId:setterid})
             return {msg:"You Lost The Game",creditLeftInYourAccount:findUserCredit.credit}
         }
-    } 
-    catch (error) {
-        throw new ErrorResponse(error.message)
-    }
 
 }
 
 //GET ACTIVE GAME FOR ADMIN
 const showAdminGame= async()=>{
-    try {
         let allActiveGame = await GameModel.find({active:true})
         if (allActiveGame.length>0){
             return allActiveGame
@@ -241,10 +201,6 @@ const showAdminGame= async()=>{
         else{
             throw new ErrorResponse('no active game yet',404)
         }
-    } 
-    catch (error) {
-        throw new ErrorResponse(error.message,404)
-    }
 }
 
 module.exports ={postGame,getGame,singleGame,deleteGame,updateGame,playGame,afterGame,findGame,checkGame,showAdminGame}

@@ -5,7 +5,6 @@ const { GetterCreditModel, GetterRegisterModel, SetterRegisterModel } = require(
 
 //POST CREDIT REQUEST 
 const requestCredit = async (getterId,setterId,amount) =>{
-    try {
         if (getterId){
             let getterInfo = await GetterRegisterModel.findById(getterId)
             if(getterInfo){
@@ -43,10 +42,6 @@ const requestCredit = async (getterId,setterId,amount) =>{
         }
         else{
         }
-    } 
-    catch (error) {
-        throw new   ErrorResponse(error,401)
-    }
 
 }
 
@@ -86,7 +81,6 @@ const requestCredit = async (getterId,setterId,amount) =>{
 //IF THE REQUEST ACCEPTED
 
 const acceptedCreditRequest = async(requestId,getterId,setterid,amount)=>{
-    try {
        let  creditInfo = await GetterCreditModel.findByIdAndUpdate(requestId,{
         $set:{approved:true}
        },{new:true})
@@ -124,17 +118,11 @@ const acceptedCreditRequest = async(requestId,getterId,setterid,amount)=>{
                 }
             }
         } 
-
-    } 
-    catch (error) {
-        throw new ErrorResponse(error.message)
-    }
 }
 
 
 //GET CREDIT BY GETTER OR SETTER ID
 const getCreditHistory = async(id)=>{
-    try {
         let CreditHistory = await GetterCreditModel.find({
             $or: [
                 { setterProfileId: id },
@@ -147,51 +135,47 @@ const getCreditHistory = async(id)=>{
         else{
             throw new ErrorResponse("no credit request found",404)
         }
-    } 
-    catch (error) {
-        throw new ErrorResponse(error.message,404)
-    }
 }
 
 
 //IF THE REQUEST NOT ACCEPTED
 const deleteRequest = async (id)=>{
-        try {
-            let Deleterequest = await GetterCreditModel.findByIdAndDelete(id)
-            if(Deleterequest){
-                return {msg:"deleted sucesfull"}
-            }
-            else{
-                throw new ErrorResponse('failed to delete request wrong id is given',401)
-            }
-        } 
-        catch (error) {
-            throw new   ErrorResponse(error,500)
-        }
+    let Deleterequest = await GetterCreditModel.findByIdAndDelete(id)
+    if(Deleterequest){
+            return {msg:"deleted sucesfull"}
+    }
+    else{
+        throw new ErrorResponse('failed to delete request wrong id is given',401)
+    }
     
     
 }
 
 //ALL REQUESTS
 const getAll = async ()=>{
-    try {
-       const allRequest= await GetterCreditModel.find({approved: false,})
+       const allRequest= await GetterCreditModel.find({approved: false})
         .populate('getterProfileId setterProfileId','-OTP -otpValidTill -otpVerified -email -password -phonenumber -dateOfBirth -gender -country -__v')
         if(allRequest.length>0){
-            return allRequest
+            return allRequest.filter((item)=>{
+                if(item.getterProfileId){
+                    if(item.getterProfileId.accountMuted===false){
+                        return item
+                    }
+                }
+                if(item.setterProfileId){
+                    if(item.setterProfileId.accountMuted===false){
+                        return item
+                    }
+                }
+            })
         }
         else{
             throw new ErrorResponse("no request found",404)
         }
-    } 
-    catch (error) {
-       throw new ErrorResponse(error,404) 
-    }
 }
 
 //SINGLE REQUEST
 const getSingle = async (id)=>{
-    try {
         let singleRequest = await GetterCreditModel.findById(id).populate('getterProfileId','-OTP -otpValidTill -otpVerified -email -password -phonenumber -dateOfBirth -gender -_id -country').populate('setterProfileId','-OTP -otpValidTill -otpVerified  -email -password -phonenumber -dateOfBirth -gender -_id -country')
         if(singleRequest){
             return singleRequest
@@ -199,10 +183,6 @@ const getSingle = async (id)=>{
         else{
             throw new ErrorResponse("no request found",404)
         }
-    }
-    catch (error) {
-       throw new ErrorResponse(error,404) 
-    }
 }
 
 module.exports = {requestCredit,deleteRequest,getAll,getSingle,acceptedCreditRequest,getCreditHistory}

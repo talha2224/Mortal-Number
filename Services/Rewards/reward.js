@@ -17,7 +17,6 @@ const {RewardsModel}  = require ('../../Models')
 // }
 
 const getReward = async (id)=>{
-    try {
         let reward = await RewardsModel.find({$or: [{getterProfileId: id}, {setterProfileId: id}]})
         if(reward.length>0){
             return reward
@@ -26,13 +25,10 @@ const getReward = async (id)=>{
             throw new ErrorResponse('no reward found for this user',404)
         }
         
-    } catch (error) {
-        throw new ErrorResponse(error.message,404)
-    }
+    
 }
 
 const deleteReward = async (id)=>{
-    try{
         let reward = await RewardsModel.findByIdAndDelete(id)
         if(reward){
             return {msg:'reward deleted sucesffuly'}
@@ -40,9 +36,6 @@ const deleteReward = async (id)=>{
         else{
             throw new ErrorResponse('no reward found for this id failed to delete',404)
         }  
-    }
-    catch (error) {
-        throw new ErrorResponse(error.message,404)
-    }
+    
 }
 module.exports = {getReward,deleteReward}
