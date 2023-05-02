@@ -12,7 +12,7 @@ router.post('/register',registerValidation,catchAsync( async(req,res)=>{
     res.send(newSetter)
 }))
 
-router.post('/login',catchAsync( async(req,res)=>{
+router.post('/login',loginValidation,catchAsync( async(req,res)=>{
     let {email,password} = req.body
     let loginSetter = await SetterServices.login(email,password)
     res.send(loginSetter)

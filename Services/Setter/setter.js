@@ -59,7 +59,6 @@ const register = async(firstname,lastname,email,password)=>{
 
 const login = async(email,password)=>{
     const SetterDetails = await SetterRegisterModel.findOne({email:email})
-    console.log(email)
     if(SetterDetails){
             if(SetterDetails.accountBlocked===false){
                 if (password){
@@ -67,15 +66,15 @@ const login = async(email,password)=>{
                     if(comparePassword){
                          let token = jwt.sign({SetterDetails},process.env.secretKey)
                          if(token){
-                             let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt,__v,...setterInfo} = SetterDetails._doc
-                             return {setterInfo,token}
+                            let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt,__v,...setterInfo} = SetterDetails._doc
+                            return {setterInfo,token}
                          }
                          else{
                          throw new ErrorResponse('failed to generate token',500)
                          }
                     } 
                      else{
-                         throw new ErrorResponse ("invalid credentials",401)
+                        throw new ErrorResponse ("invalid credentials",401)
                     }
                 }
                 else{
@@ -92,21 +91,21 @@ const login = async(email,password)=>{
 }
 //FORGET PASSWORD 
 const forgetPassword = async (email)=>{
-        let findUser = await SetterRegisterModel.findOne({email:email})
-        if(findUser){
-           let randomString= Math.floor(Math.random() * 9000) + 1000;
-           let Updated = await SetterRegisterModel.findOneAndUpdate({email:email},{$set:{
-            OTP:randomString,
-            otpValidTill: new Date( new Date().setMinutes(new Date().getMinutes()+5))
-           }},{new:true})
-           if(Updated){
-                ResetPassword(findUser.firstName,email,Updated.OTP)
-                return {msg:'OTP SENT TO YOUR ACCOUNT',OTP:Updated.OTP}
-           }
+    let findUser = await SetterRegisterModel.findOne({email:email})
+    if(findUser){
+        let randomString= Math.floor(Math.random() * 9000) + 1000;
+        let Updated = await SetterRegisterModel.findOneAndUpdate({email:email},{$set:{
+        OTP:randomString,
+        otpValidTill: new Date( new Date().setMinutes(new Date().getMinutes()+5))
+        }},{new:true})
+        if(Updated){
+            ResetPassword(findUser.firstName,email,Updated.OTP)
+            return {msg:'OTP SENT TO YOUR ACCOUNT',OTP:Updated.OTP}
         }
-        else{
-            throw new ErrorResponse("wrong email. Email not found",404)
-        }
+    }
+    else{
+        throw new ErrorResponse("wrong email. Email not found",404)
+    }
 }
 
 // OTP VERIFCATION

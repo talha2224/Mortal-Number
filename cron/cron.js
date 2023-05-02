@@ -2,8 +2,9 @@ const { GameModel } = require('../Models');
 const cron = require('node-cron');
 
 const gameTimer =()=>{
-    cron.schedule('* * * * * *',async() => {
+    cron.schedule('*/1 * * * *',async() => {
         let findGame = await GameModel.find({active:true})
+        console.log('running')
         if (findGame.length>0){ 
             findGame.forEach((game) => {
                 if (game.duration.sec > 0) {

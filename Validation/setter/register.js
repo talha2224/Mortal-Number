@@ -9,7 +9,7 @@ const registerValidation = (req,res,next) =>{
         password:joi.string().required(),
     })
 
-    const {error} = validate.validate(req.body,{abortEarly:false})
+    const {error}= validate.validate(req.body,{abortEarly:false})
 
     if(!error){ next() }
 
