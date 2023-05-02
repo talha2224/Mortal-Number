@@ -6,7 +6,6 @@ const gameTimer =()=>{
         let findGame = await GameModel.find({active:true})
         if (findGame.length>0){ 
             findGame.forEach((game) => {
-                console.log(game)
                 if (game.duration.sec > 0) {
                   game.duration.sec--;
                 } else if (game.duration.min > 0) {

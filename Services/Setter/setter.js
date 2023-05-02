@@ -110,8 +110,8 @@ const forgetPassword = async (email)=>{
 }
 
 // OTP VERIFCATION
-  const otpVerification = async (otp)=>{
-        let findUser = await SetterRegisterModel.findOne({OTP:otp})
+const otpVerification = async (otp)=>{
+    let findUser = await SetterRegisterModel.findOne({OTP:otp})
         if (findUser){
             if(findUser.otpValidTill>Date.now()){
                 let updateVerify = await SetterRegisterModel.findOneAndUpdate({OTP:otp},{$set:{
