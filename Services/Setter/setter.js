@@ -33,6 +33,7 @@ const ResetPassword =(name,email,otp)=>{
 }
 
 const register = async(firstname,lastname,email,password)=>{
+    console.log(firstname,lastname,email,password)
     const findSetter = await SetterRegisterModel.findOne({email:email})
     if(findSetter){
         throw new ErrorResponse('email already registered',403)
@@ -58,21 +59,27 @@ const register = async(firstname,lastname,email,password)=>{
 
 const login = async(email,password)=>{
     const SetterDetails = await SetterRegisterModel.findOne({email:email})
+    console.log(email)
     if(SetterDetails){
             if(SetterDetails.accountBlocked===false){
-                let comparePassword = await bcrypt.compare(password,SetterDetails.password)
-                if(comparePassword){
-                     let token = jwt.sign({SetterDetails},process.env.secretKey)
-                     if(token){
-                         let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt,__v,...setterInfo} = SetterDetails._doc
-                         return {setterInfo,token}
-                     }
+                if (password){
+                    let comparePassword = await bcrypt.compare(password,SetterDetails.password)
+                    if(comparePassword){
+                         let token = jwt.sign({SetterDetails},process.env.secretKey)
+                         if(token){
+                             let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt,__v,...setterInfo} = SetterDetails._doc
+                             return {setterInfo,token}
+                         }
+                         else{
+                         throw new ErrorResponse('failed to generate token',500)
+                         }
+                    } 
                      else{
-                     throw new ErrorResponse('failed to generate token',500)
-                     }
-                } 
-                 else{
-                     throw new ErrorResponse ("invalid credentials",401)
+                         throw new ErrorResponse ("invalid credentials",401)
+                    }
+                }
+                else{
+                    throw new ErrorResponse('password is required',404)
                 }
             }
             else if (SetterDetails.accountBlocked===true){
@@ -103,7 +110,7 @@ const forgetPassword = async (email)=>{
 }
 
 // OTP VERIFCATION
-const otpVerification = async (otp)=>{
+  const otpVerification = async (otp)=>{
         let findUser = await SetterRegisterModel.findOne({OTP:otp})
         if (findUser){
             if(findUser.otpValidTill>Date.now()){
