@@ -111,16 +111,6 @@ router.delete(
   })
 );
 
-router.delete(
-  "/:id",
-  authorized,
-  catchAsync(async (req, res) => {
-    let id = req.params.id;
-    let deleteAccount = await SetterServices.deleteSetter(id);
-    res.send(deleteAccount);
-  })
-);
-
 router.get(
   "/:id",
   catchAsync(async (req, res) => {
