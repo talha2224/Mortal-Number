@@ -198,7 +198,8 @@ const afterGame = async (getterid, gameid, answer, setterid) => {
       amount: findGameId.stake,
       won: true,
       setterProfileId: setterid,
-      gameId:gameid
+      gameId:gameid,
+      lostBy:getterid
     });
     return {
       msg: "You Lost The Game",

@@ -28,6 +28,11 @@ const notificationSchema = mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "SetterInfo",
     default: null,
+  },
+  lostBy:{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "GetterInfo",
+    default: null,
   }
 });
 
