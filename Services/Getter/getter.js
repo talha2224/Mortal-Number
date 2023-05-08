@@ -4,7 +4,6 @@ const bcrypt = require('bcryptjs');
 const jwt = require("jsonwebtoken");
 const nodemailer = require('nodemailer');
 
-
 // RESET PASSWORD NODEMAILER CONFIGURATION
 const ResetPassword =(name,email,otp)=>{
     try {
@@ -174,36 +173,14 @@ const getGetter =  async(id)=>{
 }
 
 //UPDATE GETTER PROFILE
-const update = async(id,firstname,lastname,email,username,phonenumber,credit,dateOfBirth,gender,country,image,accountBlocked,accountMuted)=>{
-        let updateGetter = await GetterRegisterModel.findByIdAndUpdate(id,
-            {
-                $set:{
-                    firstName:firstname,
-                    lastName:lastname,
-                    email:email,
-                    username:username,
-                    phonenumber:phonenumber,
-                    credit:credit,
-                    dateOfBirth:dateOfBirth,
-                    gender:gender,
-                    country:country,
-                    profileImage:image,
-                    accountBlocked:accountBlocked,
-                    accountMuted:accountMuted
-                }
-            },{new:true})
-            
-            if(updateGetter){
-                let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt,__v,...updatedInfo} = updateGetter._doc
-                return updatedInfo
-            }
-            else{
-                throw new ErrorResponse("failed to update",409)
-            }
-            
+const update = async(id,body)=>{
+    let getter = await GetterRegisterModel.findById(id)
+    if(!getter){
+        throw new ErrorResponse('user not found',404)
+    } 
+    Object.assign(getter,body)   
+    return await getter.save() 
 } 
-
-
 
 //DELETE GETTER
 const deleteGetter = async(id)=>{

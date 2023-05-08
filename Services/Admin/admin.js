@@ -102,19 +102,21 @@ const forgetPassword = async (email)=>{
     }
 }
 
+
+
 // OTP VERIFCATION
 const otpVerification = async (otp)=>{
     let findUser = await AdminRegisterModel.findOne({OTP:otp})
         if (findUser){
             if(findUser.otpValidTill>Date.now()){
                 let updateVerify = await AdminRegisterModel.findOneAndUpdate({OTP:otp},{$set:{
-                         otpVerified:true
+                    otpVerified:true
                 }})
                 if (updateVerify){
-                        return {msg:"OTP VERIFIED",sucess:true}
+                    return {msg:"OTP VERIFIED",sucess:true}
                 }
                 else{
-                        return {msg:"OTP NOT VERIFIED",sucess:false,status:500}
+                    return {msg:"OTP NOT VERIFIED",sucess:false,status:500}
                 }
             }
             else{
@@ -167,29 +169,14 @@ const getAdmin = async (id)=>{
 } 
 
 
-const updateAdmin = async (id,firstname,lastname,email,username,phonenumber,dateOfBirth,gender,country,image)=>{
-        let updateAdmin = await AdminRegisterModel.findByIdAndUpdate(id,
-        {
-            $set:{
-                firstName:firstname,
-                    lastName:lastname,
-                    email:email,
-                    username:username,
-                    phonenumber:phonenumber,
-                    dateOfBirth:dateOfBirth,
-                    gender:gender,
-                    country:country,
-                    profileImage:image
-                }
-        },
-        {new:true})
-            if(updateAdmin){
-                let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt,__v,...adminInformation} = updateAdmin._doc
-                return adminInformation
-            }
-            else{
-                throw new ErrorResponse("failed to update",409)
-            }
+const updateAdmin = async (id,body)=>{
+    let updateAdmin = await AdminRegisterModel.findById(id)
+    if(!updateAdmin){
+        throw new ErrorResponse('user not found',404)
+    } 
+    Object.assign(updateAdmin,body)   
+    return await updateAdmin.save() 
+
     
 }
 

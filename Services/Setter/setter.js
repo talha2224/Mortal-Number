@@ -162,44 +162,13 @@ const resetPassword = async (email,password)=>{
     
 }
 
-const update = async(id,firstname,lastname,email,username,phonenumber,dateOfBirth,gender,country,image,accountBlocked,accountMuted)=>{
-            let updateSetter = await SetterRegisterModel.findByIdAndUpdate(id,
-            {
-                $set:{
-                        firstName:firstname,
-                        lastName:lastname,
-                        email:email,
-                        username:username,
-                        phonenumber:phonenumber,
-                        dateOfBirth:dateOfBirth,
-                        gender:gender,
-                        country:country,
-                        profileImage:image,
-                        accountBlocked:accountBlocked,
-                        accountMuted:accountMuted
-                    }
-            },{new:true})
-            if(updateSetter){
-                let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt,__v,...updatedInfo} = updateSetter._doc
-                console.log(updateSetter.accountBlocked)
-                if (updateSetter.accountBlocked===true){
-                    const filter = {setterId:id}
-                    const update = {$set:{active:false}}
-                    let updateGame = await GameModel.updateMany(filter,update,{new:true})
-                }
-                else if (updateSetter.accountBlocked===false){
-                    const filter = {setterId:id}
-                    const update = {$set:{active:true}}
-                    let updateGame = await GameModel.updateMany(filter,update,{new:true})
-                }
-                return updatedInfo
-            }
-            else{
-                throw new ErrorResponse("failed to update wrong id given",304)
-            }
-            
-
-    
+const update = async(id,body)=>{
+    let setter = await SetterRegisterModel.findById(id)
+    if(!setter){
+        throw new ErrorResponse('user not found',404)
+    }
+    Object.assign(setter,body)
+    return await setter.save()
 }
 
 const deleteSetter = async(id)=>{
