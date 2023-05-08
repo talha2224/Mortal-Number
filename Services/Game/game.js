@@ -1,95 +1,59 @@
 const { ErrorResponse } = require("../../Error/Utils");
+const {GameModel,GetterRegisterModel,SetterRegisterModel,RewardsModel,} = require("../../Models");
 
-const {
-  GameModel,
-  GetterRegisterModel,
-  SetterRegisterModel,
-  RewardsModel,
-} = require("../../Models");
-
-const postGame = async (
-  id,
-  winningnumber,
-  stake,
-  prize,
-  hours,
-  minutes,
-  seconds
-) => {
-  let findSetter = await GameModel.findOne({
-    active: true,
-    setterId: id,
-  }).populate("setterId");
-  let setter = await SetterRegisterModel.findById(id);
-  if (findSetter) {
-    throw new ErrorResponse("your have already posted a game", 429);
-  } else if (setter.accountBlocked) {
-    throw new ErrorResponse("your account has been blocked", 403);
-  } else {
-    let setterId = await SetterRegisterModel.findById(id);
-    if (setterId.credit < stake) {
-      throw new ErrorResponse("you donot have enough credit", 402);
+const postGame = async (id,winningnumber,stake,prize,hours,minutes,second) => {
+  try {let findSetter = await GameModel.findOne({active: true,setterId: id,}).populate("setterId");
+    let setter = await SetterRegisterModel.findById(id);
+    if (findSetter) {
+      throw new ErrorResponse("your have already posted a game", 429);
+    } 
+    else if (setter.accountBlocked) {
+      throw new ErrorResponse("your account has been blocked", 403);
+    } 
+    else {
+      let setterId = await SetterRegisterModel.findById(id);
+      if (setterId.credit >= stake) {
+        let updateSetterCredit = await SetterRegisterModel.findByIdAndUpdate(id,{$set: {credit: setterId.credit - stake}},{ new: true });
+        try {
+          const duration = {hours: hours,min: minutes,sec: second};
+          let createGame = await GameModel.create({setterId: id,winningNumber: winningnumber,stake: stake,prize: prize,duration: duration});
+          if (createGame) {
+            return createGame;
+          } 
+          else {
+            throw new ErrorResponse("failed to post game", 409);
+          }
+        } 
+        catch (error) {
+          throw new ErrorResponse(error, 500);
+        }
+      } 
+      else {
+        throw new ErrorResponse("you donot have enough credit", 402);
+      }
     }
-
-    let updateSetterCredit = await SetterRegisterModel.findByIdAndUpdate(
-      id,
-      {
-        $set: {
-          credit: setterId.credit - stake,
-        },
-      },
-      { new: true }
-    );
-    const duration = {
-      hours: hours,
-      min: minutes,
-      sec: seconds,
-    };
-    let createGame = await GameModel.create({
-      setterId: id,
-      winningNumber: winningnumber,
-      stake: stake,
-      prize: prize,
-      duration: duration,
-    });
-    if (createGame) {
-      return createGame;
-    } else {
-      throw new ErrorResponse("failed to post game", 409);
-    }
+  } catch (error) {
+    throw new ErrorResponse(error, 403);
   }
 };
 
 //  GUESSER GET GAME
-const getGame = async (getterId) => {
-  let allGame = await GameModel.find({
-    active: true,
-    winBy: getterId,
-  })
-    .populate(
-      "setterId",
-      "-OTP -otpValidTill -otpVerified -credit -email -password -phonenumber -dateOfBirth -country"
-    )
-    .exec();
+const getGame = async (getterId) => {let allGame = await GameModel.find({active: true,winBy: { $nin: getterId},}).populate("setterId","-OTP -otpValidTill -otpVerified -credit -email -password -phonenumber -dateOfBirth -country").exec();
   if (allGame.length > 0) {
     return allGame;
-  } else {
-    throw new ErrorResponse(
-      "NO GAME FOUND OR YOU HAVE ALREADY PLAY ALL THE POSTED GAME",
-      404
-    );
+  } 
+  else {
+    throw new ErrorResponse("NO GAME FOUND OR YOU HAVE ALREADY PLAY ALL THE POSTED GAME",404);
   }
 };
 
 // SINGLE GAME
 const singleGame = async (id) => {
-  let singleGame = await GameModel.findById(id).populate(
-    "setterId",
-    "-OTP -otpValidTill -otpVerified -credit -email -password -phonenumber -_id  -dateOfBirth -country"
-  );
+  let singleGame = await GameModel.findOne({ _id: id, active: true }).populate("setterId","-OTP -otpValidTill -otpVerified -credit -email -password -phonenumber -_id  -dateOfBirth -country");
   if (singleGame) {
     return singleGame;
-  } else {
+  } 
+  else {
     throw new ErrorResponse("NO GAME FOUND PLEASE ADD SOME", 404);
   }
 };
@@ -104,16 +68,15 @@ const findGame = async (id) => {
   }
 };
 
-// // NOT MANDOTARY API THIS CHECK IF THE
-// const checkGame = async (id)=>{
-//         let findGame = await GameModel.findOne({setterId:id,active:true})
-//         if(findGame){
-//             throw new ErrorResponse('you have alreday posted a game',500)
-//         }
-//         else{
-//             return {msg:'No game posted yet'}
-//         }
-// }
+// ALREDAY POSTED FOR SETTER
+const checkGame = async (id) => {
+  let findGame = await GameModel.findOne({ setterId: id });
+  if (findGame) {
+    throw new ErrorResponse("you have alreday posted a game", 500);
+  } else {
+    return { msg: "No game posted yet" };
+  }
+};
 
 const deleteGame = async (id) => {
   let deleteGame = await GameModel.findByIdAndDelete(id);
@@ -124,55 +87,37 @@ const deleteGame = async (id) => {
   }
 };
 
-const updateGame = async (
-  id,
-  winningnumber,
-  deletewinningnumber,
-  stake,
-  prize,
-  winners,
-  deleteWinner
-) => {
-  let updated = await GameModel.findByIdAndUpdate(
-    id,
-    {
-      $push: {
-        winBy: winners,
-        winningNumber: winningnumber,
-      },
-      $set: {
-        stake: stake,
-        prize: prize,
-      },
-      $pull: {
-        winBy: deleteWinner,
-        winningNumber: deletewinningnumber,
-      },
-    },
-    { new: true }
-  );
-  if (updated) {
-    return updated;
-  } else {
-    throw new ErrorResponse("Failed To Update", 304);
-  }
+const updateGame = async (id, winningnumber,deletewinningnumber,stake,prize,winners,deleteWinner) => {
+  let updated = await GameModel.findByIdAndUpdate(id,{
+        $push: {
+            winBy: winners,
+            winningNumber: winningnumber,
+        },
+        $set: {
+            stake: stake,
+            prize: prize,
+        },
+        $pull: {
+            winBy: deleteWinner,
+            winningNumber: deletewinningnumber,
+        },},{ new: true });
+    if (updated) {
+        return updated;
+    } 
+    else {
+        throw new ErrorResponse("Failed To Update", 304);
+    }
 };
 
 const playGame = async (getterid, gameid) => {
-  let findGameId = await GameModel.findById(gameid);
-  if (!findGameId) {
-    throw new ErrorResponse("No game Found or wrong id", 404);
-  }
   let findUserCredit = await GetterRegisterModel.findById(getterid);
-  if (!findUserCredit) {
-    throw new ErrorResponse("No user Found or wrong id", 404);
-  }
+  if (!findUserCredit) throw new ErrorResponse("No Getter found", 404);
+  let findGameId = await GameModel.findById(gameid);
+  if (!findGameId) throw new ErrorResponse("No Game found", 404);
   let alreadyWin = findGameId.winBy.includes(getterid);
   if (alreadyWin) {
     throw new ErrorResponse("you alreday win the game", 403);
-  } 
-  
-  else if (findUserCredit && findGameId) {
+  } else if (findUserCredit && findGameId) {
     if (findUserCredit.credit >= findGameId.stake) {
       let minusStake = await GetterRegisterModel.findByIdAndUpdate(
         getterid,
@@ -194,7 +139,9 @@ const playGame = async (getterid, gameid) => {
 
 const afterGame = async (getterid, gameid, answer, setterid) => {
   let findUserCredit = await GetterRegisterModel.findById(getterid);
+  if (!findUserCredit) throw new ErrorResponse("No Getter found", 404);
   let findGameId = await GameModel.findById(gameid);
+  if (!findGameId) throw new ErrorResponse("No Game found", 404);
   let alreadyPlayed = findGameId.winBy.includes(getterid);
   let check = findGameId.winningNumber.every((item) => answer.includes(item));
   if (alreadyPlayed) {
@@ -275,5 +222,6 @@ module.exports = {
   playGame,
   afterGame,
   findGame,
+  checkGame,
   showAdminGame,
 };

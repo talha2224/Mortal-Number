@@ -19,12 +19,10 @@ router.post('/login',loginValidation,catchAsync( async(req,res)=>{
 }))
 
 router.put('/:id',authorized,image_upload.single('image'),catchAsync(async(req,res)=>{
-    const {body} = req
     let {id} = req.params
-    if(req.file){
-        body.image = req.file.filename
-    }
-    let updateSetter = await SetterServices.update(id,body)
+    const {firstname,lastname,email,username,phonenumber,dateOfBirth,gender,country,accountBlocked,accountMuted} = req.body
+    let image = req?.file?.filename
+    let updateSetter = await SetterServices.update(id,firstname,lastname,email,username,phonenumber,dateOfBirth,gender,country,image,accountBlocked,accountMuted)
     res.send(updateSetter)
 }))
 
@@ -54,6 +52,13 @@ router.delete('/:id',authorized,catchAsync (async(req,res)=>{
     let deleteAccount = await SetterServices.deleteSetter(id)
     res.send(deleteAccount)
 }))
+
+router.get("/:id",catchAsync(async (req, res) => {
+    let id = req.params.id;
+    let setter = await SetterServices.getSetter(id);
+    res.send(setter);
+  })
+);
 
 //Update PASSWORD
 router.post('/change/password',authorized,catchAsync(async(req,res)=>{
