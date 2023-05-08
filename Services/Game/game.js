@@ -38,12 +38,20 @@ const postGame = async (id,winningnumber,stake,prize,hours,minutes,second) => {
 };
 
 //  GUESSER GET GAME
-const getGame = async (getterId) => {let allGame = await GameModel.find({active: true,winBy: { $nin: getterId},}).populate("setterId","-OTP -otpValidTill -otpVerified -credit -email -password -phonenumber -dateOfBirth -country").exec();
+const getGame = async (getterId) => {
+  let allGame = await GameModel.find({active: true}).populate("setterId","-OTP -otpValidTill -otpVerified -credit -email -password -phonenumber -dateOfBirth -country").exec();
   if (allGame.length > 0) {
-    return allGame;
+    const modifiedGame = allGame.map((game) => {
+      if (game.winBy.includes(getterId)) {
+        return { ...game.toObject(), win: true };
+      } else {
+        return { ...game.toObject(), win: false };
+      }
+    });
+    return modifiedGame;
   } 
   else {
-    throw new ErrorResponse("NO GAME FOUND OR YOU HAVE ALREADY PLAY ALL THE POSTED GAME",404);
+    throw new ErrorResponse("NO GAME FOUND OR YOU HAVE ALREADY PLAYED ALL THE POSTED GAMES",404);
   }
 };
 
@@ -118,9 +126,6 @@ const playGame = async (getterid, gameid) => {
   if (alreadyWin) {
     throw new ErrorResponse("you alreday win the game", 403);
   } 
-  else {
-    throw new ErrorResponse("wrong id hase been pass", 404);
-  }
 };
 
 // findUserCredit.credit >= findGameId.stake
