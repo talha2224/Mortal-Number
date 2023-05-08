@@ -149,7 +149,7 @@ const afterGame = async (getterid, gameid, answer, setterid) => {
 
     let updateGetterAmount = await GetterRegisterModel.findByIdAndUpdate(
       getterid,
-      { $set: { credit: findUserCredit.credit + findGameId.prize } },
+      { $set: { credit: updateUserCredit.credit + findGameId.prize } },
       { new: true }
     );
     let postReward = await RewardsModel.create({
@@ -178,7 +178,7 @@ const afterGame = async (getterid, gameid, answer, setterid) => {
     }
   } 
   else if (!check){
-    let postReward = await RewardsModel.create({
+    let Guesser_PostReward = await RewardsModel.create({
       amount: findGameId.prize,
       won: false,
       getterProfileId: getterid,
@@ -218,15 +218,4 @@ const showAdminGame = async () => {
   }
 };
 
-module.exports = {
-  postGame,
-  getGame,
-  singleGame,
-  deleteGame,
-  updateGame,
-  playGame,
-  afterGame,
-  findGameforSetter,
-  checkGame,
-  showAdminGame,
-};
+module.exports = {postGame,getGame,singleGame,deleteGame,updateGame,playGame,afterGame,findGameforSetter,checkGame,showAdminGame,};

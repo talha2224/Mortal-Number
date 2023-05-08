@@ -110,9 +110,7 @@ router.post(
 );
 
 //ALL GAME BY SETTER ID
-router.get(
-  "/all/setter/:id",
-  catchAsync(async (req, res) => {
+router.get("/all/setter/:id",catchAsync(async (req, res) => {
     let { id } = req.params;
     let allGame = await GameServices.findGameforSetter(id);
     res.send(allGame);
