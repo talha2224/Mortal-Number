@@ -36,22 +36,33 @@ const register = async (firstname, lastname, email, password) => {
   const findSetter = await SetterRegisterModel.findOne({ email: email });
   if (findSetter) {
     throw new ErrorResponse("email already registered", 403);
-  } 
-  else {
+  } else {
     let hash = await bcrypt.hash(password, 10);
-    let setter = await SetterRegisterModel.create({firstName: firstname,lastName: lastname,email: email,password: hash,credit: 500,
+    let setter = await SetterRegisterModel.create({
+      firstName: firstname,
+      lastName: lastname,
+      email: email,
+      password: hash,
+      credit: 500,
     });
     if (setter) {
       let token = jwt.sign({ setter }, process.env.secretKey);
       if (token) {
-        let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt,__v,...setterInfo} = setter._doc;
+        let {
+          OTP,
+          otpValidTill,
+          otpVerified,
+          password,
+          createdAt,
+          updatedAt,
+          __v,
+          ...setterInfo
+        } = setter._doc;
         return { setterInfo, token };
-      } 
-      else {
+      } else {
         throw new ErrorResponse("Failed To Generate Token", 400);
       }
-    } 
-    else {
+    } else {
       throw new ErrorResponse("Failed to create User", 400);
     }
   }
@@ -62,30 +73,37 @@ const login = async (email, password) => {
   if (SetterDetails) {
     if (SetterDetails.accountBlocked === false) {
       if (password) {
-        let comparePassword = await bcrypt.compare(password,SetterDetails.password);
+        let comparePassword = await bcrypt.compare(
+          password,
+          SetterDetails.password
+        );
         if (comparePassword) {
           let token = jwt.sign({ SetterDetails }, process.env.secretKey);
           if (token) {
-            let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt,__v,...setterInfo} = SetterDetails._doc;
+            let {
+              OTP,
+              otpValidTill,
+              otpVerified,
+              password,
+              createdAt,
+              updatedAt,
+              __v,
+              ...setterInfo
+            } = SetterDetails._doc;
             return { setterInfo, token };
-          } 
-          else {
+          } else {
             throw new ErrorResponse("failed to generate token", 500);
           }
-        } 
-        else {
+        } else {
           throw new ErrorResponse("invalid credentials", 401);
         }
-      } 
-      else {
+      } else {
         throw new ErrorResponse("password is required", 404);
       }
-    } 
-    else if (SetterDetails.accountBlocked === true) {
+    } else if (SetterDetails.accountBlocked === true) {
       throw new ErrorResponse("your account has been blocked", 403);
     }
-  } 
-  else {
+  } else {
     throw new ErrorResponse("account not found", 404);
   }
 };
@@ -95,12 +113,18 @@ const forgetPassword = async (email) => {
   let findUser = await SetterRegisterModel.findOne({ email: email });
   if (findUser) {
     let randomString = Math.floor(Math.random() * 9000) + 1000;
-    let Updated = await SetterRegisterModel.findOneAndUpdate({ email: email },{
-      $set: {
-        OTP: randomString,
-        otpValidTill: new Date(new Date().setMinutes(new Date().getMinutes() + 5)),
+    let Updated = await SetterRegisterModel.findOneAndUpdate(
+      { email: email },
+      {
+        $set: {
+          OTP: randomString,
+          otpValidTill: new Date(
+            new Date().setMinutes(new Date().getMinutes() + 5)
+          ),
+        },
       },
-    },{ new: true });
+      { new: true }
+    );
     if (Updated) {
       ResetPassword(findUser.firstName, email, Updated.OTP);
       return { msg: "OTP SENT TO YOUR ACCOUNT", OTP: Updated.OTP };
@@ -115,24 +139,30 @@ const otpVerification = async (otp) => {
   let findUser = await SetterRegisterModel.findOne({ OTP: otp });
   if (findUser) {
     if (findUser.otpValidTill > Date.now()) {
-      let updateVerify = await SetterRegisterModel.findOneAndUpdate({ OTP: otp },{
-        $set: {
-          otpVerified: true,
-        },
-      });
+      let updateVerify = await SetterRegisterModel.findOneAndUpdate(
+        { OTP: otp },
+        {
+          $set: {
+            otpVerified: true,
+          },
+        }
+      );
       if (updateVerify) {
         return { msg: "OTP VERIFIED", sucess: true };
-      } 
-      else {
+      } else {
         return { msg: "OTP NOT VERIFIED", sucess: false, status: 500 };
       }
-    } 
-    else {
-      let deleteOtp = await SetterRegisterModel.findOneAndUpdate({ OTP: otp },{$set: {OTP: null,otpValidTill: null},});
-      throw new ErrorResponse("otp timeout please again call forget password api",408);
+    } else {
+      let deleteOtp = await SetterRegisterModel.findOneAndUpdate(
+        { OTP: otp },
+        { $set: { OTP: null, otpValidTill: null } }
+      );
+      throw new ErrorResponse(
+        "otp timeout please again call forget password api",
+        408
+      );
     }
-  } 
-  else {
+  } else {
     throw new ErrorResponse("wrong otp given", 404);
   }
 };
@@ -143,28 +173,43 @@ const resetPassword = async (email, password) => {
   if (findUser) {
     if (findUser.otpVerified === true) {
       let hash = await bcrypt.hash(password, 10);
-      let updatePassword = await SetterRegisterModel.findOneAndUpdate({ email: email },{
-        $set: {
-          password: hash,
-          OTP: null,
-          otpValidTill: null,
-          otpVerified: false,
+      let updatePassword = await SetterRegisterModel.findOneAndUpdate(
+        { email: email },
+        {
+          $set: {
+            password: hash,
+            OTP: null,
+            otpValidTill: null,
+            otpVerified: false,
+          },
         },
-      },{ new: true });
+        { new: true }
+      );
       if (updatePassword) {
         return { msg: "password updated sucesfully sucesfully" };
       }
-    }
-    else {
+    } else {
       throw new ErrorResponse("OTP NOT VERIFIED PLEASE VERIFY FIRST", 500);
     }
-  } 
-  else {
+  } else {
     throw new ErrorResponse("invalid EMAIL", 404);
   }
 };
 
-const update = async (id,firstname,lastname,email,username,phonenumber,dateOfBirth,gender,country,image,accountBlocked,accountMuted) => {
+const update = async (
+  id,
+  firstname,
+  lastname,
+  email,
+  username,
+  phonenumber,
+  dateOfBirth,
+  gender,
+  country,
+  image,
+  accountBlocked,
+  accountMuted
+) => {
   let updateSetter = await SetterRegisterModel.findByIdAndUpdate(
     id,
     {
@@ -232,16 +277,24 @@ const getSetter = async (id) => {
   if (!setter) {
     throw new ErrorResponse("No setter found", 404);
   }
-  return setter;
+  return { setterInfo: setter };
 };
 
 const getSingleSetter = async (id) => {
   let singleSetter = await SetterRegisterModel.findById({ _id: id });
   if (singleSetter.accountBlocked === false) {
-    let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt,__v,...setterInfo} = singleSetter._doc;
+    let {
+      OTP,
+      otpValidTill,
+      otpVerified,
+      password,
+      createdAt,
+      updatedAt,
+      __v,
+      ...setterInfo
+    } = singleSetter._doc;
     return setterInfo;
-  } 
-  else if (singleSetter.accountBlocked === true) {
+  } else if (singleSetter.accountBlocked === true) {
     throw new ErrorResponse("your account has been blocked", 403);
   }
 };
@@ -252,16 +305,19 @@ const changePassword = async (id, oldpassword, newpassword) => {
   if (find) {
     if (find.accountBlocked === true) {
       throw new ErrorResponse("your account has been blocked", 403);
-    } 
-    else {
+    } else {
       let comparePassword = await bcrypt.compare(oldpassword, find.password);
       if (comparePassword) {
         let hash = await bcrypt.hash(newpassword, 10);
-        let update = await SetterRegisterModel.findByIdAndUpdate(id,{
-          $set: {
-            password: hash,
+        let update = await SetterRegisterModel.findByIdAndUpdate(
+          id,
+          {
+            $set: {
+              password: hash,
+            },
           },
-        },{ new: true });
+          { new: true }
+        );
         if (update) {
           return { msg: "password updated sucesfully" };
         }
@@ -286,4 +342,16 @@ const topRated = async () => {
   }
 };
 
-module.exports = {register,login,update,deleteSetter,forgetPassword,resetPassword,otpVerification,getSingleSetter,changePassword,topRated,getSetter};
+module.exports = {
+  register,
+  login,
+  update,
+  deleteSetter,
+  forgetPassword,
+  resetPassword,
+  otpVerification,
+  getSingleSetter,
+  changePassword,
+  topRated,
+  getSetter,
+};
