@@ -146,7 +146,8 @@ const afterGame = async (getterid, gameid, answer, setterid) => {
   let check = findGameId.winningNumber.every((item) => answer.includes(item));
   if (alreadyPlayed) {
     throw new ErrorResponse("you alreday win the game", 403);
-  } else if (check) {
+  } 
+  else if (check) {
     let updateGetterAmount = await GetterRegisterModel.findByIdAndUpdate(
       getterid,
       { $set: { credit: findUserCredit.credit + findGameId.prize } },
@@ -157,16 +158,13 @@ const afterGame = async (getterid, gameid, answer, setterid) => {
       won: true,
       getterProfileId: getterid,
     });
-    let updateGame = await GameModel.findByIdAndUpdate(
-      gameid,
-      {
+    let updateGame = await GameModel.findByIdAndUpdate(gameid,{
         $push: {
           winBy: getterid,
         },
       },
       { new: true }
     );
-    console.log(updateGame);
     if (updateGetterAmount && postReward && updateGame) {
       return {
         msg: `You Won The Amount`,
@@ -176,7 +174,8 @@ const afterGame = async (getterid, gameid, answer, setterid) => {
     } else {
       throw new ErrorResponse("CHECK YOUR BACKEND CODE ON LINE 170", 400);
     }
-  } else {
+  } 
+  else if (!check){
     let postReward = await RewardsModel.create({
       amount: findGameId.prize,
       won: false,
@@ -199,6 +198,7 @@ const afterGame = async (getterid, gameid, answer, setterid) => {
     return {
       msg: "You Lost The Game",
       creditLeftInYourAccount: findUserCredit.credit,
+      statusCode:201
     };
   }
 };
