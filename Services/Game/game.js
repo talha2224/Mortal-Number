@@ -117,7 +117,8 @@ const playGame = async (getterid, gameid) => {
   let alreadyWin = findGameId.winBy.includes(getterid);
   if (alreadyWin) {
     throw new ErrorResponse("you alreday win the game", 403);
-  } else if (findUserCredit && findGameId) {
+  } 
+  else if (findUserCredit && findGameId) {
     if (findUserCredit.credit >= findGameId.stake) {
       let minusStake = await GetterRegisterModel.findByIdAndUpdate(
         getterid,
@@ -132,7 +133,8 @@ const playGame = async (getterid, gameid) => {
     } else {
       throw new ErrorResponse("not enough credit", 402);
     }
-  } else {
+  } 
+  else {
     throw new ErrorResponse("wrong id hase been pass", 404);
   }
 };
