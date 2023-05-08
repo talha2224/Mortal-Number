@@ -19,7 +19,9 @@ const { RewardsModel } = require("../../Models");
 const getReward = async (id) => {
   let reward = await RewardsModel.find({
     $or: [{ getterProfileId: id }, { setterProfileId: id }],
-  });
+  })
+    .populate("getterProfileId")
+    .populate("setterProfileId");
   if (reward.length > 0) {
     return reward;
   } else {
