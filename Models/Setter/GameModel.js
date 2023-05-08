@@ -30,7 +30,7 @@ const GameSchema = mongoose.Schema({
         type:Array,
         default:null
     }
-
+    
 })
 
 const Game = mongoose.model('Game',GameSchema,'Game')

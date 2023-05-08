@@ -118,26 +118,12 @@ const playGame = async (getterid, gameid) => {
   if (alreadyWin) {
     throw new ErrorResponse("you alreday win the game", 403);
   } 
-  else if (findUserCredit && findGameId) {
-    if (findUserCredit.credit >= findGameId.stake) {
-      let minusStake = await GetterRegisterModel.findByIdAndUpdate(
-        getterid,
-        {
-          $set: {
-            credit: findUserCredit.credit - findGameId.stake,
-          },
-        },
-        { new: true }
-      );
-      return { msg: "YOU CAN PLAY THE GAME CREDIT MINUS FROM YOUR ACCOUNT" };
-    } else {
-      throw new ErrorResponse("not enough credit", 402);
-    }
-  } 
   else {
     throw new ErrorResponse("wrong id hase been pass", 404);
   }
 };
+
+// findUserCredit.credit >= findGameId.stake
 
 const afterGame = async (getterid, gameid, answer, setterid) => {
   let findUserCredit = await GetterRegisterModel.findById(getterid);
@@ -149,7 +135,12 @@ const afterGame = async (getterid, gameid, answer, setterid) => {
   if (alreadyPlayed) {
     throw new ErrorResponse("you alreday win the game", 403);
   } 
+  let updateUserCredit = await GetterRegisterModel.findByIdAndUpdate(getterid,{$set:{credit:findUserCredit.credit-findGameId.stake}},{new:true})
+  if (findGameId.stake>findUserCredit.credit){
+    throw new ErrorResponse ('you donot have enough credit to play this game',402)
+  }
   else if (check) {
+
     let updateGetterAmount = await GetterRegisterModel.findByIdAndUpdate(
       getterid,
       { $set: { credit: findUserCredit.credit + findGameId.prize } },
@@ -164,7 +155,7 @@ const afterGame = async (getterid, gameid, answer, setterid) => {
         $push: {
           winBy: getterid,
         },
-      },
+    },
       { new: true }
     );
     if (updateGetterAmount && postReward && updateGame) {
@@ -173,7 +164,8 @@ const afterGame = async (getterid, gameid, answer, setterid) => {
         amount: findGameId.prize,
         totalAmount: findUserCredit.credit + findGameId.prize,
       };
-    } else {
+    } 
+    else {
       throw new ErrorResponse("CHECK YOUR BACKEND CODE ON LINE 170", 400);
     }
   } 
@@ -199,7 +191,7 @@ const afterGame = async (getterid, gameid, answer, setterid) => {
     });
     return {
       msg: "You Lost The Game",
-      creditLeftInYourAccount: findUserCredit.credit,
+      creditLeftInYourAccount: updateUserCredit.credit,
       statusCode:201
     };
   }
