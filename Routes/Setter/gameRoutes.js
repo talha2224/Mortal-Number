@@ -35,9 +35,7 @@ router.get(
 );
 
 //GET ALL GAME BY GETTER ID
-router.get(
-  "/active/games",
-  catchAsync(async (req, res) => {
+router.get("/active/games",catchAsync(async (req, res) => {
     let allGame = await GameServices.showAdminGame();
     res.send(allGame);
   })
@@ -111,4 +109,13 @@ router.post(
   })
 );
 
+//ALL GAME BY SETTER ID
+router.get(
+  "/all/setter/:id",
+  catchAsync(async (req, res) => {
+    let { id } = req.params;
+    let allGame = await GameServices.findGameforSetter(id);
+    res.send(allGame);
+  })
+);
 module.exports = router;

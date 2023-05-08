@@ -67,8 +67,9 @@ const singleGame = async (id) => {
 };
 
 //FIND BY SETTER ID
-const findGame = async (id) => {
+const findGameforSetter = async (id) => {
   let findGame = await GameModel.find({ setterId: id });
+  console.log(findGame)
   if (findGame.length > 0) {
     return findGame;
   } else {
@@ -155,6 +156,8 @@ const afterGame = async (getterid, gameid, answer, setterid) => {
       amount: findGameId.prize,
       won: true,
       getterProfileId: getterid,
+      gameId:gameid,
+      postedBy:setterid
     });
     let updateGame = await GameModel.findByIdAndUpdate(gameid,{
         $push: {
@@ -167,7 +170,7 @@ const afterGame = async (getterid, gameid, answer, setterid) => {
       return {
         msg: `You Won The Amount`,
         amount: findGameId.prize,
-        totalAmount: findUserCredit.credit + findGameId.prize,
+        totalAmount: updateUserCredit.credit + findGameId.prize,
       };
     } 
     else {
@@ -179,6 +182,8 @@ const afterGame = async (getterid, gameid, answer, setterid) => {
       amount: findGameId.prize,
       won: false,
       getterProfileId: getterid,
+      gameId:gameid,
+      postedBy:setterid
     });
     let getSetterDetails = await SetterRegisterModel.findById(setterid);
     let updateSetterAmount = await SetterRegisterModel.findByIdAndUpdate(
@@ -193,6 +198,7 @@ const afterGame = async (getterid, gameid, answer, setterid) => {
       amount: findGameId.stake,
       won: true,
       setterProfileId: setterid,
+      gameId:gameid
     });
     return {
       msg: "You Lost The Game",
@@ -220,7 +226,7 @@ module.exports = {
   updateGame,
   playGame,
   afterGame,
-  findGame,
+  findGameforSetter,
   checkGame,
   showAdminGame,
 };

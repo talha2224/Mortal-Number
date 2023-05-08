@@ -20,8 +20,10 @@ const getReward = async (id) => {
   let reward = await RewardsModel.find({
     $or: [{ getterProfileId: id }, { setterProfileId: id }],
   })
-    .populate("getterProfileId")
-    .populate("setterProfileId");
+    .populate("getterProfileId" ,"-accountMuted -accountBlocked -OTP -otpValidTill -otpVerified -phonenumber")
+    .populate("setterProfileId","-accountMuted -accountBlocked -OTP -otpValidTill -otpVerified -phonenumber")
+    .populate("postedBy"," _id firstName lastName username profileImage")
+    .populate("gameId","_id stake prize ")
   if (reward.length > 0) {
     return reward;
   } else {
