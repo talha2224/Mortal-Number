@@ -212,7 +212,7 @@ const getGetter = async (id) => {
       __v,
       ...getterInfo
     } = singleGetter._doc;
-    return { getterInfo };
+    return { getterInfo: getterInfo };
   } else {
     throw new ErrorResponse("Invalid Id ", 404);
   }
