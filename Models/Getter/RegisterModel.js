@@ -86,6 +86,11 @@ const RegisterModel = mongoose.Schema(
         delete ret.password;
         delete ret.createdAt;
         delete ret.updatedAt;
+        for (i in ret) {
+          if (i == null) {
+            delete ret[i];
+          }
+        }
       },
     },
     timestamps: true,
