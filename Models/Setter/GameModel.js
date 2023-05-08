@@ -29,6 +29,10 @@ const GameSchema = mongoose.Schema({
     winBy:{
         type:Array,
         default:null
+    },
+    totalEarn:{
+        type:Number,
+        default:0
     }
     
 })

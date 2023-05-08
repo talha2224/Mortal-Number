@@ -1,4 +1,5 @@
 const { catchAsync } = require("../../Error/Utils");
+const { RewardsModel } = require("../../Models");
 const { RewardServices } = require("../../Services");
 
 const router = require('express').Router()
@@ -16,5 +17,12 @@ router.delete('/:id',catchAsync(async(req,res)=>{
     res.send(postReward)
 }))
 
+router.delete('/all',async(req,res)=>{
+        let deleteall = await RewardsModel.deleteMany({})
+        if(deleteall){
+            res.json({msg:"del"})
+        }
+
+})
 
 module.exports = router

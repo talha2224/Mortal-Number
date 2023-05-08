@@ -4,6 +4,7 @@ const dbConnection = require("./Database/Connection");
 const dotenv = require("dotenv");
 const { gameTimer } = require("./cron/cron");
 const { ErrorResponse } = require("./Error/Utils");
+const { RewardsModel } = require("./Models");
 
 const app = express();
 dotenv.config();
@@ -43,6 +44,10 @@ app.use((req, res, next) => {
   next(new ErrorResponse("API Not found", 404));
 });
 
+// const del=async()=>{
+//   await RewardsModel.deleteMany({})}
+
+// del()
 //CUSTOM ERROR HANDLING
 app.use(require("./Error/Error"));
 
