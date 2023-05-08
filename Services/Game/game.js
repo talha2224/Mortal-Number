@@ -201,6 +201,7 @@ const afterGame = async (getterid, gameid, answer, setterid) => {
       gameId:gameid,
       lostBy:getterid
     });
+    console.log(updateUserCredit.credit,)
     return {
       msg: "You Lost The Game",
       creditLeftInYourAccount: updateUserCredit.credit,

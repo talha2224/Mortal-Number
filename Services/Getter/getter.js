@@ -244,7 +244,7 @@ const deleteGetter = async (id) => {
 
 //TOP 5 GETTER
 const topRated = async () => {
-  let top = await GetterRegisterModel.find({}).sort({ credit: -1 }).limit(5);
+  let top = await GetterRegisterModel.find({}).sort({ credit: -1 }).limit(20);
   if (top) {
     return top;
   } else {

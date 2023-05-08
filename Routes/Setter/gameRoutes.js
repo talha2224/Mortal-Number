@@ -103,6 +103,7 @@ router.post(
 router.post(
   "/game/result",
   catchAsync(async (req, res) => {
+    console.log(req.body,'body')
     let { getterid, gameid, answer, setterid } = req.body;
     let game = await GameServices.afterGame(getterid, gameid, answer, setterid);
     res.send(game);

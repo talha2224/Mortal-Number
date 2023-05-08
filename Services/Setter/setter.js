@@ -334,7 +334,7 @@ const changePassword = async (id, oldpassword, newpassword) => {
 const topRated = async () => {
   let top = await SetterRegisterModel.find({ accountBlocked: false })
     .sort({ credit: -1 })
-    .limit(5);
+    .limit(20);
   if (top.length > 0) {
     return top;
   } else {

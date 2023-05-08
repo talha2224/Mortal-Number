@@ -24,7 +24,7 @@ const getReward = async (id) => {
     .populate("setterProfileId","-accountMuted -accountBlocked -OTP -otpValidTill -otpVerified -phonenumber")
     .populate("postedBy"," _id firstName lastName username profileImage")
     .populate("gameId","_id stake prize ")
-    .populate("lostBy","_id firstName lastName username profileImage")
+    .populate("lostBy","_id firstName lastName username profileImage`")
   if (reward.length > 0) {
     return reward;
   } else {
