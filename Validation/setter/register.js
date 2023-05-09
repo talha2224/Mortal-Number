@@ -6,7 +6,7 @@ const registerValidation = (req, res, next) => {
     lastname: joi.string().required(),
     email: joi.string().email().required(),
     password: joi.string().required(),
-    promo:joi.number()
+    promo:joi.string()
   });
 
   const { error } = validate.validate(req.body, { abortEarly: false });

@@ -31,7 +31,16 @@ const ResetPassword = (name, email, otp) => {
     console.log(error);
   }
 };
-
+//RANDOM STRING
+function generateRandomString() {
+  const length = 10;
+  const characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  let result = '';
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  return result;
+}
 // REGITSER
 const register = async (firstname, lastname, email, password,promo) => {
   const findGetter = await SetterRegisterModel.findOne({ email: email });
@@ -41,7 +50,7 @@ const register = async (firstname, lastname, email, password,promo) => {
   else {
         if (promo){
           let hash = await bcrypt.hash(password, 10);
-          let promoCode =Math.floor(Math.random() * 1000) + 1000;
+          let promoCode =generateRandomString()
 
           let setterupdateInviter = await SetterRegisterModel.findOne({promoCode:promo})
           let getterupdateInviter = await GetterRegisterModel.findOne({promoCode:promo})
@@ -74,7 +83,7 @@ const register = async (firstname, lastname, email, password,promo) => {
         }
         else{
           let hash = await bcrypt.hash(password, 10);
-          let promoCode =Math.floor(Math.random() * 1000) + 1000;
+          let promoCode =generateRandomString()
           let setter = await GetterRegisterModel.create({firstName: firstname,lastName: lastname,email: email,password: hash,credit: 500,promoCode:promoCode});
           if (setter) {
             let token = jwt.sign({ setter }, process.env.secretKey);

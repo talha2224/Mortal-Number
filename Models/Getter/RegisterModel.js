@@ -80,7 +80,7 @@ const RegisterModel = mongoose.Schema(
       default: "Getter",
     },
     promoCode:{
-      type:Number,
+      type:String,
       default:0
     }
   },
