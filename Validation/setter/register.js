@@ -1,7 +1,7 @@
 const joi = require("joi");
 
 const registerValidation = (req, res, next) => {
-  console.log(req.headers, req.body);
+  console.log(req.body);
   const validate = joi.object().keys({
     firstname: joi.string().required(),
     lastname: joi.string().required(),
