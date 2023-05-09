@@ -34,40 +34,56 @@ const ResetPassword = (name, email, otp) => {
 
 // REGITSER
 const register = async (firstname, lastname, email, password,promo) => {
-  const findGetter = await GetterRegisterModel.findOne({ email: email });
+  const findGetter = await SetterRegisterModel.findOne({ email: email });
   if (findGetter) {
     throw new ErrorResponse("email already registered", 403);
   } 
   else {
-    let hash = await bcrypt.hash(password, 10);
-    let promoCode =Math.floor(Math.random() * 1000) + 1000;
-    let getter = await GetterRegisterModel.create({firstName: firstname,lastName: lastname,email: email,password: hash,credit: 500,promoCode:promoCode});
-    if (getter) {
-      let token = jwt.sign({ getter }, process.env.secretKey);
-      if (token) {
-        let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt,__v,...getterInfo} = getter._doc;
         if (promo){
-          let getterupdateInviter = await GetterRegisterModel.findOne({promoCode:promo})
+          let hash = await bcrypt.hash(password, 10);
+          let promoCode =Math.floor(Math.random() * 1000) + 1000;
+
           let setterupdateInviter = await SetterRegisterModel.findOne({promoCode:promo})
+          let getterupdateInviter = await GetterRegisterModel.findOne({promoCode:promo})
+
           if (getterupdateInviter){
-            let updateCredit = await GetterRegisterModel.findOneAndUpdate({promoCode:promo},{$set:{
-              credit:getterupdateInviter.credit+500
-            }},{new:true})
+            let setter = await GetterRegisterModel.create({firstName: firstname,lastName: lastname,email: email,password: hash,credit: 500,promoCode:promoCode});
+            if (setter) {
+              let token = jwt.sign({ setter }, process.env.secretKey);
+              let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt, __v,...getterInfo} = setter._doc;
+              let updateCredit = await GetterRegisterModel.findOneAndUpdate({promoCode:promo},{$set:{
+                credit:getterupdateInviter.credit+500
+              }},{new:true})
+              return { getterInfo, token };
+            }
           }
           else if (setterupdateInviter){
-            let updateCredit = await SetterRegisterModel.findOneAndUpdate({promoCode:promo},{$set:{credit:setterupdateInviter.credit+500}},{new:true})
+            let setter = await GetterRegisterModel.create({firstName: firstname,lastName: lastname,email: email,password: hash,credit: 500,promoCode:promoCode});
+            if (setter) {
+              let token = jwt.sign({ setter }, process.env.secretKey);
+              let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt, __v,...getterInfo} = setter._doc;
+              let updateCredit = await SetterRegisterModel.findOneAndUpdate({promoCode:promo},{$set:{
+                credit:getterupdateInviter.credit+500
+              }},{new:true})
+              return { getterInfo, token };
+            }
           }
           else{
-            throw new ErrorResponse ('WRONG PROMO CODE NO SUCH PROMO CODE FOUND',422)
+          throw new ErrorResponse ('WRONG PROMO CODE NO SUCH PROMO CODE FOUND',422)
           }
         }
-        return { getterInfo, token };
-      } else {
-        throw new ErrorResponse("Failed To Generate Token", 400);
-      }
-    } else {
-      throw new ErrorResponse("Failed to create User", 400);
-    }
+        else{
+          let hash = await bcrypt.hash(password, 10);
+          let promoCode =Math.floor(Math.random() * 1000) + 1000;
+          let setter = await GetterRegisterModel.create({firstName: firstname,lastName: lastname,email: email,password: hash,credit: 500,promoCode:promoCode});
+          if (setter) {
+            let token = jwt.sign({ setter }, process.env.secretKey);
+            let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt, __v,...getterInfo} = setter._doc;
+            return { getterInfo, token };
+          }
+
+        }
+        // return { setterInfo, token };
   }
 };
 
