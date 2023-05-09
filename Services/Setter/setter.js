@@ -83,7 +83,7 @@ const register = async (firstname, lastname, email, password,promo) => {
               let token = jwt.sign({ setter }, process.env.secretKey);
               let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt, __v,...setterInfo} = setter._doc;
               let updateCredit = await SetterRegisterModel.findOneAndUpdate({promoCode:promo},{$set:{
-                credit:getterupdateInviter.credit+500
+                credit:setterupdateInviter.credit+500
               }},{new:true})
               return { setterInfo, token };
             }
