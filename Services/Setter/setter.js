@@ -123,7 +123,7 @@ const forgetPassword = async (email) => {
         $set: {
           OTP: randomString,
           otpValidTill: new Date(
-            new Date().setMinutes(new Date().getMinutes() + 1)
+            new Date().setMinutes(new Date().getMinutes() + 5)
           ),
         },
       },
