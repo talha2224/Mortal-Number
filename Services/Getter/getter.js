@@ -43,12 +43,21 @@ function generateRandomString() {
 }
 // REGITSER
 const register = async (firstname, lastname, email, password,promo) => {
-  const findGetter = await SetterRegisterModel.findOne({ email: email });
+  const findGetter = await GetterRegisterModel.findOne({ email: email });
   if (findGetter) {
     throw new ErrorResponse("email already registered", 403);
   } 
-  else {
-        if (promo){
+   if (!promo){
+      let hash = await bcrypt.hash(password, 10);
+      let promoCode =generateRandomString()
+      let setter = await GetterRegisterModel.create({firstName: firstname,lastName: lastname,email: email,password: hash,credit: 500,promoCode:promoCode});
+        if (setter) {
+          let token = jwt.sign({ setter }, process.env.secretKey);
+          let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt, __v,...getterInfo} = setter._doc;
+          return { getterInfo, token };
+        }
+      }
+      else if (promo){
           let hash = await bcrypt.hash(password, 10);
           let promoCode =generateRandomString()
 
@@ -80,20 +89,20 @@ const register = async (firstname, lastname, email, password,promo) => {
           else{
           throw new ErrorResponse ('WRONG PROMO CODE NO SUCH PROMO CODE FOUND',422)
           }
-        }
-        else{
-          let hash = await bcrypt.hash(password, 10);
-          let promoCode =generateRandomString()
-          let setter = await GetterRegisterModel.create({firstName: firstname,lastName: lastname,email: email,password: hash,credit: 500,promoCode:promoCode});
-          if (setter) {
-            let token = jwt.sign({ setter }, process.env.secretKey);
-            let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt, __v,...getterInfo} = setter._doc;
-            return { getterInfo, token };
-          }
+      }
+        // else{
+        //   let hash = await bcrypt.hash(password, 10);
+        //   let promoCode =generateRandomString()
+        //   let setter = await GetterRegisterModel.create({firstName: firstname,lastName: lastname,email: email,password: hash,credit: 500,promoCode:promoCode});
+        //   if (setter) {
+        //     let token = jwt.sign({ setter }, process.env.secretKey);
+        //     let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt, __v,...getterInfo} = setter._doc;
+        //     return { getterInfo, token };
+        //   }
 
-        }
+        // }
         // return { setterInfo, token };
-  }
+  
 };
 
 //LOGIN

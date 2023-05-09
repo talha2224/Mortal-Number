@@ -49,7 +49,17 @@ const register = async (firstname, lastname, email, password,promo) => {
     throw new ErrorResponse("email already registered", 403);
   } 
   else {
-        if (promo){
+    if(!promo){
+      let hash = await bcrypt.hash(password, 10);
+      let promoCode =generateRandomString();
+      let setter = await SetterRegisterModel.create({firstName: firstname,lastName: lastname,email: email,password: hash,credit: 500,promoCode:promoCode});
+      if (setter) {
+        let token = jwt.sign({ setter }, process.env.secretKey);
+        let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt, __v,...setterInfo} = setter._doc;
+        return { setterInfo, token };
+      }
+    }
+    else if (promo){
           let hash = await bcrypt.hash(password, 10);
           let promoCode =generateRandomString();
 
@@ -81,18 +91,7 @@ const register = async (firstname, lastname, email, password,promo) => {
           else{
           throw new ErrorResponse ('WRONG PROMO CODE NO SUCH PROMO CODE FOUND',422)
           }
-        }
-        else{
-          let hash = await bcrypt.hash(password, 10);
-          let promoCode =generateRandomString();
-          let setter = await SetterRegisterModel.create({firstName: firstname,lastName: lastname,email: email,password: hash,credit: 500,promoCode:promoCode});
-          if (setter) {
-            let token = jwt.sign({ setter }, process.env.secretKey);
-            let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt, __v,...setterInfo} = setter._doc;
-            return { setterInfo, token };
-          }
-
-        }
+    }
   }
 }
 
