@@ -196,23 +196,8 @@ const resetPassword = async (email, password) => {
   }
 };
 
-const update = async (
-  id,
-  firstname,
-  lastname,
-  email,
-  username,
-  phonenumber,
-  dateOfBirth,
-  gender,
-  country,
-  image,
-  accountBlocked,
-  accountMuted
-) => {
-  let updateSetter = await SetterRegisterModel.findByIdAndUpdate(
-    id,
-    {
+const update = async (id,firstname,lastname,email,username,phonenumber,dateOfBirth,gender,country,image,accountBlocked,accountMuted) => {
+  let updateSetter = await SetterRegisterModel.findByIdAndUpdate(id,{
       $set: {
         firstName: firstname,
         lastName: lastname,
@@ -230,16 +215,7 @@ const update = async (
     { new: true }
   );
   if (updateSetter) {
-    let {
-      OTP,
-      otpValidTill,
-      otpVerified,
-      password,
-      createdAt,
-      updatedAt,
-      __v,
-      ...updatedInfo
-    } = updateSetter._doc;
+    let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt,__v,...updatedInfo} = updateSetter._doc;
     if (updateSetter.accountBlocked === true) {
       const filter = { setterId: id };
       const update = { $set: { active: false } };

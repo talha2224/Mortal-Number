@@ -33,39 +33,11 @@ router.post(
   })
 );
 
-router.put(
-  "/:id",
-  authorized,
-  image_upload.single("image"),
-  catchAsync(async (req, res) => {
-    let { id } = req.params;
-    const {
-      firstname,
-      lastname,
-      email,
-      username,
-      phonenumber,
-      dateOfBirth,
-      gender,
-      country,
-      accountBlocked,
-      accountMuted,
-    } = req.body;
+router.put("/:id",authorized,image_upload.single("image"),catchAsync(async (req, res) => {
+  let { id } = req.params;
+  const {firstname,lastname,email,username,phonenumber,dateOfBirth,gender,country,accountBlocked,accountMuted} = req.body;
     let image = req?.file?.filename;
-    let updateSetter = await SetterServices.update(
-      id,
-      firstname,
-      lastname,
-      email,
-      username,
-      phonenumber,
-      dateOfBirth,
-      gender,
-      country,
-      image,
-      accountBlocked,
-      accountMuted
-    );
+    let updateSetter = await SetterServices.update(id,firstname,lastname,email,username,phonenumber,dateOfBirth,gender,country,image,accountBlocked,accountMuted);
     res.send(updateSetter);
   })
 );

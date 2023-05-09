@@ -219,13 +219,24 @@ const getGetter = async (id) => {
 };
 
 //UPDATE GETTER PROFILE
-const update = async (id, body) => {
-  let getter = await GetterRegisterModel.findById(id);
-  if (!getter) {
-    throw new ErrorResponse("user not found", 404);
+const update = async (id,firstname,lastname,email,username,phonenumber,dateOfBirth,gender,country,image,accountBlocked,accountMuted) => {
+  let getGetter = await GetterRegisterModel.findById(id)
+
+  if (getGetter.accountBlocked===true){
+    throw new ErrorResponse('your account has been blocked',403)
   }
-  Object.assign(getter, body);
-  return await getter.save();
+
+  let updateGetter = await GetterRegisterModel.findByIdAndUpdate(id,{
+    $set: {firstName: firstname,lastName: lastname,email: email,username: username,phonenumber: phonenumber,dateOfBirth: dateOfBirth,gender: gender,country: country,profileImage: image,accountBlocked: accountBlocked,accountMuted: accountMuted},
+  },
+  { new: true }
+);
+if (updateGetter) {
+  let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt,__v,...updatedInfo} = updateGetter._doc;
+  return updatedInfo;
+} else {
+  throw new ErrorResponse("failed to update wrong id given", 304);
+}
 };
 
 //DELETE GETTER
