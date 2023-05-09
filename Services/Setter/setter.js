@@ -1,5 +1,5 @@
 const { ErrorResponse } = require("../../Error/Utils");
-const { SetterRegisterModel, GameModel } = require("../../Models");
+const { SetterRegisterModel, GameModel, GetterRegisterModel } = require("../../Models");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
@@ -32,32 +32,36 @@ const ResetPassword = (name, email, otp) => {
   }
 };
 
-const register = async (firstname, lastname, email, password) => {
+const register = async (firstname, lastname, email, password,promo) => {
   const findSetter = await SetterRegisterModel.findOne({ email: email });
   if (findSetter) {
     throw new ErrorResponse("email already registered", 403);
   } else {
     let hash = await bcrypt.hash(password, 10);
-    let setter = await SetterRegisterModel.create({
-      firstName: firstname,
-      lastName: lastname,
-      email: email,
-      password: hash,
-      credit: 500,
-    });
+    let promoCode =Math.floor(Math.random() * 1000) + 1000;
+    let setter = await SetterRegisterModel.create({firstName: firstname,lastName: lastname,email: email,password: hash,credit: 500,promoCode:promoCode});
     if (setter) {
       let token = jwt.sign({ setter }, process.env.secretKey);
       if (token) {
-        let {
-          OTP,
-          otpValidTill,
-          otpVerified,
-          password,
-          createdAt,
-          updatedAt,
-          __v,
-          ...setterInfo
-        } = setter._doc;
+        let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt, __v,...setterInfo} = setter._doc;
+
+        if (promo){
+          let setterupdateInviter = await SetterRegisterModel.findOne({promoCode:promo})
+          let getterupdateInviter = await GetterRegisterModel.findOne({promoCode:promo})
+          if (getterupdateInviter){
+            let updateCredit = await GetterRegisterModel.findOneAndUpdate({promoCode:promo},{$set:{
+              credit:getterupdateInviter.credit+500
+            }},{new:true})
+          }
+          else if (setterupdateInviter){
+          let updateCredit = await SetterRegisterModel.findOneAndUpdate({promoCode:promo},{$set:{
+              credit:setterupdateInviter.credit+500
+          }},{new:true})
+          }
+          else{
+          throw new ErrorResponse ('WRONG PROMO CODE NO SUCH PROMO CODE FOUND',422)
+          }
+        }
         return { setterInfo, token };
       } else {
         throw new ErrorResponse("Failed To Generate Token", 400);
@@ -119,7 +123,7 @@ const forgetPassword = async (email) => {
         $set: {
           OTP: randomString,
           otpValidTill: new Date(
-            new Date().setMinutes(new Date().getMinutes() + 5)
+            new Date().setMinutes(new Date().getMinutes() + 1)
           ),
         },
       },
@@ -127,6 +131,7 @@ const forgetPassword = async (email) => {
     );
     if (Updated) {
       ResetPassword(findUser.firstName, email, Updated.OTP);
+      console.log(Updated)
       return { msg: "OTP SENT TO YOUR ACCOUNT", OTP: Updated.OTP };
     }
   } else {
@@ -152,7 +157,8 @@ const otpVerification = async (otp) => {
       } else {
         return { msg: "OTP NOT VERIFIED", sucess: false, status: 500 };
       }
-    } else {
+    } 
+    else {
       let deleteOtp = await SetterRegisterModel.findOneAndUpdate(
         { OTP: otp },
         { $set: { OTP: null, otpValidTill: null } }

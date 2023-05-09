@@ -70,6 +70,10 @@ const RegisterModel = mongoose.Schema(
       type: String,
       default: "Setter",
     },
+    promoCode:{
+      type:Number,
+      default:0
+    }
   },
   {
     toJSON: {
