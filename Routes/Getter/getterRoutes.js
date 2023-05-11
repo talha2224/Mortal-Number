@@ -68,10 +68,7 @@ router.put("/:id",authorized,image_upload.single("image"),catchAsync(async (req,
 );
 
 // DELETE
-router.delete(
-  "/:id",
-  authorized,
-  catchAsync(async (req, res) => {
+router.delete("/:id",authorized,catchAsync(async (req, res) => {
     let id = req.params.id;
     let deleteAccount = await GetterServices.deleteGetter(id);
     res.send(deleteAccount);
@@ -79,9 +76,7 @@ router.delete(
 );
 
 //SINGLE
-router.get(
-  "/:id",
-  catchAsync(async (req, res) => {
+router.get("/:id",catchAsync(async (req, res) => {
     let id = req.params.id;
     let single = await GetterServices.getGetter(id);
     res.send(single);
@@ -89,19 +84,14 @@ router.get(
 );
 
 //TOP ACHIEVERS
-router.get(
-  "/top/rated",
-  catchAsync(async (req, res) => {
+router.get("/top/rated",catchAsync(async (req, res) => {
     let topRated = await GetterServices.topRated();
     res.send(topRated);
   })
 );
 
 //Update PASSWORD
-router.post(
-  "/change/password",
-  authorized,
-  catchAsync(async (req, res) => {
+router.post("/change/password",authorized,catchAsync(async (req, res) => {
     let { id, oldpassword, newpassword } = req.body;
     let resetPassword = await GetterServices.changePassword(
       id,

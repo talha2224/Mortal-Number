@@ -251,7 +251,8 @@ const update = async (id,firstname,lastname,email,username,phonenumber,dateOfBir
       let updateGame = await GameModel.updateMany(filter, update, {
         new: true,
       });
-    } else if (updateSetter.accountBlocked === false) {
+    } 
+    else if (updateSetter.accountBlocked === false) {
       const filter = { setterId: id };
       const update = { $set: { active: true } };
       let updateGame = await GameModel.updateMany(filter, update, {
@@ -259,7 +260,8 @@ const update = async (id,firstname,lastname,email,username,phonenumber,dateOfBir
       });
     }
     return updatedInfo;
-  } else {
+  } 
+  else {
     throw new ErrorResponse("failed to update wrong id given", 304);
   }
 };

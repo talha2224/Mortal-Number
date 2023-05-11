@@ -90,18 +90,6 @@ const register = async (firstname, lastname, email, password,promo) => {
           throw new ErrorResponse ('WRONG PROMO CODE NO SUCH PROMO CODE FOUND',422)
           }
       }
-        // else{
-        //   let hash = await bcrypt.hash(password, 10);
-        //   let promoCode =generateRandomString()
-        //   let setter = await GetterRegisterModel.create({firstName: firstname,lastName: lastname,email: email,password: hash,credit: 500,promoCode:promoCode});
-        //   if (setter) {
-        //     let token = jwt.sign({ setter }, process.env.secretKey);
-        //     let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt, __v,...getterInfo} = setter._doc;
-        //     return { getterInfo, token };
-        //   }
-
-        // }
-        // return { setterInfo, token };
   
 };
 
