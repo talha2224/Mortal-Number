@@ -39,7 +39,7 @@ const postGame = async (id,winningnumber,stake,prize,hours,minutes,second) => {
 
 //  GUESSER GET GAME
 const getGame = async (getterId) => {
-  let allGame = await GameModel.find({active: true}).populate("setterId","-OTP -otpValidTill -otpVerified -credit -email -password -phonenumber -dateOfBirth -country").exec();
+  let allGame = await GameModel.find({active: true}).sort({ createdAt: -1 }).populate("setterId","-OTP -otpValidTill -otpVerified -credit -email -password -phonenumber -dateOfBirth -country").exec();
   if (allGame.length > 0) {
     const modifiedGame = allGame.map((game) => {
       if (game.winBy.includes(getterId)) {
@@ -68,7 +68,7 @@ const singleGame = async (id) => {
 
 //FIND BY SETTER ID
 const findGameforSetter = async (id) => {
-  let findGame = await GameModel.find({ setterId: id });
+  let findGame = await GameModel.find({ setterId: id }).sort({ createdAt: -1 });
   console.log(findGame)
   if (findGame.length > 0) {
     return findGame;
@@ -214,7 +214,7 @@ const afterGame = async (getterid, gameid, answer, setterid) => {
 
 //GET ACTIVE GAME FOR ADMIN
 const showAdminGame = async () => {
-  let allActiveGame = await GameModel.find({ active: true });
+  let allActiveGame = await GameModel.find({ active: true }).sort({ createdAt: -1 });
   if (allActiveGame.length > 0) {
     return allActiveGame;
   } else {
