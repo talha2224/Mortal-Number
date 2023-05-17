@@ -1,51 +1,46 @@
 const { ErrorResponse } = require("../../Error/Utils");
-const {GameModel,GetterRegisterModel,SetterRegisterModel,RewardsModel,} = require("../../Models");
+const {GameModel,RewardsModel, UserInfo,} = require("../../Models");
 
 const postGame = async (id,winningnumber,stake,prize,hours,minutes,second) => {
-  try {let findSetter = await GameModel.findOne({active: true,setterId: id,}).populate("setterId");
-    let setter = await SetterRegisterModel.findById(id);
-    if (findSetter) {
-      throw new ErrorResponse("your have already posted a game", 429);
-    } 
-    else if (setter.accountBlocked) {
+  let findSetter = await GameModel.findOne({active: true,setterId: id,}).populate("setterId");
+  let setter = await UserInfo.findById(id);
+  if (findSetter) {
+    throw new ErrorResponse("your have already posted a game", 429);
+  } 
+  else if (setter.accountBlocked===true) {
       throw new ErrorResponse("your account has been blocked", 403);
-    } 
-    else {
-      let setterId = await SetterRegisterModel.findById(id);
-      if (setterId.credit >= stake) {
-        let updateSetterCredit = await SetterRegisterModel.findByIdAndUpdate(id,{$set: {credit: setterId.credit - stake}},{ new: true });
-        try {
+  } 
+  else {
+      let setterId = await UserInfo.findById(id);
+      if (setterId.credit >= prize) {
+        let updateSetterCredit = await UserInfo.findByIdAndUpdate(id,{$set: {credit: setterId.credit - prize}},{ new: true });
           const duration = {hours: hours,min: minutes,sec: second};
           let createGame = await GameModel.create({setterId: id,winningNumber: winningnumber,stake: stake,prize: prize,duration: duration});
           if (createGame) {
+            let createNoti = await RewardsModel.create({notificationBy:id,gameId:createGame._id,title:"New Game Posted"})
             return createGame;
           } 
           else {
             throw new ErrorResponse("failed to post game", 409);
           }
-        } 
-        catch (error) {
-          throw new ErrorResponse(error, 500);
-        }
       } 
       else {
         throw new ErrorResponse("you donot have enough credit", 402);
       }
-    }
-  } catch (error) {
-    throw new ErrorResponse(error, 403);
   }
 };
 
 //  GUESSER GET GAME
 const getGame = async (getterId) => {
-  let allGame = await GameModel.find({active: true}).sort({ createdAt: -1 }).populate("setterId","-OTP -otpValidTill -otpVerified -credit -email -password -phonenumber -dateOfBirth -country").exec();
+  let allGame = await GameModel.find({active: true}).sort({ createdAt: -1 }).populate("setterId","-OTP -otpValidTill -otpVerified -credit -email -password -phonenumber -dateOfBirth -country -createdAt -updatedAt").exec();
   if (allGame.length > 0) {
     const modifiedGame = allGame.map((game) => {
-      if (game.winBy.includes(getterId)) {
-        return { ...game.toObject(), win: true };
-      } else {
-        return { ...game.toObject(), win: false };
+
+      if (game.winBy.includes(getterId) || game?.setterId?._id.toString()===getterId) {
+        return { ...game.toObject(), win: true,yourGame:true };
+      } 
+      else if (game?.setterId?._id.toString()!=getterId || !game.winBy.includes(getterId)){
+        return { ...game.toObject(), win: false,yourGame:false};
       }
     });
     return modifiedGame;
@@ -69,7 +64,6 @@ const singleGame = async (id) => {
 //FIND BY SETTER ID
 const findGameforSetter = async (id) => {
   let findGame = await GameModel.find({ setterId: id }).sort({ createdAt: -1 });
-  console.log(findGame)
   if (findGame.length > 0) {
     return findGame;
   } else {
@@ -129,36 +123,45 @@ const playGame = async (getterid, gameid) => {
   } 
 };
 
-// findUserCredit.credit >= findGameId.stake
 
 const afterGame = async (getterid, gameid, answer, setterid) => {
-  let findUserCredit = await GetterRegisterModel.findById(getterid);
+  let findUserCredit = await UserInfo.findById(getterid);
   if (!findUserCredit) throw new ErrorResponse("No Getter found", 404);
+
   let findGameId = await GameModel.findById(gameid);
   if (!findGameId) throw new ErrorResponse("No Game found", 404);
+
   let alreadyPlayed = findGameId.winBy.includes(getterid);
   let check = findGameId.winningNumber.every((item) => answer.includes(item));
+  if (findGameId.setterId._id.toString()===getterid){
+    throw new ErrorResponse('You have Posted this game you cannot play',430)
+  }
+
   if (alreadyPlayed) {
     throw new ErrorResponse("you alreday win the game", 403);
   } 
-  let updateUserCredit = await GetterRegisterModel.findByIdAndUpdate(getterid,{$set:{credit:findUserCredit.credit-findGameId.stake}},{new:true})
+  let updateUserCredit = await UserInfo.findByIdAndUpdate(getterid,{$set:{credit:findUserCredit.credit-findGameId.stake}},{new:true})
   if (findGameId.stake>findUserCredit.credit){
     throw new ErrorResponse ('you donot have enough credit to play this game',402)
   }
+
+
   else if (check) {
 
-    let updateGetterAmount = await GetterRegisterModel.findByIdAndUpdate(
+    let updateGetterAmount = await UserInfo.findByIdAndUpdate(
       getterid,
       { $set: { credit: updateUserCredit.credit + findGameId.prize } },
       { new: true }
     );
     let postReward = await RewardsModel.create({
       amount: findGameId.prize,
-      won: true,
-      getterProfileId: getterid,
-      gameId:gameid,
-      postedBy:setterid
+      getterwon: true,
+      title:`${findUserCredit.firstName + findUserCredit.lastName} has won the game`,
+      notificationFor:getterid,
+      notificationBy:setterid,
+      gameId:gameid
     });
+
     let updateGame = await GameModel.findByIdAndUpdate(gameid,{
         $push: {
           winBy: getterid,
@@ -180,13 +183,14 @@ const afterGame = async (getterid, gameid, answer, setterid) => {
   else if (!check){
     let Guesser_PostReward = await RewardsModel.create({
       amount: findGameId.prize,
-      won: false,
-      getterProfileId: getterid,
-      gameId:gameid,
-      postedBy:setterid
+      getterwon: false,
+      title:` ${findUserCredit.firstName+findUserCredit.lastName} Has Lost The Game`,
+      notificationFor: getterid,
+      notificationBy:setterid,
+      gameId:gameid
     });
-    let getSetterDetails = await SetterRegisterModel.findById(setterid);
-    let updateSetterAmount = await SetterRegisterModel.findByIdAndUpdate(
+    let getSetterDetails = await UserInfo.findById(setterid);
+    let updateSetterAmount = await UserInfo.findByIdAndUpdate(
       setterid,
       {
         $set: {
@@ -199,8 +203,8 @@ const afterGame = async (getterid, gameid, answer, setterid) => {
     }},{new:true})
     let postSetterReward = await RewardsModel.create({
       amount: findGameId.stake,
-      won: true,
-      setterProfileId: setterid,
+      setterwon: true,
+      notificationFor: setterid,
       gameId:gameid,
       lostBy:getterid
     });
@@ -214,7 +218,7 @@ const afterGame = async (getterid, gameid, answer, setterid) => {
 
 //GET ACTIVE GAME FOR ADMIN
 const showAdminGame = async () => {
-  let allActiveGame = await GameModel.find({ active: true }).sort({ createdAt: -1 });
+  let allActiveGame = await GameModel.find({ active: true }).sort({ createdAt: -1 }).populate("setterId","-OTP -otpValidTill -otpVerified -credit -email -password -phonenumber -dateOfBirth -country -createdAt -updatedAt").exec();
   if (allActiveGame.length > 0) {
     return allActiveGame;
   } else {

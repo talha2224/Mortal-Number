@@ -6,8 +6,8 @@ const router = require ('express').Router()
 
 
 router.post('',authorized,catchAsync(async(req,res)=>{
-    let {getterId,setterId,amount} = req.body
-    let newRequest = await CreditServices.requestCredit(getterId,setterId,amount)
+    let {userId,amount} = req.body
+    let newRequest = await CreditServices.requestCredit(userId,amount)
     res.send(newRequest)
 }))
 
