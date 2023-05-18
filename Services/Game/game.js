@@ -133,7 +133,8 @@ const afterGame = async (getterid, gameid, answer, setterid) => {
 
   let alreadyPlayed = findGameId.winBy.includes(getterid);
   let check = findGameId.winningNumber.every((item) => answer.includes(item));
-  if (findGameId.setterId._id.toString()===getterid){
+  console.log(findGameId.setterId._id.toString()==getterid)
+  if (setterid===getterid){
     throw new ErrorResponse('You have Posted this game you cannot play',430)
   }
 
