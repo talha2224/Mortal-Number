@@ -164,7 +164,8 @@ const afterGame = async (getterid, gameid, answer, setterid) => {
       getterId:getterid,
       won:true,
       amount:findGameId.prize,
-      gameId:gameid
+      gameId:gameid,
+      postedBy:setterid
     })
 
     let updateGame = await GameModel.findByIdAndUpdate(gameid,{
@@ -207,7 +208,8 @@ const afterGame = async (getterid, gameid, answer, setterid) => {
       getterId:getterid,
       won:false,
       amount:findGameId.prize,
-      gameId:gameid
+      gameId:gameid,
+      postedBy:setterid
     })
     let updateGame = await GameModel.findByIdAndUpdate(gameid,{$set:{
       totalEarn:findGameId.totalEarn+findGameId.stake,
@@ -224,7 +226,8 @@ const afterGame = async (getterid, gameid, answer, setterid) => {
       setterId:setterid,
       won:true,
       amount:findGameId.prize,
-      gameId:gameid
+      gameId:gameid,
+      lostBy:getterid
     })
     return {
       msg: "You Lost The Game",

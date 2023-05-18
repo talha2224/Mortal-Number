@@ -23,6 +23,16 @@ const notificationSchema = mongoose.Schema({
     ref: "Game",
     default: null,
   },
+  postedBy:{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "UserInfo",
+    default: null,
+  },
+  lostBy:{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "UserInfo",
+    default: null,
+  }
 },{timestamps:true});
 
 const Rewards = new mongoose.model("Rewards", notificationSchema, "Rewards");

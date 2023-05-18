@@ -7,7 +7,11 @@ const getRewards = async(id)=>{
           { getterId:id },
           { setterId: id },
         ]
-      }).populate('getterId').populate('setterId').populate('gameId')
+      }).populate("getterId" ,"-accountMuted -accountBlocked -OTP -otpValidTill -otpVerified -phonenumber")
+        .populate("setterId","-accountMuted -accountBlocked -OTP -otpValidTill -otpVerified -phonenumber")
+        .populate("setterId"," _id firstName lastName username profileImage")
+      .populate("gameId","_id stake prize ")
+      .populate("lostBy","_id firstName lastName username profileImage`")
       if (getRewards.length<=0){
         throw new ErrorResponse ('No Rewards Found For This User',404)
       }
