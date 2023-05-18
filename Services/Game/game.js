@@ -1,5 +1,6 @@
 const { ErrorResponse } = require("../../Error/Utils");
 const {GameModel,RewardsModel, UserInfo,} = require("../../Models");
+const {Rewards} = require('../../Models/Rewards/Rewards')
 
 const postGame = async (id,winningnumber,stake,prize,hours,minutes,second) => {
   let findSetter = await GameModel.findOne({active: true,setterId: id,}).populate("setterId");
@@ -144,8 +145,6 @@ const afterGame = async (getterid, gameid, answer, setterid) => {
   if (findGameId.stake>findUserCredit.credit){
     throw new ErrorResponse ('you donot have enough credit to play this game',402)
   }
-
-
   else if (check) {
 
     let updateGetterAmount = await UserInfo.findByIdAndUpdate(
@@ -161,6 +160,12 @@ const afterGame = async (getterid, gameid, answer, setterid) => {
       notificationBy:setterid,
       gameId:gameid
     });
+
+    let postNotication= await Rewards.create({
+      getterId:getterid,
+      won:true,
+      amount:findGameId.prize
+    })
 
     let updateGame = await GameModel.findByIdAndUpdate(gameid,{
         $push: {
@@ -198,6 +203,11 @@ const afterGame = async (getterid, gameid, answer, setterid) => {
         },
       }
     );
+    let guesserpostNotication= await Rewards.create({
+      getterId:getterid,
+      won:false,
+      amount:findGameId.prize
+    })
     let updateGame = await GameModel.findByIdAndUpdate(gameid,{$set:{
       totalEarn:findGameId.totalEarn+findGameId.stake,
     }},{new:true})
@@ -208,6 +218,11 @@ const afterGame = async (getterid, gameid, answer, setterid) => {
       gameId:gameid,
       lostBy:getterid
     });
+    let setterpostNotication= await Rewards.create({
+      setterid:setterid,
+      won:true,
+      amount:findGameId.prize
+    })
     return {
       msg: "You Lost The Game",
       creditLeftInYourAccount: updateUserCredit.credit,

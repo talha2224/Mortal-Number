@@ -1,27 +1,19 @@
 const mongoose = require("mongoose");
 
 const notificationSchema = mongoose.Schema({
-  title:{
-    type:String,
-    default:null
-  },
   amount: {
     type: Number,
   },
-  getterwon: {
-    type: Boolean,
-    default: false,
+  won:{
+    type:Boolean,
+    default:false
   },
-  setterwon: {
-    type: Boolean,
-    default: false,
-  },
-  notificationFor: {
+  getterId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "UserInfo",
     default: null,
   },
-  notificationBy: {
+  setterId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "UserInfo",
     default: null,
@@ -31,13 +23,8 @@ const notificationSchema = mongoose.Schema({
     ref: "Game",
     default: null,
   },
-  lostBy:{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "UserInfo",
-    default: null,
-  }
 },{timestamps:true});
 
-const Notfication = new mongoose.model("Rewards", notificationSchema, "Rewards");
+const Rewards = new mongoose.model("Rewards", notificationSchema, "Rewards");
 
-module.exports = Notfication;
+module.exports = Rewards;
