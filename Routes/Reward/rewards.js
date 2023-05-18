@@ -4,6 +4,7 @@ const { catchAsync } = require('../../Error/Utils')
 const {RewardService} = require('../../Services')
 
 router.get('/:id',catchAsync(async(req,res)=>{
+    let {id} = req.params
     let allReward = await RewardService.getRewards(id)
     res.send(allReward)
 }))
