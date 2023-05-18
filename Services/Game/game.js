@@ -213,6 +213,7 @@ const afterGame = async (getterid, gameid, answer, setterid) => {
       totalEarn:findGameId.totalEarn+findGameId.stake,
     }},{new:true})
     let postSetterNotification = await NotificationModel.create({
+      title:`${findUserCredit.firstName+findUserCredit.lastName} Has Lost your Game You Won ${findGameId.stake} `,
       amount: findGameId.stake,
       setterwon: true,
       notificationFor: setterid,
