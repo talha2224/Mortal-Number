@@ -161,11 +161,11 @@ const afterGame = async (getterid, gameid, answer, setterid) => {
     });
 
     let postReward= await RewardsModel.create({
-      getterId:getterid,
+      userId:getterid,
       won:true,
       amount:findGameId.prize,
       gameId:gameid,
-      postedBy:setterid
+      profileId:setterid
     })
 
     let updateGame = await GameModel.findByIdAndUpdate(gameid,{
@@ -205,11 +205,11 @@ const afterGame = async (getterid, gameid, answer, setterid) => {
       }
     );
     let guesserpostReward= await RewardsModel.create({
-      getterId:getterid,
+      userId:getterid,
       won:false,
       amount:findGameId.prize,
       gameId:gameid,
-      postedBy:setterid
+      profileId:setterid
     })
     let updateGame = await GameModel.findByIdAndUpdate(gameid,{$set:{
       totalEarn:findGameId.totalEarn+findGameId.stake,
@@ -223,11 +223,11 @@ const afterGame = async (getterid, gameid, answer, setterid) => {
       lostBy:getterid
     });
     let setterpostRewrad= await RewardsModel.create({
-      setterId:setterid,
+      userId:setterid,
       won:true,
       amount:findGameId.prize,
       gameId:gameid,
-      lostBy:getterid
+      profileId:getterid
     })
     return {
       msg: "You Lost The Game",

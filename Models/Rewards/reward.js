@@ -8,12 +8,12 @@ const notificationSchema = mongoose.Schema({
     type:Boolean,
     default:false
   },
-  getterId: {
+  userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "UserInfo",
     default: null,
   },
-  setterId: {
+  profileId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "UserInfo",
     default: null,
@@ -21,16 +21,6 @@ const notificationSchema = mongoose.Schema({
   gameId:{
     type: mongoose.Schema.Types.ObjectId,
     ref: "Game",
-    default: null,
-  },
-  postedBy:{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "UserInfo",
-    default: null,
-  },
-  lostBy:{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "UserInfo",
     default: null,
   }
 },{timestamps:true});
