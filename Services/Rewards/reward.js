@@ -9,7 +9,7 @@ const getRewards = async(id)=>{
         ]
       }).populate("getterId" ,"-accountMuted -accountBlocked -OTP -otpValidTill -otpVerified -phonenumber")
         .populate("setterId","-accountMuted -accountBlocked -OTP -otpValidTill -otpVerified -phonenumber")
-        .populate("setterId"," _id firstName lastName username profileImage")
+        .populate("postedBy"," _id firstName lastName username profileImage")
       .populate("gameId","_id stake prize ")
       .populate("lostBy","_id firstName lastName username profileImage`")
       if (getRewards.length<=0){
