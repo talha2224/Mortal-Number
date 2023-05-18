@@ -1,24 +1,22 @@
 const { catchAsync } = require("../../Error/Utils");
-const { RewardsModel } = require("../../Models");
-const { RewardServices } = require("../../Services");
-
+const { NotificationService } = require("../../Services");
 const router = require('express').Router()
 
 
 router.get('/:id',catchAsync(async(req,res)=>{
     let {id} = req.params
-    let postReward = await RewardServices.getReward(id)
+    let postReward = await NotificationService.getReward(id)
     res.send(postReward)
 }))
 
 router.delete('/:id',catchAsync(async(req,res)=>{
     let {id} = req.params
-    let postReward = await RewardServices.deleteReward(id)
+    let postReward = await NotificationService.deleteReward(id)
     res.send(postReward)
 }))
 
 router.delete('/all',async(req,res)=>{
-        let deleteall = await RewardsModel.deleteMany({})
+        let deleteall = await NotificationService.deleteMany({})
         if(deleteall){
             res.json({msg:"del"})
         }

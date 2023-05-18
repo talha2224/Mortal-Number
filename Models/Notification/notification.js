@@ -38,6 +38,6 @@ const notificationSchema = mongoose.Schema({
   }
 },{timestamps:true});
 
-const Notfication = new mongoose.model("Rewards", notificationSchema, "Rewards");
+const Notfication = new mongoose.model("Notfication", notificationSchema, "Notfication");
 
 module.exports = Notfication;

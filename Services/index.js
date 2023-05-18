@@ -1,5 +1,7 @@
 module.exports.SetterServices = require('./Setter/setter')
-module.exports.RewardServices = require('./Rewards/reward')
+module.exports.NotificationService = require('./Notification/notification')
+module.exports.RewardService = require('./Rewards/reward')
+
 
 module.exports.GetterServices = require('./Getter/getter')
 module.exports.CreditServices = require('./Getter/credit')

@@ -1,6 +1,5 @@
 const { ErrorResponse } = require("../../Error/Utils");
-const {GameModel,RewardsModel, UserInfo,} = require("../../Models");
-const {Rewards} = require('../../Models/Rewards/Rewards')
+const {GameModel,RewardsModel, UserInfo,NotificationModel} = require("../../Models");
 
 const postGame = async (id,winningnumber,stake,prize,hours,minutes,second) => {
   let findSetter = await GameModel.findOne({active: true,setterId: id,}).populate("setterId");
@@ -18,7 +17,7 @@ const postGame = async (id,winningnumber,stake,prize,hours,minutes,second) => {
           const duration = {hours: hours,min: minutes,sec: second};
           let createGame = await GameModel.create({setterId: id,winningNumber: winningnumber,stake: stake,prize: prize,duration: duration});
           if (createGame) {
-            let createNoti = await RewardsModel.create({notificationBy:id,gameId:createGame._id,title:"New Game Posted"})
+            let createNoti = await NotificationModel.create({notificationBy:id,gameId:createGame._id,title:"New Game Posted"})
             return createGame;
           } 
           else {
@@ -152,7 +151,7 @@ const afterGame = async (getterid, gameid, answer, setterid) => {
       { $set: { credit: updateUserCredit.credit + findGameId.prize } },
       { new: true }
     );
-    let postReward = await RewardsModel.create({
+    let postNotication = await NotificationModel.create({
       amount: findGameId.prize,
       getterwon: true,
       title:`${findUserCredit.firstName + findUserCredit.lastName} has won the game`,
@@ -161,7 +160,7 @@ const afterGame = async (getterid, gameid, answer, setterid) => {
       gameId:gameid
     });
 
-    let postNotication= await Rewards.create({
+    let postReward= await RewardsModel.create({
       getterId:getterid,
       won:true,
       amount:findGameId.prize
@@ -186,7 +185,7 @@ const afterGame = async (getterid, gameid, answer, setterid) => {
     }
   } 
   else if (!check){
-    let Guesser_PostReward = await RewardsModel.create({
+    let Guesser_PostNotification = await NotificationModel.create({
       amount: findGameId.prize,
       getterwon: false,
       title:` ${findUserCredit.firstName+findUserCredit.lastName} Has Lost The Game`,
@@ -203,7 +202,7 @@ const afterGame = async (getterid, gameid, answer, setterid) => {
         },
       }
     );
-    let guesserpostNotication= await Rewards.create({
+    let guesserpostReward= await RewardsModel.create({
       getterId:getterid,
       won:false,
       amount:findGameId.prize
@@ -211,14 +210,14 @@ const afterGame = async (getterid, gameid, answer, setterid) => {
     let updateGame = await GameModel.findByIdAndUpdate(gameid,{$set:{
       totalEarn:findGameId.totalEarn+findGameId.stake,
     }},{new:true})
-    let postSetterReward = await RewardsModel.create({
+    let postSetterNotification = await NotificationModel.create({
       amount: findGameId.stake,
       setterwon: true,
       notificationFor: setterid,
       gameId:gameid,
       lostBy:getterid
     });
-    let setterpostNotication= await Rewards.create({
+    let setterpostRewrad= await RewardsModel.create({
       setterid:setterid,
       won:true,
       amount:findGameId.prize

@@ -37,10 +37,10 @@ app.use("/api/v1/credit", require("./Routes/Getter/creditRoutes"));
 app.use("/api/v1/admin", require("./Routes/Admin/adminRoutes"));
 
 //REWARDS
-app.use("/api/v1/rewards", require("./Routes/rewards"));
+app.use("/api/v1/rewards", require("./Routes/Reward/rewards"));
 
 //Notoification
-// app.use("/api/v1/rewards", require("./Routes/Rewards/reward"));
+app.use("/api/v1/notification", require("./Routes/Notification/notification"));
 // send back a 404 error for any unknown api request
 app.use((req, res, next) => {
   next(new ErrorResponse("API Not found", 404));

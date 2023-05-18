@@ -6,7 +6,9 @@ module.exports.GetterCreditModel = require('./Getter/CreditModel')
 module.exports.GameModel = require('./Setter/GameModel')
 
 //NOTIFICATION
-module.exports.RewardsModel=require('./Rewards/RewardsModel')
+module.exports.RewardsModel=require('./Rewards/reward')
+
+module.exports.NotificationModel = require('./Notification/notification')
 
 //ADMIN MODEL
 module.exports.AdminRegisterModel = require('./Admin/RegisterModel')
