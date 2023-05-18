@@ -222,7 +222,6 @@ const afterGame = async (getterid, gameid, answer, setterid) => {
     });
     let setterpostRewrad= await RewardsModel.create({
       setterId:setterid,
-      // getterId:getterid,
       won:true,
       amount:findGameId.prize,
       gameId:gameid

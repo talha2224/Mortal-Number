@@ -7,9 +7,9 @@ const getRewards = async(id)=>{
           { getterId:id },
           { setterId: id },
         ]
-      }).populate('getterId setterId gameId ')
+      }).populate('getterId').populate('setterId').populate('gameId')
       if (getRewards.length<=0){
-        throw new ErrorResponse ('No Notification Found For This User',404)
+        throw new ErrorResponse ('No Rewards Found For This User',404)
       }
       return getRewards
 }
