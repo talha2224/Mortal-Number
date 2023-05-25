@@ -77,7 +77,7 @@ const register = async(firstname, lastname, email, password,promo)=>{
         credit:userPromoFind.credit+500
       }})
       if (updateAmount){
-        let createdUser = await GetterInfo.create({firstName: firstname,lastName: lastname,email: email,password: hash,credit: 500,promoCode:promoCode})
+        let createdUser = await GetterInfo.create({firstName: firstname,lastName: lastname,email: email,password: hash,credit: 500,promoCode:promoCode,role:'guesser'})
         if (createdUser) {
           let token = jwt.sign({ createdUser }, process.env.secretKey);
           let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt,accountBlocked,accountMuted,__v,...getterInfo} = createdUser._doc;
@@ -91,7 +91,7 @@ const register = async(firstname, lastname, email, password,promo)=>{
         credit:anotherPromoFind.credit+500
       }})
       if (updateAmount){
-        let createdUser = await GetterInfo.create({firstName: firstname,lastName: lastname,email: email,password: hash,credit: 500,promoCode:promoCode})
+        let createdUser = await GetterInfo.create({firstName: firstname,lastName: lastname,email: email,password: hash,credit: 500,promoCode:promoCode,role:'guesser'})
         if (createdUser) {
           let token = jwt.sign({ createdUser }, process.env.secretKey);
           let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt,accountBlocked,accountMuted,__v,...getterInfo} = createdUser._doc;

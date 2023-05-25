@@ -54,7 +54,7 @@ const register = async (firstname, lastname, email, password,promo) => {
     if(!promo){
       let hash = await bcrypt.hash(password, 10);
       let promoCode =generateRandomString();
-      let setter = await SetterInfo.create({firstName: firstname,lastName: lastname,email: email,password: hash,credit: 500,promoCode:promoCode});
+      let setter = await SetterInfo.create({firstName: firstname,lastName: lastname,email: email,password: hash,credit: 500,promoCode:promoCode,role:"setter"});
       if (setter) {
         let token = jwt.sign({ setter }, process.env.secretKey);
         let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt, __v,...setterInfo} = setter._doc;
@@ -74,7 +74,7 @@ const register = async (firstname, lastname, email, password,promo) => {
       else if (userByPromo){
         let updateAmount = await SetterInfo.findOneAndUpdate({promoCode:promo},{$set:{credit:userByPromo.credit+500}},{new:true})
         if (updateAmount){
-          let createAccount = await SetterInfo.create({firstName: firstname,lastName: lastname,email: email,password: hash,credit: 500,promoCode:promoCode})
+          let createAccount = await SetterInfo.create({firstName: firstname,lastName: lastname,email: email,password: hash,credit: 500,promoCode:promoCode,role:'setter'})
           if (createAccount){
             let token = jwt.sign({ createAccount }, process.env.secretKey);
             let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt, __v,...setterInfo} = createAccount._doc;
@@ -87,7 +87,7 @@ const register = async (firstname, lastname, email, password,promo) => {
       else if (anotherPromo){
         let updateAmount = await GetterInfo.findOneAndUpdate({promoCode:promo},{$set:{credit:anotherPromo.credit+500}},{new:true})
         if (updateAmount){
-          let createAccount = await SetterInfo.create({firstName: firstname,lastName: lastname,email: email,password: hash,credit: 500,promoCode:promoCode})
+          let createAccount = await SetterInfo.create({firstName: firstname,lastName: lastname,email: email,password: hash,credit: 500,promoCode:promoCode,role:'setter'})
           if (createAccount){
             let token = jwt.sign({ createAccount }, process.env.secretKey);
             let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt, __v,...setterInfo} = createAccount._doc;
