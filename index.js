@@ -4,7 +4,7 @@ const dbConnection = require("./Database/Connection");
 const dotenv = require("dotenv");
 const { gameTimer } = require("./cron/cron");
 const { ErrorResponse } = require("./Error/Utils");
-const { RewardsModel } = require("./Models");
+const { RewardsModel, NotificationModel } = require("./Models");
 
 
 const app = express();
@@ -30,17 +30,17 @@ app.use("/images", express.static("./images"));
 app.use("/api/v1/setter", require("./Routes/Setter/setterRoutes"));
 app.use("/api/v1/game", require("./Routes/Setter/gameRoutes"));
 app.use("/api/v1/setter/rewards",require('./Routes/Setter/rewardsroutes'))
+app.use("/api/v1/setter/notification", require("./Routes/Setter/notificationRoutes"));
+
 //GETTER ROUTES
 app.use("/api/v1/getter", require("./Routes/Getter/getterRoutes"));
 app.use("/api/v1/credit", require("./Routes/Getter/creditRoutes"));
 app.use("/api/v1/guesser/rewards",require('./Routes/Getter/rewardsRoutes'))
+app.use("/api/v1/guesser/notification", require("./Routes/Getter/notificationRoutes"));
 
 //ADMIN ROUTES
 app.use("/api/v1/admin", require("./Routes/Admin/adminRoutes"));
 
-
-//Notoification
-app.use("/api/v1/notification", require("./Routes/Notification/notification"));
 
 
 // send back a 404 error for any unknown api request

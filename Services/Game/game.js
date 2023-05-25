@@ -21,7 +21,7 @@ const postGame = async (id,winningnumber,stake,prize,hours,minutes,second) => {
           const duration = {hours: hours,min: minutes,sec: second};
           let createGame = await GameModel.create({setterId: id,winningNumber: winningnumber,stake: stake,prize: prize,duration: duration});
           if (createGame) {
-            let createNoti = await NotificationModel.create({notificationBy:id,gameId:createGame._id,title:"New Game Posted"})
+            let createNoti = await NotificationModel.create({setterId:id,gameId:createGame._id,title:"New Game Posted"})
             return createGame;
           } 
           else {
@@ -143,6 +143,7 @@ const afterGame = async (getterid, gameid, answer, setterid) => {
     throw new ErrorResponse("you alreday win the game", 403);
   } 
   let updateUserCredit = await GetterInfo.findByIdAndUpdate(getterid,{$set:{credit:findUserCredit.credit-findGameId.stake}},{new:true})
+
   if (findGameId.stake>findUserCredit.credit){
     throw new ErrorResponse ('you donot have enough credit to play this game',402)
   }
@@ -159,11 +160,11 @@ const afterGame = async (getterid, gameid, answer, setterid) => {
       credit : findGameId.stake
     }})
     let postNotication = await NotificationModel.create({
+      role:"guesser",
       amount: findGameId.prize,
-      getterwon: true,
-      title:`${findUserCredit.firstName + findUserCredit.lastName} has won the game`,
-      notificationFor:getterid,
-      notificationBy:setterid,
+      won: true,
+      guesserId:getterid,
+      setterId:setterid,
       gameId:gameid
     });
 
@@ -199,11 +200,11 @@ const afterGame = async (getterid, gameid, answer, setterid) => {
   else if (!check){
 
     let Guesser_PostNotification = await NotificationModel.create({
+      role:"guesser",
       amount: findGameId.prize,
-      getterwon: false,
-      title:` ${findUserCredit.firstName+findUserCredit.lastName} Has Lost The Game`,
-      notificationFor: getterid,
-      notificationBy:setterid,
+      won: false,
+      guesserId: getterid,
+      setterId:setterid,
       gameId:gameid
     });
     let getSetterDetails = await SetterInfo.findById(setterid);
@@ -227,12 +228,12 @@ const afterGame = async (getterid, gameid, answer, setterid) => {
       totalEarn:findGameId.totalEarn+findGameId.stake,
     }},{new:true})
     let postSetterNotification = await NotificationModel.create({
-      title:`${findUserCredit.firstName+findUserCredit.lastName} Has Lost your Game You Won ${findGameId.stake} `,
+      role:"setter",
       amount: findGameId.stake,
-      setterwon: true,
-      notificationFor: setterid,
+      won: true,
+      setterId: setterid,
+      guesserId:getterid,
       gameId:gameid,
-      lostBy:getterid
     });
     let setterpostRewrad= await RewardsModel.create({
       role:"setter",

@@ -12,7 +12,3 @@ module.exports.NotificationModel = require('./Notification/notification')
 
 //ADMIN MODEL
 module.exports.AdminRegisterModel = require('./Admin/RegisterModel')
-
-
-// USER INFO
-module.exports.UserInfo = require('./User/Info')

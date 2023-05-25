@@ -1,41 +1,34 @@
 const mongoose = require("mongoose");
 
 const notificationSchema = mongoose.Schema({
-  title:{
-    type:String,
+  role:{type:String},
+  title:{type:String},
+  won:{
+    type:Boolean,
     default:null
   },
   amount: {
     type: Number,
   },
-  getterwon: {
-    type: Boolean,
-    default: false,
-  },
-  setterwon: {
-    type: Boolean,
-    default: false,
-  },
-  notificationFor: {
+
+  guesserId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "UserInfo",
+    ref: "GetterInfo",
     default: null,
   },
-  notificationBy: {
+
+  setterId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "UserInfo",
+    ref: "SetterInfo",
     default: null,
   },
+
   gameId:{
     type: mongoose.Schema.Types.ObjectId,
     ref: "Game",
     default: null,
   },
-  lostBy:{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "UserInfo",
-    default: null,
-  }
+
 },{timestamps:true});
 
 const Notfication = new mongoose.model("Notfication", notificationSchema, "Notfication");

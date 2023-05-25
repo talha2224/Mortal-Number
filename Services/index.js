@@ -8,6 +8,10 @@ module.exports.GetterServices = require('./Getter/getter')
 module.exports.CreditServices = require('./Getter/credit')
 module.exports.GameServices = require ('./Game/game')
 
+
+module.exports.GuesserNotification = require ('./Getter/notification')
+module.exports.SetterNotification = require ('./Setter/notification')
+
 module.exports.AdminServices = require ('./Admin/admin')
 
 
