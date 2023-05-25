@@ -6,17 +6,10 @@ const router = require ('express').Router()
 
 
 router.post('',authorized,catchAsync(async(req,res)=>{
-    let {userId,amount} = req.body
-    let newRequest = await CreditServices.requestCredit(userId,amount)
+    let {getterId, setterId, amount} = req.body
+    let newRequest = await CreditServices.requestCredit(getterId, setterId, amount)
     res.send(newRequest)
 }))
-
-// router.put('/update/:id',authorized,catchAsync(async(req,res)=>{
-//     let {amount,approved,getterId,setterId} = req.body
-//     let id = req.params.id
-//     let newRequest = await CreditServices.updateCredit(id,amount,approved,getterId,setterId)
-//     res.send(newRequest)
-// }))
 
 router.delete('/:id',authorized,catchAsync(async(req,res)=>{
     let id = req.params.id

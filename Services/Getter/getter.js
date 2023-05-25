@@ -156,7 +156,7 @@ const getGetter = async (id) => {
     throw new ErrorResponse("your account has been blocked by admin", 403);
   }
   let {OTP,otpValidTill,otpVerified,createdAt,password,updatedAt,__v,...userInfo} = singleUser._doc;
-  return { userInfo: userInfo };
+  return { getterInfo: userInfo };
 }; 
 
 // DELETE USER

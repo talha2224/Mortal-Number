@@ -5,101 +5,86 @@ const {GetterCreditModel} = require("../../Models");
 
 //POST CREDIT REQUEST
 const requestCredit = async (getterId, setterId, amount) => {
+
   if (getterId) {
     let getterInfo = await GetterInfo.findById(getterId);
     if (getterInfo) {
       if (getterInfo.accountBlocked) {
         throw new ErrorResponse("account has been blocked ", 403);
       } 
+
+      let request = await GetterCreditModel.create({
+        amount: amount,
+        guesserId: getterId,
+        role:"guesser"
+      });
+      if (request) {
+        return request;
+      } 
       else {
-        let request = await GetterCreditModel.create({
-          amount: amount,
-          guesserId: getterId,
-        });
-        if (request) {
-          return request;
-        } 
-        else {
-          throw new ErrorResponse("failed to post request", 401);
-        }
+        throw new ErrorResponse("failed to post request", 401);
       }
     }
   }
 
-  if (setterId) {
+  else if (setterId) {
     let setterInfo = await SetterInfo.findById(setterId);
     if (setterInfo) {
       if (setterInfo.accountBlocked) {
         throw new ErrorResponse("account has been blocked ", 403);
       } 
-      else {
-        let request = await GetterCreditModel.create({
-          amount: amount,
-          setterId: setterId,
-        });
-        if (request) {
-          return request;
-        } else {
-          throw new ErrorResponse("failed to post request", 401);
-        }
+      let request = await GetterCreditModel.create({
+        amount: amount,
+        setterId: setterId,
+        role:"setter"
+      });
+      if (request) {
+        return request;
       }
     }
-  } else {
   }
 };
 
-
 //IF THE REQUEST ACCEPTED
-
-const acceptedCreditRequest = async (requestId, getterId, setterid, amount) => {
+const acceptedCreditRequest = async (requestId) => {
+  let findCreditDetails = await GetterCreditModel.findById(requestId)
+  if (!findCreditDetails){
+    throw new ErrorResponse("wrong id has been pass no credit request found",404)
+  }
+  else if (findCreditDetails.approved){
+    throw new ErrorResponse("Already Credit Request Accepted",450)
+  }
   let creditInfo = await GetterCreditModel.findByIdAndUpdate(requestId,{$set: { approved: true },},{ new: true });
-
-  if (!creditInfo) {
-    throw new ErrorResponse("wrong credit request id given no such request found",404);
-  } 
-  else {
-    if (creditInfo.getterProfileId) {
-      let getterInfo = await GetterInfo.findById(
-        creditInfo.getterProfileId
-      );
-      let updateGetterCredit = await GetterInfo.findByIdAndUpdate(
-        creditInfo.getterProfileId,
-        {
-          $set: {
-            credit: getterInfo.credit + creditInfo.amount,
-          },
-        },
-        { new: true }
-      );
-      if (updateGetterCredit) {
-        return { msg: "Request accepted" };
-      } else {
-        throw new ErrorResponse("Failed to accept request", 501);
-      }
-    } 
-    else if (creditInfo.setterProfileId) {
-      let setterInfo = await SetterRegisterModel.findById(setterid);
-      let updateSetterCredit = await SetterRegisterModel.findByIdAndUpdate(
-        getterId,
-        {
-          $set: {
-            credit: setterInfo.credit + amount,
-          },
-        },
-        { new: true }
-      );
-      if (updateSetterCredit) {
-        return { msg: "Request accepted" };
-      } else {
-        throw new ErrorResponse("Failed to accept request", 501);
-      }
+  if (creditInfo.setterId){
+    let findSetter = await SetterInfo.findById(creditInfo.setterId)
+    let updateSetterAmount = await SetterInfo.findByIdAndUpdate(creditInfo.setterId,{$set:{
+      credit:findSetter.credit+findCreditDetails.amount
+    }},{new:true})
+    if (updateSetterAmount){
+      return {msg:"Request Accepted Amount Has Been Transfer"}
     }
   }
+  else if (creditInfo.guesserId){
+    let creditInfo = await GetterCreditModel.findByIdAndUpdate(requestId,{$set: { approved: true },},{ new: true });
+    if (creditInfo.guesserId){
+      let findGuesser = await GetterInfo.findById(creditInfo.guesserId)
+      let updateGuesserAmount = await GetterInfo.findByIdAndUpdate(creditInfo.guesserId,{$set:{
+        credit:findGuesser.credit+findCreditDetails.amount
+      }},{new:true})
+      if (updateGuesserAmount){
+        return {msg:"Request Accepted Amount Has Been Transfer"}
+      }
+    }
+    
+  }
+
 };
 
 //GET CREDIT BY GETTER OR SETTER ID
 const getCreditHistory = async (id) => {
-  let CreditHistory = await GetterCreditModel.find({userProfileId:id});
+  let CreditHistory = await GetterCreditModel.find({
+    $or: [{ setterId: id }, { guesserId: id }],
+  }).populate('setterId', '_id firstName lastName username profileImage role').populate('guesserId', '_id firstName lastName username profileImage role')
   if (CreditHistory) {
     return CreditHistory;
   } else {
@@ -134,13 +119,12 @@ const getAll = async () => {
   }
 };
 
+
+
 //SINGLE REQUEST
 const getSingle = async (id) => {
-  let singleRequest = await GetterCreditModel.findById(id)
-    .populate(
-      "userProfileId",
-      "-OTP -otpValidTill -otpVerified -email -password -phonenumber -dateOfBirth -gender -_id -country"
-    )
+  let singleRequest = await GetterCreditModel.findById(id).populate('setterId', '_id firstName lastName username profileImage role')
+  .populate('guesserId', '_id firstName lastName username profileImage role')
   if (singleRequest) {
     return singleRequest;
   } else {
