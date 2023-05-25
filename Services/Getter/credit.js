@@ -104,19 +104,31 @@ const deleteRequest = async (id) => {
 
 //ALL REQUESTS
 const getAll = async () => {
-  const allRequest = await GetterCreditModel.find({ approved: false }).populate("userProfileId","-OTP -otpValidTill -otpVerified -email -password -phonenumber -dateOfBirth -gender -country -__v"
-  );
-  if (allRequest.length > 0) {
+  const allRequest = await GetterCreditModel.find({ approved: false }).populate("guesserId").populate("setterId")
+  if (allRequest.length <= 0) {
+    throw new ErrorResponse("no request found", 404);
+  }
+  
+  else if (allRequest.length > 0) {
     return allRequest.filter((item) => {
-      if (item.userProfileId) {
-        if (item.userProfileId.accountMuted === false) {
+      if (item.guesserId) {
+        if (item.guesserId.accountMuted === false) {
+          console.log(item,'guesser')
           return item;
+        }
+        else if (item.setterId){
+          if (item.setterId.accountMuted === false) {
+            console.log(item,'setter')
+            return item;
+          }
+          else{
+            console.log('rejected')
+          }
         }
       }
     });
-  } else {
-    throw new ErrorResponse("no request found", 404);
-  }
+  } 
+
 };
 
 
