@@ -1,6 +1,10 @@
 const mongoose = require("mongoose");
 
 const notificationSchema = mongoose.Schema({
+  role:{
+    type:String,
+    default:null
+  },
   amount: {
     type: Number,
   },
@@ -8,14 +12,14 @@ const notificationSchema = mongoose.Schema({
     type:Boolean,
     default:false
   },
-  userId: {
+  guesserId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "UserInfo",
+    ref: "GetterInfo",
     default: null,
   },
-  profileId: {
+  setterId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "UserInfo",
+    ref: "SetterInfo",
     default: null,
   },
   gameId:{

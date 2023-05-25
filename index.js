@@ -4,6 +4,7 @@ const dbConnection = require("./Database/Connection");
 const dotenv = require("dotenv");
 const { gameTimer } = require("./cron/cron");
 const { ErrorResponse } = require("./Error/Utils");
+const { RewardsModel } = require("./Models");
 
 
 const app = express();
@@ -28,19 +29,20 @@ app.use("/images", express.static("./images"));
 //SETTER ROUTES
 app.use("/api/v1/setter", require("./Routes/Setter/setterRoutes"));
 app.use("/api/v1/game", require("./Routes/Setter/gameRoutes"));
-
+app.use("/api/v1/setter/rewards",require('./Routes/Setter/rewardsroutes'))
 //GETTER ROUTES
 app.use("/api/v1/getter", require("./Routes/Getter/getterRoutes"));
 app.use("/api/v1/credit", require("./Routes/Getter/creditRoutes"));
+app.use("/api/v1/guesser/rewards",require('./Routes/Getter/rewardsRoutes'))
 
 //ADMIN ROUTES
 app.use("/api/v1/admin", require("./Routes/Admin/adminRoutes"));
 
-//REWARDS
-app.use("/api/v1/rewards", require("./Routes/Reward/rewards"));
 
 //Notoification
 app.use("/api/v1/notification", require("./Routes/Notification/notification"));
+
+
 // send back a 404 error for any unknown api request
 app.use((req, res, next) => {
   next(new ErrorResponse("API Not found", 404));
@@ -48,6 +50,8 @@ app.use((req, res, next) => {
 
 //CUSTOM ERROR HANDLING
 app.use(require("./Error/Error"));
+
+
 
 gameTimer();
 

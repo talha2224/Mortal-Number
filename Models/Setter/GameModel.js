@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const GameSchema = mongoose.Schema({
     setterId:{
         type:mongoose.Schema.Types.ObjectId,
-        ref:'UserInfo'
+        ref:'SetterInfo'
     },
     winningNumber :{
         type:Array,

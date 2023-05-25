@@ -1,5 +1,5 @@
 const { ErrorResponse } = require("../../Error/Utils");
-const {GameModel, UserInfo } = require("../../Models");
+const {GameModel, SetterInfo, GetterInfo } = require("../../Models");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
@@ -46,7 +46,7 @@ function generateRandomString() {
 
 // REGISTER USER
 const register = async (firstname, lastname, email, password,promo) => {
-  const findUser = await UserInfo.findOne({ email: email });
+  const findUser = await SetterInfo.findOne({ email: email });
   if (findUser) {
     throw new ErrorResponse("email already registered", 403);
   } 
@@ -54,7 +54,7 @@ const register = async (firstname, lastname, email, password,promo) => {
     if(!promo){
       let hash = await bcrypt.hash(password, 10);
       let promoCode =generateRandomString();
-      let setter = await UserInfo.create({firstName: firstname,lastName: lastname,email: email,password: hash,credit: 500,promoCode:promoCode,role:"setter"});
+      let setter = await SetterInfo.create({firstName: firstname,lastName: lastname,email: email,password: hash,credit: 500,promoCode:promoCode});
       if (setter) {
         let token = jwt.sign({ setter }, process.env.secretKey);
         let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt, __v,...setterInfo} = setter._doc;
@@ -64,21 +64,40 @@ const register = async (firstname, lastname, email, password,promo) => {
     else if (promo){
       let hash = await bcrypt.hash(password, 10);
       let promoCode =generateRandomString();
-      let userByPromo = await UserInfo.findOne({promoCode:promo})
-      // { setterInfo, token }
-      if (!userByPromo){
+      let userByPromo = await SetterInfo.findOne({promoCode:promo})
+      let anotherPromo = await GetterInfo.findOne({promoCode:promo})
+
+      if (!userByPromo && !anotherPromo){
         throw new ErrorResponse('Wrong promo code no such promocode found',404)
       }
-      let updateAmount = await UserInfo.findOneAndUpdate({promoCode:promo},{$set:{credit:userByPromo.credit+500}},{new:true})
-      if (updateAmount){
-        let createAccount = await UserInfo.create({firstName: firstname,lastName: lastname,email: email,password: hash,credit: 500,promoCode:promoCode,role:"setter"})
-        if (createAccount){
-          let token = jwt.sign({ createAccount }, process.env.secretKey);
-          let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt, __v,...setterInfo} = createAccount._doc;
-          return { setterInfo, token };
-        }
 
+      else if (userByPromo){
+        let updateAmount = await SetterInfo.findOneAndUpdate({promoCode:promo},{$set:{credit:userByPromo.credit+500}},{new:true})
+        if (updateAmount){
+          let createAccount = await SetterInfo.create({firstName: firstname,lastName: lastname,email: email,password: hash,credit: 500,promoCode:promoCode})
+          if (createAccount){
+            let token = jwt.sign({ createAccount }, process.env.secretKey);
+            let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt, __v,...setterInfo} = createAccount._doc;
+            return { setterInfo, token };
+          }
+  
+        }
       }
+
+      else if (anotherPromo){
+        let updateAmount = await GetterInfo.findOneAndUpdate({promoCode:promo},{$set:{credit:anotherPromo.credit+500}},{new:true})
+        if (updateAmount){
+          let createAccount = await SetterInfo.create({firstName: firstname,lastName: lastname,email: email,password: hash,credit: 500,promoCode:promoCode})
+          if (createAccount){
+            let token = jwt.sign({ createAccount }, process.env.secretKey);
+            let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt, __v,...setterInfo} = createAccount._doc;
+            return { setterInfo, token };
+          }
+  
+        }
+      }
+
+
 
 
     }
@@ -87,7 +106,7 @@ const register = async (firstname, lastname, email, password,promo) => {
 
 //LOGIN
 const login = async (email, password) => {
-  const SetterDetails = await UserInfo.findOne({ email: email });
+  const SetterDetails = await SetterInfo.findOne({ email: email });
   if (!SetterDetails){
     throw new ErrorResponse("account not found", 404); 
   }
@@ -115,7 +134,7 @@ const login = async (email, password) => {
 
 // UPDATE USER : 
 const update = async (id,firstname,lastname,email,username,phonenumber,dateOfBirth,gender,country,image,accountBlocked,accountMuted) => {
-  let updateSetter = await UserInfo.findByIdAndUpdate(id,{
+  let updateSetter = await SetterInfo.findByIdAndUpdate(id,{
     $set: {firstName: firstname,lastName: lastname,email: email,username: username,phonenumber: phonenumber,dateOfBirth: dateOfBirth,gender: gender,country: country,profileImage: image,accountBlocked: accountBlocked,accountMuted: accountMuted}},{ new: true });
   if (updateSetter) {
     let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt,__v,...updatedInfo} = updateSetter._doc;
@@ -142,7 +161,7 @@ const update = async (id,firstname,lastname,email,username,phonenumber,dateOfBir
 
 // GET SINGLE USER
 const getSetter = async (id) => {
-  const setter = await UserInfo.findById(id);
+  const setter = await SetterInfo.findById(id);
   if (!setter) {
     throw new ErrorResponse("No setter found", 404);
   }
@@ -154,7 +173,7 @@ const getSetter = async (id) => {
 
 // TOP 5 SETTER
 const topRated = async () => {
-  let top = await UserInfo.find({ accountBlocked: false,role:"setter" }).sort({ credit: -1 }).limit(20);
+  let top = await SetterInfo.find({ accountBlocked: false,role:"setter" }).sort({ credit: -1 }).limit(20);
   if (top.length > 0) {
     return top;
   } 
@@ -165,7 +184,7 @@ const topRated = async () => {
 
 // DELETE SETTER
 const deleteSetter = async (id) => {
-  let deleteAccount = await UserInfo.findByIdAndDelete(id);
+  let deleteAccount = await SetterInfo.findByIdAndDelete(id);
   if (!deleteAccount) {
     throw new ErrorResponse("wrong id no account matched", 404);
   }
@@ -176,12 +195,12 @@ const deleteSetter = async (id) => {
 
 //FORGET PASSWORD
 const forgetPassword = async (email) => {
-  let findUser = await UserInfo.findOne({ email: email });
+  let findUser = await SetterInfo.findOne({ email: email });
   if (!findUser) {
     throw new ErrorResponse("wrong email. Email not found", 404);
   }
   let randomString = Math.floor(Math.random() * 9000) + 1000;
-  let Updated = await UserInfo.findOneAndUpdate({ email: email },{$set: {OTP: randomString,otpValidTill: new Date(new Date().setMinutes(new Date().getMinutes() + 5))},},{ new: true });
+  let Updated = await SetterInfo.findOneAndUpdate({ email: email },{$set: {OTP: randomString,otpValidTill: new Date(new Date().setMinutes(new Date().getMinutes() + 5))},},{ new: true });
   if (Updated) {
     ResetPassword(findUser.firstName, email, Updated.OTP);
     return { msg: "OTP SENT TO YOUR ACCOUNT", OTP: Updated.OTP };
@@ -190,31 +209,31 @@ const forgetPassword = async (email) => {
 
 // OTP VERIFCATION
 const otpVerification = async (otp) => {
-  let findUser = await UserInfo.findOne({ OTP: otp });
+  let findUser = await SetterInfo.findOne({ OTP: otp });
   if (!findUser){
     throw new ErrorResponse("wrong otp given", 404);
   }
   if (findUser.otpValidTill > Date.now()) {
-    let updateVerify = await UserInfo.findOneAndUpdate({ OTP: otp },{$set: {otpVerified: true, OTP: null, otpValidTill: null}});
+    let updateVerify = await SetterInfo.findOneAndUpdate({ OTP: otp },{$set: {otpVerified: true, OTP: null, otpValidTill: null}});
     if (updateVerify) {
       return { msg: "OTP VERIFIED", sucess: true };
     } 
   } 
   else {
-    let deleteOtp = await UserInfo.findOneAndUpdate({ OTP: otp },{ $set: { OTP: null, otpValidTill: null } });
+    let deleteOtp = await SetterInfo.findOneAndUpdate({ OTP: otp },{ $set: { OTP: null, otpValidTill: null } });
     throw new ErrorResponse("otp timeout please again call forget password api",408)
   }
 };
 
 //RESET PASSWORD
 const resetPassword = async (email, password) => {
-  let findUser = await UserInfo.findOne({ email: email });
+  let findUser = await SetterInfo.findOne({ email: email });
   if (!findUser){
     throw new ErrorResponse("invalid EMAIL", 404);
   }
   if (findUser.otpVerified === true) {
     let hash = await bcrypt.hash(password, 10);
-    let updatePassword = await UserInfo.findOneAndUpdate({ email: email },{$set: {password: hash,OTP: null,otpValidTill: null,otpVerified: false}},{ new: true });
+    let updatePassword = await SetterInfo.findOneAndUpdate({ email: email },{$set: {password: hash,OTP: null,otpValidTill: null,otpVerified: false}},{ new: true });
     if (updatePassword) {
       return { msg: "password updated sucesfully sucesfully" };
     }
@@ -227,7 +246,7 @@ const resetPassword = async (email, password) => {
 
 //CHANGE PASSWORD
 const changePassword = async (id, oldpassword, newpassword) => {
-  let find = await UserInfo.findById(id);
+  let find = await SetterInfo.findById(id);
   if(!find) {
     throw new ErrorResponse("wrong user id passed no reacord found", 404);
   }
@@ -238,7 +257,7 @@ const changePassword = async (id, oldpassword, newpassword) => {
     let comparePassword = await bcrypt.compare(oldpassword, find.password);
     if (comparePassword) {
       let hash = await bcrypt.hash(newpassword, 10);
-      let update = await UserInfo.findByIdAndUpdate(id,{$set: {password: hash}},{ new: true });
+      let update = await SetterInfo.findByIdAndUpdate(id,{$set: {password: hash}},{ new: true });
       if (update) {
         return { msg: "password updated sucesfully" };
       }

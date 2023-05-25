@@ -1,12 +1,10 @@
-const router = require ('express').Router()
-
+const router = require('express').Router()
+const {GetterRewardsService} = require('../../Services')
 const { catchAsync } = require('../../Error/Utils')
-const {RewardService} = require('../../Services')
 
 router.get('/:id',catchAsync(async(req,res)=>{
     let {id} = req.params
-    let allReward = await RewardService.getRewards(id)
+    let allReward = await GetterRewardsService.getRewards(id)
     res.send(allReward)
 }))
-    
 module.exports = router

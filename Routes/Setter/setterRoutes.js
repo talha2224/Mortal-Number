@@ -1,9 +1,6 @@
 const { catchAsync } = require("../../Error/Utils");
 const { SetterServices } = require("../../Services");
-const {
-  registerValidation,
-  loginValidation,
-} = require("../../Validation/setter/register");
+const {registerValidation,loginValidation,} = require("../../Validation/setter/register");
 const router = require("express").Router();
 const { image_upload } = require("../../Multer/Setup");
 const authorized = require("../../Middleware/UserAuth");

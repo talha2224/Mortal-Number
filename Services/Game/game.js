@@ -1,19 +1,23 @@
 const { ErrorResponse } = require("../../Error/Utils");
-const {GameModel,RewardsModel, UserInfo,NotificationModel} = require("../../Models");
+const {GameModel,RewardsModel, SetterInfo,GetterInfo,NotificationModel} = require("../../Models")
 
 const postGame = async (id,winningnumber,stake,prize,hours,minutes,second) => {
   let findSetter = await GameModel.findOne({active: true,setterId: id,}).populate("setterId");
-  let setter = await UserInfo.findById(id);
+  let setter = await SetterInfo.findById(id);
   if (findSetter) {
     throw new ErrorResponse("your have already posted a game", 429);
-  } 
+  }
+  if (!setter){
+    throw new ErrorResponse("Wrong Setter Id",404)
+  }
+  
   else if (setter.accountBlocked===true) {
-      throw new ErrorResponse("your account has been blocked", 403);
+    throw new ErrorResponse("your account has been blocked", 403);
   } 
   else {
-      let setterId = await UserInfo.findById(id);
+      let setterId = await SetterInfo.findById(id);
       if (setterId.credit >= prize) {
-        let updateSetterCredit = await UserInfo.findByIdAndUpdate(id,{$set: {credit: setterId.credit - prize}},{ new: true });
+        let updateSetterCredit = await SetterInfo.findByIdAndUpdate(id,{$set: {credit: setterId.credit - prize}},{ new: true });
           const duration = {hours: hours,min: minutes,sec: second};
           let createGame = await GameModel.create({setterId: id,winningNumber: winningnumber,stake: stake,prize: prize,duration: duration});
           if (createGame) {
@@ -36,11 +40,11 @@ const getGame = async (getterId) => {
   if (allGame.length > 0) {
     const modifiedGame = allGame.map((game) => {
 
-      if (game.winBy.includes(getterId) || game?.setterId?._id.toString()===getterId) {
-        return { ...game.toObject(), win: true,yourGame:true };
+      if (game.winBy.includes(getterId)) {
+        return { ...game.toObject(), win: true };
       } 
-      else if (game?.setterId?._id.toString()!=getterId || !game.winBy.includes(getterId)){
-        return { ...game.toObject(), win: false,yourGame:false};
+      else if (!game.winBy.includes(getterId)){
+        return { ...game.toObject(), win: false};
       }
     });
     return modifiedGame;
@@ -125,7 +129,8 @@ const playGame = async (getterid, gameid) => {
 
 
 const afterGame = async (getterid, gameid, answer, setterid) => {
-  let findUserCredit = await UserInfo.findById(getterid);
+
+  let findUserCredit = await GetterInfo.findById(getterid);
   if (!findUserCredit) throw new ErrorResponse("No Getter found", 404);
 
   let findGameId = await GameModel.findById(gameid);
@@ -133,25 +138,26 @@ const afterGame = async (getterid, gameid, answer, setterid) => {
 
   let alreadyPlayed = findGameId.winBy.includes(getterid);
   let check = findGameId.winningNumber.every((item) => answer.includes(item));
-  console.log(findGameId.setterId._id.toString()==getterid)
-  if (setterid===getterid){
-    throw new ErrorResponse('You have Posted this game you cannot play',430)
-  }
 
   if (alreadyPlayed) {
     throw new ErrorResponse("you alreday win the game", 403);
   } 
-  let updateUserCredit = await UserInfo.findByIdAndUpdate(getterid,{$set:{credit:findUserCredit.credit-findGameId.stake}},{new:true})
+  let updateUserCredit = await GetterInfo.findByIdAndUpdate(getterid,{$set:{credit:findUserCredit.credit-findGameId.stake}},{new:true})
   if (findGameId.stake>findUserCredit.credit){
     throw new ErrorResponse ('you donot have enough credit to play this game',402)
   }
+
   else if (check) {
 
-    let updateGetterAmount = await UserInfo.findByIdAndUpdate(
+    let updateGetterAmount = await GetterInfo.findByIdAndUpdate(
       getterid,
       { $set: { credit: updateUserCredit.credit + findGameId.prize } },
       { new: true }
     );
+    let getSetterDeatil = await SetterInfo.findById(setterid)
+    let updateSetterAmount = await SetterInfo.findByIdAndUpdate(setterid,{$set:{
+      credit : findGameId.stake
+    }})
     let postNotication = await NotificationModel.create({
       amount: findGameId.prize,
       getterwon: true,
@@ -162,11 +168,12 @@ const afterGame = async (getterid, gameid, answer, setterid) => {
     });
 
     let postReward= await RewardsModel.create({
-      userId:getterid,
+      role:"guesser",
+      guesserId:getterid,
       won:true,
       amount:findGameId.prize,
       gameId:gameid,
-      profileId:setterid
+      setterId:setterid
     })
 
     let updateGame = await GameModel.findByIdAndUpdate(gameid,{
@@ -176,6 +183,7 @@ const afterGame = async (getterid, gameid, answer, setterid) => {
     },
       { new: true }
     );
+
     if (updateGetterAmount && postReward && updateGame) {
       return {
         msg: `You Won The Amount`,
@@ -187,7 +195,9 @@ const afterGame = async (getterid, gameid, answer, setterid) => {
       throw new ErrorResponse("CHECK YOUR BACKEND CODE ON LINE 170", 400);
     }
   } 
+
   else if (!check){
+
     let Guesser_PostNotification = await NotificationModel.create({
       amount: findGameId.prize,
       getterwon: false,
@@ -196,8 +206,8 @@ const afterGame = async (getterid, gameid, answer, setterid) => {
       notificationBy:setterid,
       gameId:gameid
     });
-    let getSetterDetails = await UserInfo.findById(setterid);
-    let updateSetterAmount = await UserInfo.findByIdAndUpdate(
+    let getSetterDetails = await SetterInfo.findById(setterid);
+    let updateSetterAmount = await SetterInfo.findByIdAndUpdate(
       setterid,
       {
         $set: {
@@ -206,11 +216,12 @@ const afterGame = async (getterid, gameid, answer, setterid) => {
       }
     );
     let guesserpostReward= await RewardsModel.create({
-      userId:getterid,
+      role:"guesser",
+      guesserId:getterid,
       won:false,
       amount:findGameId.prize,
       gameId:gameid,
-      profileId:setterid
+      setterId:setterid
     })
     let updateGame = await GameModel.findByIdAndUpdate(gameid,{$set:{
       totalEarn:findGameId.totalEarn+findGameId.stake,
@@ -224,11 +235,12 @@ const afterGame = async (getterid, gameid, answer, setterid) => {
       lostBy:getterid
     });
     let setterpostRewrad= await RewardsModel.create({
-      userId:setterid,
+      role:"setter",
+      setterId:setterid,
       won:true,
       amount:findGameId.prize,
       gameId:gameid,
-      profileId:getterid
+      guesserId:getterid
     })
     return {
       msg: "You Lost The Game",
