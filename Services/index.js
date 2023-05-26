@@ -12,6 +12,10 @@ module.exports.GameServices = require ('./Game/game')
 module.exports.GuesserNotification = require ('./Getter/notification')
 module.exports.SetterNotification = require ('./Setter/notification')
 
+
+module.exports.GuesserDeviceService = require('./Getter/device')
+module.exports.SetterDeviceService = require('./Setter/device')
+
 module.exports.AdminServices = require ('./Admin/admin')
 
 

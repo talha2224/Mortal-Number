@@ -31,12 +31,15 @@ app.use("/api/v1/setter", require("./Routes/Setter/setterRoutes"));
 app.use("/api/v1/game", require("./Routes/Setter/gameRoutes"));
 app.use("/api/v1/setter/rewards",require('./Routes/Setter/rewardsroutes'))
 app.use("/api/v1/setter/notification", require("./Routes/Setter/notificationRoutes"));
+app.use("/api/v1/setter/device",require('./Routes/Setter/deviceRoute'))
 
 //GETTER ROUTES
 app.use("/api/v1/getter", require("./Routes/Getter/getterRoutes"));
 app.use("/api/v1/credit", require("./Routes/Getter/creditRoutes"));
 app.use("/api/v1/guesser/rewards",require('./Routes/Getter/rewardsRoutes'))
 app.use("/api/v1/guesser/notification", require("./Routes/Getter/notificationRoutes"));
+app.use("/api/v1/guesser/device",require('./Routes/Getter/deviceRoute'))
+
 
 //ADMIN ROUTES
 app.use("/api/v1/admin", require("./Routes/Admin/adminRoutes"));

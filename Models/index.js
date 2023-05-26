@@ -12,3 +12,6 @@ module.exports.NotificationModel = require('./Notification/notification')
 
 //ADMIN MODEL
 module.exports.AdminRegisterModel = require('./Admin/RegisterModel')
+
+// Device Token Schema
+module.exports.DeviceTokenSchema = require('./Firebase/Token')
