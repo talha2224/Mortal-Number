@@ -25,7 +25,7 @@ const postGame = async (id,winningnumber,stake,prize,hours,minutes,second) => {
   else {
       let setterId = await SetterInfo.findById(id);
       if (setterId.credit >= stake) {
-        let updateSetterCredit = await SetterInfo.findByIdAndUpdate(id,{$set: {credit: setterId.credit - prize}},{ new: true });
+        let updateSetterCredit = await SetterInfo.findByIdAndUpdate(id,{$set: {credit: setterId.credit - stake}},{ new: true });
         const duration = {hours: hours,min: minutes,sec: second};
         let createGame = await GameModel.create({setterId: id,winningNumber: winningnumber,stake: stake,prize: prize,duration: duration});
         if (createGame) {
