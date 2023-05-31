@@ -1,5 +1,13 @@
 const { ErrorResponse } = require("../../Error/Utils");
-const {GameModel,RewardsModel, SetterInfo,GetterInfo,NotificationModel} = require("../../Models")
+const {GameModel,RewardsModel, SetterInfo,GetterInfo,NotificationModel, DeviceTokenSchema} = require("../../Models")
+const admin = require('firebase-admin')
+const serviceAccount = require('../../push-notification-611cf-firebase-adminsdk-gh2h0-4e9015eec7.json')
+
+// FIREBASE PUSH NOTIFICATION CODDE 
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: 'https://push-notification-611cf.firebaseio.com' 
+}) 
 
 const postGame = async (id,winningnumber,stake,prize,hours,minutes,second) => {
   let findSetter = await GameModel.findOne({active: true,setterId: id,}).populate("setterId");
@@ -16,17 +24,17 @@ const postGame = async (id,winningnumber,stake,prize,hours,minutes,second) => {
   } 
   else {
       let setterId = await SetterInfo.findById(id);
-      if (setterId.credit >= prize) {
+      if (setterId.credit >= stake) {
         let updateSetterCredit = await SetterInfo.findByIdAndUpdate(id,{$set: {credit: setterId.credit - prize}},{ new: true });
-          const duration = {hours: hours,min: minutes,sec: second};
-          let createGame = await GameModel.create({setterId: id,winningNumber: winningnumber,stake: stake,prize: prize,duration: duration});
-          if (createGame) {
-            let createNoti = await NotificationModel.create({setterId:id,gameId:createGame._id,title:"New Game Posted"})
-            return createGame;
-          } 
-          else {
-            throw new ErrorResponse("failed to post game", 409);
-          }
+        const duration = {hours: hours,min: minutes,sec: second};
+        let createGame = await GameModel.create({setterId: id,winningNumber: winningnumber,stake: stake,prize: prize,duration: duration});
+        if (createGame) {
+          let createNoti = await NotificationModel.create({setterId:id,gameId:createGame._id,title:"New Game Posted"})
+          return createGame;
+        } 
+        else {
+          throw new ErrorResponse("failed to post game", 409);
+        }
       } 
       else {
         throw new ErrorResponse("you donot have enough credit", 402);
