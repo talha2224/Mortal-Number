@@ -45,16 +45,23 @@ function generateRandomString() {
 }
 
 // REGISTER USER
-const register = async (firstname, lastname, email, password,promo) => {
+const register = async (firstname, lastname, email, password,promo,username) => {
   const findUser = await SetterInfo.findOne({ email: email });
-  if (findUser) {
-    throw new ErrorResponse("email already registered", 403);
-  } 
+  const findByName = await SetterInfo.findOne({username:username})
+
+  if (findUser || findByName){
+    if (findUser){
+      throw new ErrorResponse("User Already Registered To This Email", 403);
+    }
+    else if (findByName){
+      throw new ErrorResponse("Username Already Taken", 405);
+    }
+  }
   else {
     if(!promo){
       let hash = await bcrypt.hash(password, 10);
       let promoCode =generateRandomString();
-      let setter = await SetterInfo.create({firstName: firstname,lastName: lastname,email: email,password: hash,credit: 500,promoCode:promoCode,role:"setter"});
+      let setter = await SetterInfo.create({firstName: firstname,lastName: lastname,email: email,password: hash,credit: 500,promoCode:promoCode,role:"setter",username:username});
       if (setter) {
         let token = jwt.sign({ setter }, process.env.secretKey);
         let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt, __v,...setterInfo} = setter._doc;
@@ -74,7 +81,7 @@ const register = async (firstname, lastname, email, password,promo) => {
       else if (userByPromo){
         let updateAmount = await SetterInfo.findOneAndUpdate({promoCode:promo},{$set:{credit:userByPromo.credit+500}},{new:true})
         if (updateAmount){
-          let createAccount = await SetterInfo.create({firstName: firstname,lastName: lastname,email: email,password: hash,credit: 500,promoCode:promoCode,role:'setter'})
+          let createAccount = await SetterInfo.create({firstName: firstname,lastName: lastname,email: email,password: hash,credit: 500,promoCode:promoCode,role:'setter',username:username})
           if (createAccount){
             let token = jwt.sign({ createAccount }, process.env.secretKey);
             let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt, __v,...setterInfo} = createAccount._doc;

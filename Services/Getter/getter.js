@@ -47,15 +47,21 @@ function generateRandomString() {
 
 
 // REGITSER
-const register = async(firstname, lastname, email, password,promo)=>{
+const register = async(firstname, lastname, email, password,promo,username)=>{
   const findUser = await GetterInfo.findOne({email:email})
-  if (findUser){
-    throw new ErrorResponse("User Already Registered To This Email", 403);
-  }
+  const findByName = await GetterInfo.findOne({username:username})
+    if (findUser || findByName){
+      if (findUser){
+          throw new ErrorResponse("User Already Registered To This Email", 403);
+      }
+      else if (findByName){
+        throw new ErrorResponse("Username Already Taken", 405);
+      }
+    }
   else if (!promo){
     let hash = await bcrypt.hash(password,10)
     let promoCode =generateRandomString()
-    let createdUser = await GetterInfo.create({firstName: firstname,lastName: lastname,email: email,password: hash,credit: 500,promoCode:promoCode,role:'guesser'})
+    let createdUser = await GetterInfo.create({firstName: firstname,lastName: lastname,email: email,password: hash,credit: 500,promoCode:promoCode,role:'guesser',username:username})
     if (createdUser) {
       let token = jwt.sign({ createdUser }, process.env.secretKey);
       let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt,accountBlocked,accountMuted, __v,...getterInfo} = createdUser._doc;
@@ -77,7 +83,7 @@ const register = async(firstname, lastname, email, password,promo)=>{
         credit:userPromoFind.credit+500
       }})
       if (updateAmount){
-        let createdUser = await GetterInfo.create({firstName: firstname,lastName: lastname,email: email,password: hash,credit: 500,promoCode:promoCode,role:'guesser'})
+        let createdUser = await GetterInfo.create({firstName: firstname,lastName: lastname,email: email,password: hash,credit: 500,promoCode:promoCode,role:'guesser',username:username})
         if (createdUser) {
           let token = jwt.sign({ createdUser }, process.env.secretKey);
           let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt,accountBlocked,accountMuted,__v,...getterInfo} = createdUser._doc;
@@ -91,7 +97,7 @@ const register = async(firstname, lastname, email, password,promo)=>{
         credit:anotherPromoFind.credit+500
       }})
       if (updateAmount){
-        let createdUser = await GetterInfo.create({firstName: firstname,lastName: lastname,email: email,password: hash,credit: 500,promoCode:promoCode,role:'guesser'})
+        let createdUser = await GetterInfo.create({firstName: firstname,lastName: lastname,email: email,password: hash,credit: 500,promoCode:promoCode,role:'guesser',username:username})
         if (createdUser) {
           let token = jwt.sign({ createdUser }, process.env.secretKey);
           let {OTP,otpValidTill,otpVerified,password,createdAt,updatedAt,accountBlocked,accountMuted,__v,...getterInfo} = createdUser._doc;

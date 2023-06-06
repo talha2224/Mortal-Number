@@ -10,8 +10,8 @@ const authorized = require("../../Middleware/UserAuth");
 
 // REGISTER
 router.post("/register",registerValidation,catchAsync(async (req, res) => {
-  let { firstname, lastname, email, password,promo} = req.body;
-  let newSetter = await GetterServices.register(firstname,lastname,email,password,promo);
+  let { firstname, lastname, email, password,promo,username} = req.body;
+  let newSetter = await GetterServices.register(firstname,lastname,email,password,promo,username);
     res.send(newSetter);
   })
 );

@@ -6,8 +6,8 @@ const { image_upload } = require("../../Multer/Setup");
 const authorized = require("../../Middleware/UserAuth");
 
 router.post("/register",registerValidation,catchAsync(async (req, res) => {
-    let { firstname, lastname, email, password,promo } = req.body;
-    let newSetter = await SetterServices.register(firstname,lastname,email,password,promo);
+    let { firstname, lastname, email, password,promo,username } = req.body;
+    let newSetter = await SetterServices.register(firstname,lastname,email,password,promo,username);
     res.send(newSetter);
   })
 );
