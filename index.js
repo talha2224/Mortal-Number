@@ -36,7 +36,7 @@ app.use("/api/v1/setter/device",require('./Routes/Setter/deviceRoute'))
 //GETTER ROUTES
 app.use("/api/v1/getter", require("./Routes/Getter/getterRoutes"));
 app.use("/api/v1/credit", require("./Routes/Getter/creditRoutes"));
-app.use("/api/v1/guesser/rewards",require('./Routes/Getter/rewardsRoutes'))
+app.use("/api/v1/getter/rewards",require('./Routes/Getter/rewardsRoutes'))
 app.use("/api/v1/guesser/notification", require("./Routes/Getter/notificationRoutes"));
 app.use("/api/v1/guesser/device",require('./Routes/Getter/deviceRoute'))
 
