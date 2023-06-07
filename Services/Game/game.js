@@ -31,6 +31,7 @@ const postGame = async (id,winningnumber,stake,prize,hours,minutes,second) => {
         if (createGame) {
           let createNoti = await NotificationModel.create({setterId:id,gameId:createGame._id,title:"New Game Posted"})
           let createSetterAmount = await NotificationModel.create({setterId:id,gameId:createGame._id,role:"setter",amount:prize,won:false,title:`You posted a new game ${prize} deducted from your account`})
+          let createReward= await RewardsModel.create({setterId:id,amount:prize,gameId:createGame._id,won:false,role:"setter"})
           return createGame;
         } 
         else {
