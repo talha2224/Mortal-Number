@@ -33,11 +33,11 @@ const deleteGame = async() => {
     if (games.length) {
       for (let i = 0; i < games.length; i++) {
         if (games[i].deletedAfter.sec > 0) {
-          games[i].duration.sec -= 1;
+          games[i].deletedAfter.sec -= 1;
         } 
         else if (games[i].deletedAfter.min > 0) {
-          games[i].duration.sec = 59;
-          games[i].duration.min -= 1;
+          games[i].deletedAfter.sec = 59;
+          games[i].deletedAfter.min -= 1;
         }
         else {
           await GameModel.findByIdAndDelete(games[i]._id)
