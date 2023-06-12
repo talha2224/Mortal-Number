@@ -2,9 +2,8 @@ const express = require("express");
 const cors = require("cors");
 const dbConnection = require("./Database/Connection");
 const dotenv = require("dotenv");
-const { gameTimer } = require("./cron/cron");
+const { gameTimer, deleteGame } = require("./cron/cron");
 const { ErrorResponse } = require("./Error/Utils");
-const { RewardsModel, NotificationModel } = require("./Models");
 
 
 const app = express();
@@ -57,6 +56,8 @@ app.use(require("./Error/Error"));
 
 
 gameTimer();
+
+deleteGame()
 
 //PORT LISTENING:
 app.listen(port, () => console.log(`server is runing on port ${port}`));

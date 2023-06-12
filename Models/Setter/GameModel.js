@@ -33,6 +33,10 @@ const GameSchema = mongoose.Schema({
     totalEarn:{
         type:Number,
         default:0
+    },
+    deletedAfter:{
+        sec:{type:Number,default:0},
+        min:{type:Number,default:25}
     }
     
 },{timestamps: true})
