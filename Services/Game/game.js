@@ -46,7 +46,7 @@ const postGame = async (id,winningnumber,stake,prize,hours,minutes,second) => {
 
 //  GUESSER GET GAME
 const getGame = async (getterId) => {
-  let allGame = await GameModel.find({active: true}).sort({ createdAt: -1 }).populate("setterId","-OTP -otpValidTill -otpVerified -credit -email -password -phonenumber -dateOfBirth -country -createdAt -updatedAt").exec();
+  let allGame = await GameModel.find({}).sort({ createdAt: -1 }).populate("setterId","-OTP -otpValidTill -otpVerified -credit -email -password -phonenumber -dateOfBirth -country -createdAt -updatedAt").exec();
   if (allGame.length > 0) {
     const modifiedGame = allGame.map((game) => {
 
@@ -66,7 +66,7 @@ const getGame = async (getterId) => {
 
 // SINGLE GAME
 const singleGame = async (id) => {
-  let singleGame = await GameModel.findOne({ _id: id, active: true }).populate("setterId","-OTP -otpValidTill -otpVerified -credit -email -password -phonenumber -_id  -dateOfBirth -country");
+  let singleGame = await GameModel.findOne({ _id: id}).populate("setterId","-OTP -otpValidTill -otpVerified -credit -email -password -phonenumber -_id  -dateOfBirth -country");
   if (singleGame) {
     return singleGame;
   } 
